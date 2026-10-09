@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080a10">
-<title>AnimAI Studio</title>
+<title>AnimAI Studio — World Builder</title>
 
 <style>
-:root{
+:root {
   --bg:#080a10;
   --panel:#10141e;
   --panel2:#191f2e;
@@ -16,20 +16,19 @@
   --muted:#929db5;
   --accent:#a18bff;
   --cyan:#5bdcff;
+  --danger:#ff718c;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,sans-serif
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,sans-serif;
 }
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;touch-action:manipulation}
-.app{max-width:1400px;margin:auto;padding:10px}
+.app{max-width:1450px;margin:auto;padding:10px}
 header{
   display:flex;align-items:center;justify-content:space-between;
-  gap:12px;padding:12px 0;border-bottom:1px solid var(--border)
+  gap:10px;padding:10px 0 15px;border-bottom:1px solid var(--border)
 }
 .brand{display:flex;align-items:center;gap:10px}
 .logo{
@@ -40,7 +39,7 @@ header{
 }
 h1{font-size:16px;margin:0}
 .subtitle{font-size:10px;color:var(--muted);margin-top:4px}
-.btn,.tab{
+button,.btn,.tab{
   background:var(--panel2);color:var(--text);
   border:1px solid var(--border);border-radius:9px;
   padding:9px 11px;font-size:11px;font-weight:700
@@ -49,9 +48,9 @@ h1{font-size:16px;margin:0}
   background:linear-gradient(135deg,#b49aff,#55e4ff);
   color:#080a10;border:0
 }
-.btn.active,.tab.active{border-color:var(--accent);background:#a18bff28}
-.btn.danger{color:#ff8298}
-.tabs{display:flex;gap:7px;overflow:auto;padding:12px 0}
+.btn.active,.tab.active{border-color:var(--accent);background:#a18bff26}
+.btn.danger{color:var(--danger)}
+.tabs{display:flex;gap:7px;overflow-x:auto;padding:12px 0}
 .tab{white-space:nowrap;flex-shrink:0}
 .layout{
   display:grid;grid-template-columns:minmax(0,1fr) 300px;
@@ -67,23 +66,29 @@ h1{font-size:16px;margin:0}
 }
 .panelHead h2{font-size:12px;margin:0}
 .panelHead span{font-size:10px;color:var(--muted)}
-.stage{position:relative;background:#05070d}
+.pad{padding:12px}
+.stage{position:relative;background:#05070d;min-width:0}
 #drawCanvas{display:block;width:100%;height:340px;touch-action:none}
-#threeHost{display:none;width:100%;height:390px;touch-action:none}
+#threeHost{
+  display:none;width:100%;height:430px;touch-action:none;
+  background:#060915;position:relative
+}
 #threeHost canvas{display:block;width:100%;height:100%;touch-action:none}
 .hint{
   position:absolute;bottom:8px;left:8px;
   background:#080a10dd;color:var(--muted);
-  font-size:10px;padding:6px 8px;border-radius:6px;pointer-events:none
+  font-size:10px;padding:6px 8px;border-radius:6px;
+  pointer-events:none
 }
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:10px}
 .hidden{display:none!important}
-.pad{padding:12px}
-.field{margin-bottom:12px;min-width:0}
-.field label{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}
+.field{margin-bottom:11px;min-width:0}
+.field label{
+  display:block;font-size:10px;color:var(--muted);margin-bottom:6px
+}
 input[type=color]{
-  width:40px;height:36px;padding:2px;background:var(--panel);
-  border:1px solid var(--border);border-radius:7px
+  width:42px;height:36px;padding:2px;
+  border:1px solid var(--border);border-radius:7px;background:var(--panel)
 }
 input[type=range]{width:100%;accent-color:var(--accent)}
 input[type=text],input[type=number],select,textarea{
@@ -91,26 +96,29 @@ input[type=text],input[type=number],select,textarea{
   border:1px solid var(--border);border-radius:8px;
   padding:10px;font-size:12px
 }
-textarea{min-height:90px;resize:vertical}
+textarea{min-height:90px;resize:vertical;line-height:1.5}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .row>*{flex:1 1 70px;min-width:0}
 .note{font-size:10px;color:var(--muted);line-height:1.6}
-.frames{display:flex;gap:7px;overflow:auto;padding:10px}
+.frames{display:flex;gap:7px;overflow-x:auto;padding:10px}
 .frame{
   flex:0 0 60px;height:54px;border:1px solid var(--border);
-  background:#080b13;color:var(--muted);border-radius:8px;
-  font-size:10px
+  background:#080b13;color:var(--muted);border-radius:8px;font-size:10px
 }
 .frame.active{border:2px solid var(--accent);color:white}
 #toast{
-  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-  background:#252c40;border:1px solid var(--border);
-  padding:12px 16px;border-radius:10px;font-size:12px;
-  z-index:99;display:none;max-width:90%
+  display:none;position:fixed;z-index:100;bottom:18px;left:50%;
+  transform:translateX(-50%);background:#252c40;
+  border:1px solid var(--border);padding:12px 16px;
+  border-radius:10px;font-size:12px;max-width:90%
+}
+.stat{
+  display:inline-block;background:#080b13;border:1px solid var(--border);
+  border-radius:8px;padding:8px;margin:3px;font-size:10px
 }
 @media(max-width:760px){
   .layout{grid-template-columns:minmax(0,1fr)}
-  #threeHost{height:350px}
+  #threeHost{height:360px}
 }
 </style>
 </head>
@@ -123,7 +131,7 @@ textarea{min-height:90px;resize:vertical}
     <div class="logo">A</div>
     <div>
       <h1>AnimAI Studio</h1>
-      <div class="subtitle">2D animation · 3D worlds · Scene planner</div>
+      <div class="subtitle">WORLD BUILDER · 2D · 3D ANIMATION</div>
     </div>
   </div>
   <button class="btn primary" id="saveBtn">Save</button>
@@ -131,7 +139,7 @@ textarea{min-height:90px;resize:vertical}
 
 <nav class="tabs">
   <button class="tab active" data-mode="2d">🎨 2D Studio</button>
-  <button class="tab" data-mode="3d">🌌 3D World</button>
+  <button class="tab" data-mode="3d">🌍 Realistic Worlds</button>
   <button class="tab" data-mode="ai">🤖 Scene Planner</button>
 </nav>
 
@@ -181,32 +189,15 @@ textarea{min-height:90px;resize:vertical}
   </div>
 </section>
 
-<section class="panel" id="timelinePanel">
-  <div class="panelHead">
-    <h2>🎞️ Animation Timeline</h2>
-    <span id="frameCount">1 frame</span>
-  </div>
-  <div class="pad">
-    <div class="row">
-      <button class="btn primary" id="play2dBtn">▶ Play</button>
-      <button class="btn" id="stop2dBtn">■ Stop</button>
-      <button class="btn danger" id="deleteFrameBtn">Delete frame</button>
-    </div>
-    <div class="field" style="margin-top:12px">
-      <label>Playback FPS: <span id="fpsLabel">8</span></label>
-      <input type="range" id="fps" min="1" max="24" value="8">
-    </div>
-  </div>
-  <div class="frames" id="frameList"></div>
-</section>
-
 <section class="panel hidden" id="worldPanel">
   <div class="panelHead">
-    <h2>🌍 World Builder</h2><span>Environment controls</span>
+    <h2>🌍 Environment Engine</h2>
+    <span>Procedural worlds</span>
   </div>
+
   <div class="pad">
     <div class="field">
-      <label>Environment preset</label>
+      <label>World preset</label>
       <select id="environment">
         <option value="cosmic">Cosmic universe</option>
         <option value="sunset">Cinematic sunset</option>
@@ -222,8 +213,8 @@ textarea{min-height:90px;resize:vertical}
 
     <div class="row">
       <div class="field">
-        <label>World colour</label>
-        <input type="color" id="worldColor" value="#090b24">
+        <label>Sky colour</label>
+        <input type="color" id="worldColor" value="#080b24">
       </div>
       <div class="field">
         <label>Fog colour</label>
@@ -232,39 +223,63 @@ textarea{min-height:90px;resize:vertical}
     </div>
 
     <div class="field">
-      <label>Fog density: <span id="fogLabel">0.008</span></label>
-      <input type="range" id="fogDensity" min="0" max=".06" step=".001" value=".008">
+      <label>Fog density <span id="fogLabel">0.004</span></label>
+      <input type="range" id="fogDensity" min="0" max=".025" step=".001" value=".004">
     </div>
 
     <div class="field">
-      <label>Stars: <span id="starLabel">1200</span></label>
-      <input type="range" id="starCount" min="0" max="3000" step="100" value="1200">
+      <label>Star count <span id="starLabel">1400</span></label>
+      <input type="range" id="starCount" min="0" max="3500" step="100" value="1400">
     </div>
 
     <div class="field">
-      <label>Ambient light: <span id="lightLabel">1.2</span></label>
-      <input type="range" id="lightLevel" min="0" max="3" step=".1" value="1.2">
+      <label>Ambient light <span id="lightLabel">1.1</span></label>
+      <input type="range" id="lightLevel" min="0" max="3" step=".1" value="1.1">
+    </div>
+
+    <div class="field">
+      <label>Terrain detail</label>
+      <select id="terrainDetail">
+        <option value="low">Mobile performance</option>
+        <option value="medium" selected>Balanced detail</option>
+        <option value="high">High detail</option>
+      </select>
     </div>
 
     <div class="field">
       <label>Ground</label>
       <select id="groundMode">
+        <option value="terrain">Procedural terrain</option>
         <option value="grid">Editor grid</option>
         <option value="floor">Studio floor</option>
-        <option value="terrain">Landscape terrain</option>
         <option value="none">No ground</option>
       </select>
     </div>
 
-    <button class="btn primary" id="applyWorldBtn">Apply environment</button>
-    <p class="note">Environments are created using procedural 3D geometry, lights, fog and particles. Detailed imported assets can improve realism.</p>
+    <div class="row">
+      <button class="btn primary" id="applyWorldBtn">Generate world</button>
+      <button class="btn" id="addTerrainBtn">Add terrain</button>
+    </div>
+
+    <div style="margin-top:10px">
+      <span class="stat" id="objectStat">0 objects</span>
+      <span class="stat" id="terrainStat">Terrain ready</span>
+    </div>
+
+    <p class="note">
+      Procedural terrain, layered mountain ranges, tree geometry, stars, fog and
+      lighting are generated locally. Detailed photorealistic models and textures
+      would require additional assets and more advanced rendering.
+    </p>
   </div>
 </section>
 
 <section class="panel hidden" id="objectPanel">
   <div class="panelHead">
-    <h2>🎮 Object Properties</h2><span id="selectedLabel">No object</span>
+    <h2>🎮 Object Properties</h2>
+    <span id="selectedLabel">No object</span>
   </div>
+
   <div class="pad">
     <div class="field">
       <label>Select object</label>
@@ -278,13 +293,13 @@ textarea{min-height:90px;resize:vertical}
     </div>
 
     <div class="row">
-      <div class="field"><label>Rotation X</label><input id="rotX" type="number" step="5" value="0"></div>
-      <div class="field"><label>Rotation Y</label><input id="rotY" type="number" step="5" value="0"></div>
-      <div class="field"><label>Rotation Z</label><input id="rotZ" type="number" step="5" value="0"></div>
+      <div class="field"><label>Rotation X °</label><input id="rotX" type="number" step="5" value="0"></div>
+      <div class="field"><label>Rotation Y °</label><input id="rotY" type="number" step="5" value="0"></div>
+      <div class="field"><label>Rotation Z °</label><input id="rotZ" type="number" step="5" value="0"></div>
     </div>
 
     <div class="row">
-      <div class="field"><label>Scale</label><input id="objScale" type="number" min=".1" max="30" step=".1" value="1"></div>
+      <div class="field"><label>Scale</label><input id="objScale" type="number" min=".1" max="50" step=".1" value="1"></div>
       <div class="field"><label>Colour</label><input id="objColor" type="color" value="#a394ff"></div>
     </div>
 
@@ -292,21 +307,26 @@ textarea{min-height:90px;resize:vertical}
       <label>Metalness</label>
       <input type="range" id="metalness" min="0" max="1" step=".1" value=".3">
     </div>
+
     <div class="field">
       <label>Roughness</label>
       <input type="range" id="roughness" min="0" max="1" step=".1" value=".5">
     </div>
 
     <button class="btn primary" id="applyObjectBtn">Apply properties</button>
+
     <div class="row" style="margin-top:8px">
-      <button class="btn" id="duplicateObjectBtn">Duplicate object</button>
-      <button class="btn danger" id="deleteObjectBtn">Delete object</button>
+      <button class="btn" id="duplicateObjectBtn">Duplicate</button>
+      <button class="btn danger" id="deleteObjectBtn">Delete</button>
     </div>
   </div>
 </section>
 
 <section class="panel hidden" id="keyPanel">
-  <div class="panelHead"><h2>🎬 3D Keyframes</h2><span id="keyCount">0 keys</span></div>
+  <div class="panelHead">
+    <h2>🎬 Animation Timeline</h2>
+    <span id="keyCount">0 keys</span>
+  </div>
   <div class="pad">
     <div class="field">
       <label>Timeline: <span id="timeLabel">0.0 seconds</span></label>
@@ -317,20 +337,42 @@ textarea{min-height:90px;resize:vertical}
       <button class="btn" id="play3dBtn">▶ Play</button>
       <button class="btn" id="stop3dBtn">■ Stop</button>
     </div>
-    <div id="keyList" class="note" style="margin-top:12px">No keyframes yet.</div>
+    <div id="keyList" class="note" style="margin-top:12px">No keyframes.</div>
   </div>
 </section>
 
+<section class="panel" id="timelinePanel">
+  <div class="panelHead">
+    <h2>🎞️ 2D Timeline</h2>
+    <span id="frameCount">1 frame</span>
+  </div>
+  <div class="pad">
+    <div class="row">
+      <button class="btn primary" id="play2dBtn">▶ Play</button>
+      <button class="btn" id="stop2dBtn">■ Stop</button>
+      <button class="btn danger" id="deleteFrameBtn">Delete frame</button>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Playback FPS <span id="fpsLabel">8</span></label>
+      <input type="range" id="fps" min="1" max="24" value="8">
+    </div>
+  </div>
+  <div class="frames" id="frameList"></div>
+</section>
+
 <section class="panel hidden" id="aiPanel">
-  <div class="panelHead"><h2>🤖 Scene Planner</h2><span>Prompt to starter scene</span></div>
+  <div class="panelHead">
+    <h2>🤖 Scene Planner</h2>
+    <span>Prompt to scene</span>
+  </div>
   <div class="pad">
     <div class="field">
       <label>Project name</label>
-      <input id="projectName" type="text" value="My Animation">
+      <input type="text" id="projectName" value="My Animation">
     </div>
     <div class="field">
       <label>Describe your world</label>
-      <textarea id="prompt" placeholder="A glowing crystal in an ancient temple under a starry sky..."></textarea>
+      <textarea id="prompt" placeholder="A mysterious ancient temple on a mountain surrounded by clouds and waterfalls..."></textarea>
     </div>
     <div class="field">
       <label>Visual style</label>
@@ -342,32 +384,37 @@ textarea{min-height:90px;resize:vertical}
       </select>
     </div>
     <div class="field">
-      <label>Animation duration in seconds</label>
-      <input id="duration" type="number" min="1" max="120" value="10">
+      <label>Duration in seconds</label>
+      <input type="number" id="duration" min="1" max="120" value="10">
     </div>
     <div class="row">
-      <button class="btn primary" id="makePlanBtn">Create scene plan</button>
-      <button class="btn" id="buildPlanBtn">Build 3D scene</button>
+      <button class="btn primary" id="makePlanBtn">Create plan</button>
+      <button class="btn" id="buildPlanBtn">Build scene</button>
     </div>
     <div class="field" style="margin-top:12px">
       <label>Scene plan</label>
-      <textarea id="planOutput" readonly placeholder="Your scene plan will appear here"></textarea>
+      <textarea id="planOutput" readonly></textarea>
     </div>
-    <p class="note">This is a local keyword-based planner, not a generative AI model. No paid AI API is required.</p>
+    <p class="note">
+      The current planner uses local keyword matching. It does not call a generative
+      AI model. This allows basic scene planning without paid AI credits.
+    </p>
   </div>
 </section>
 
 <section class="panel">
-  <div class="panelHead"><h2>📦 Project</h2><span>Local save and export</span></div>
+  <div class="panelHead">
+    <h2>📦 Project Manager</h2>
+    <span>Save · Load · Export</span>
+  </div>
   <div class="pad">
     <div class="row">
-      <button class="btn" id="exportBtn">Export project JSON</button>
-      <button class="btn" id="importBtn">Import project JSON</button>
+      <button class="btn" id="exportBtn">Export JSON</button>
+      <button class="btn" id="importBtn">Import JSON</button>
       <button class="btn" id="newBtn">New project</button>
       <input class="hidden" type="file" id="importFile" accept=".json,application/json">
     </div>
-    <p class="note">Project data is stored in your browser when you use Save. Export JSON to keep a backup. Imported 3D models are not embedded in the JSON file.</p>
-    <div id="savedProjects" class="note"></div>
+    <div id="savedStatus" class="note" style="margin-top:10px"></div>
   </div>
 </section>
 
@@ -384,35 +431,48 @@ textarea{min-height:90px;resize:vertical}
 "use strict";
 
 const $=id=>document.getElementById(id);
-let mode="2d",drawing=false,erasing=false,onion=false;
-let frames=[],frameIndex=0,undoStack=[];
-let playback=null;
-let scene,camera,renderer,orbit,worldGrid,ground,stars,ambient;
-let objects=[],selected=null,autoRotate=false;
-let keys=[],selectedKey=-1,playing3d=false,playStart=0,playClock=0;
-let lastPlan=null;
 
-function toast(message){
+let mode="2d";
+let frames=[],frameIndex=0,undoStack=[],erasing=false,onion=false;
+let playback=null,drawing=false;
+
+let scene,camera,renderer,orbit,ambient,sun;
+let objects=[],selected=null,autoRotate=false;
+let ground=null,grid=null,stars=null,worldGroup=null;
+let keys=[],playing3d=false,playStart=0,playClock=0;
+let lastPlan=null;
+let seed=1837;
+
+function toast(msg){
   const el=$("toast");
-  el.textContent=message;
+  el.textContent=msg;
   el.style.display="block";
   clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.style.display="none",2400);
+  toast.timer=setTimeout(()=>el.style.display="none",2600);
 }
 
-function download(name,data,type="application/octet-stream"){
-  const blob=new Blob([data],{type});
+function download(name,data,type){
+  const blob=data instanceof Blob?data:new Blob([data],{type:type||"text/plain"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
   a.href=url;a.download=name;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function safeName(s){
-  return (s||"animation").replace(/[^a-z0-9_-]/gi,"_").slice(0,60)||"animation";
+function seededRandom(){
+  seed=(seed*1664525+1013904223)>>>0;
+  return seed/4294967296;
 }
 
-/* ---------------- 2D STUDIO ---------------- */
+function mat(color,metalness=.1,roughness=.85){
+  return new THREE.MeshStandardMaterial({
+    color,metalness,roughness
+  });
+}
+
+/* ==========================================================
+   2D ANIMATION
+========================================================== */
 
 const canvas=$("drawCanvas");
 const ctx=canvas.getContext("2d");
@@ -427,36 +487,34 @@ function newFrame(){
 }
 
 function resizeCanvas(){
-  const rect=canvas.getBoundingClientRect();
-  if(!rect.width||!rect.height)return;
-  const old=document.createElement("canvas");
-  old.width=canvas.width||1000;
-  old.height=canvas.height||600;
-  if(canvas.width)old.getContext("2d").drawImage(canvas,0,0);
-  canvas.width=Math.round(rect.width*devicePixelRatio);
-  canvas.height=Math.round(rect.height*devicePixelRatio);
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.scale(devicePixelRatio,devicePixelRatio);
+  const r=canvas.getBoundingClientRect();
+  if(!r.width||!r.height)return;
+  canvas.width=Math.round(r.width*devicePixelRatio);
+  canvas.height=Math.round(r.height*devicePixelRatio);
   renderFrame();
 }
 
 function renderFrame(){
-  if(!frames[frameIndex])frames[frameIndex]=newFrame();
+  if(!frames.length)frames=[newFrame()];
+  frameIndex=Math.max(0,Math.min(frameIndex,frames.length-1));
   const w=canvas.clientWidth,h=canvas.clientHeight;
   if(!w||!h)return;
+
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle="#080b12";ctx.fillRect(0,0,w,h);
+  ctx.fillStyle="#080b12";
+  ctx.fillRect(0,0,w,h);
 
   if(onion&&frameIndex>0){
-    ctx.globalAlpha=.22;
+    ctx.globalAlpha=.2;
     ctx.drawImage(frames[frameIndex-1],0,0,w,h);
     ctx.globalAlpha=1;
   }
   ctx.drawImage(frames[frameIndex],0,0,w,h);
-  frameUI();
+  renderFramesUI();
 }
 
-function canvasPoint(e){
+function point(e){
   const r=canvas.getBoundingClientRect();
   return {
     x:(e.clientX-r.left)/r.width*frames[frameIndex].width,
@@ -464,41 +522,35 @@ function canvasPoint(e){
   };
 }
 
-function startDraw(e){
+canvas.addEventListener("pointerdown",e=>{
   if(mode!=="2d")return;
   drawing=true;
   canvas.setPointerCapture?.(e.pointerId);
-  const p=canvasPoint(e);
-  const c=frames[frameIndex],x=c.getContext("2d");
+  const c=frames[frameIndex],p=point(e),x=c.getContext("2d");
   undoStack.push(c.toDataURL());
-  if(undoStack.length>30)undoStack.shift();
+  if(undoStack.length>25)undoStack.shift();
   x.beginPath();x.moveTo(p.x,p.y);
   x.lineCap="round";x.lineJoin="round";
   x.strokeStyle=erasing?"#080b12":$("brushColor").value;
   x.lineWidth=erasing?40:8;
   x.stroke();
   renderFrame();
-}
+});
 
-function moveDraw(e){
+canvas.addEventListener("pointermove",e=>{
   if(!drawing)return;
-  const p=canvasPoint(e);
-  const c=frames[frameIndex],x=c.getContext("2d");
+  const p=point(e),x=frames[frameIndex].getContext("2d");
   x.lineTo(p.x,p.y);
   x.strokeStyle=erasing?"#080b12":$("brushColor").value;
   x.lineWidth=erasing?40:8;
   x.lineCap="round";x.lineJoin="round";
   x.stroke();
   renderFrame();
-}
+});
+canvas.addEventListener("pointerup",()=>drawing=false);
+canvas.addEventListener("pointercancel",()=>drawing=false);
 
-function endDraw(){drawing=false}
-canvas.addEventListener("pointerdown",startDraw);
-canvas.addEventListener("pointermove",moveDraw);
-canvas.addEventListener("pointerup",endDraw);
-canvas.addEventListener("pointercancel",endDraw);
-
-function frameUI(){
+function renderFramesUI(){
   $("frameCount").textContent=frames.length+" frame"+(frames.length===1?"":"s");
   const list=$("frameList");list.innerHTML="";
   frames.forEach((f,i)=>{
@@ -522,8 +574,9 @@ $("undoBtn").onclick=()=>{
   if(!undoStack.length)return toast("Nothing to undo");
   const im=new Image();
   im.onload=()=>{
-    const c=frames[frameIndex],x=c.getContext("2d");
-    x.clearRect(0,0,c.width,c.height);x.drawImage(im,0,0);
+    const x=frames[frameIndex].getContext("2d");
+    x.clearRect(0,0,1000,600);
+    x.drawImage(im,0,0,1000,600);
     renderFrame();
   };
   im.src=undoStack.pop();
@@ -537,115 +590,128 @@ $("clearBtn").onclick=()=>{
   }
 };
 $("addFrameBtn").onclick=()=>{
-  frames.splice(frameIndex+1,0,newFrame());frameIndex++;renderFrame();
+  if(frames.length>=120)return toast("Frame limit reached");
+  frames.splice(frameIndex+1,0,newFrame());
+  frameIndex++;renderFrame();
 };
 $("duplicateFrameBtn").onclick=()=>{
+  if(frames.length>=120)return toast("Frame limit reached");
   const c=document.createElement("canvas");
-  c.width=frames[frameIndex].width;c.height=frames[frameIndex].height;
+  c.width=1000;c.height=600;
   c.getContext("2d").drawImage(frames[frameIndex],0,0);
-  frames.splice(frameIndex+1,0,c);frameIndex++;renderFrame();
+  frames.splice(frameIndex+1,0,c);
+  frameIndex++;renderFrame();
 };
 $("deleteFrameBtn").onclick=()=>{
-  if(frames.length===1){frames[0]=newFrame();frameIndex=0}
-  else{frames.splice(frameIndex,1);frameIndex=Math.max(0,frameIndex-1)}
+  if(frames.length===1)frames[0]=newFrame();
+  else frames.splice(frameIndex,1);
+  frameIndex=Math.max(0,frameIndex-1);
   renderFrame();
 };
 $("onionBtn").onclick=()=>{
-  onion=!onion;$("onionBtn").classList.toggle("active",onion);renderFrame();
+  onion=!onion;
+  $("onionBtn").classList.toggle("active",onion);
+  renderFrame();
 };
 $("circleBtn").onclick=()=>{
   const c=frames[frameIndex],x=c.getContext("2d");
   undoStack.push(c.toDataURL());
-  x.beginPath();x.arc(c.width/2,c.height/2,100,0,Math.PI*2);
+  x.beginPath();x.arc(500,300,100,0,Math.PI*2);
   x.strokeStyle=$("brushColor").value;x.lineWidth=8;x.stroke();
   renderFrame();
 };
-$("pngBtn").onclick=()=>download(
-  "animation-frame-"+(frameIndex+1)+".png",
-  frames[frameIndex].toDataURL().split(",")[1]
-    ?dataURLtoBlob(frames[frameIndex].toDataURL())
-    :new Blob([]),
-  "image/png"
-);
-
-function dataURLtoBlob(url){
-  const parts=url.split(",");
-  const mime=parts[0].match(/:(.*?);/)[1];
-  const binary=atob(parts[1]);
-  const bytes=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-  return new Blob([bytes],{type:mime});
-}
-
+$("pngBtn").onclick=()=>{
+  frames[frameIndex].toBlob(blob=>{
+    if(blob)download("animation-frame-"+(frameIndex+1)+".png",blob,"image/png");
+  });
+};
 $("fps").oninput=()=>{$("fpsLabel").textContent=$("fps").value};
 $("play2dBtn").onclick=()=>{
   if(playback)return;
   playback=setInterval(()=>{
-    frameIndex=(frameIndex+1)%frames.length;renderFrame();
+    frameIndex=(frameIndex+1)%frames.length;
+    renderFrame();
   },1000/+$("fps").value);
 };
 $("stop2dBtn").onclick=()=>{
   clearInterval(playback);playback=null;
 };
 
-/* ---------------- 3D WORLD BUILDER ---------------- */
+/* ==========================================================
+   THREE.JS CORE
+========================================================== */
 
 const presets={
-  cosmic:{bg:"#080b24",fog:"#17102d"},
-  sunset:{bg:"#49213b",fog:"#9c4f58"},
-  forest:{bg:"#071b16",fog:"#244b38"},
-  mountains:{bg:"#142438",fog:"#50647a"},
-  temple:{bg:"#1a1428",fog:"#59415d"},
-  ocean:{bg:"#031525",fog:"#17455e"},
-  alien:{bg:"#190b2b",fog:"#59317b"},
-  desert:{bg:"#38231b",fog:"#a46a45"},
-  night:{bg:"#050b1d",fog:"#172744"}
+  cosmic:{sky:"#070a20",fog:"#17102d",ground:"#10152e",light:1.1},
+  sunset:{sky:"#542c4d",fog:"#b36d64",ground:"#49313b",light:1.6},
+  forest:{sky:"#071a17",fog:"#244b38",ground:"#183a27",light:1.2},
+  mountains:{sky:"#13233b",fog:"#647b95",ground:"#343c4b",light:1.5},
+  temple:{sky:"#181323",fog:"#65505e",ground:"#4a3c36",light:1.3},
+  ocean:{sky:"#031525",fog:"#17455e",ground:"#123b4b",light:1.2},
+  alien:{sky:"#190b2b",fog:"#59317b",ground:"#352044",light:1.1},
+  desert:{sky:"#5a3025",fog:"#bd855c",ground:"#9c6942",light:1.8},
+  night:{sky:"#050b1d",fog:"#172744",ground:"#202b3a",light:.8}
 };
 
 function init3D(){
   if(renderer)return true;
   if(!window.THREE){
-    toast("3D library failed to load. Check your internet connection.");
+    toast("3D library failed to load. Check your internet.");
     return false;
   }
 
   try{
     scene=new THREE.Scene();
-    scene.background=new THREE.Color($("worldColor").value);
-    camera=new THREE.PerspectiveCamera(55,1,.1,1000);
-    camera.position.set(9,7,12);
+    scene.background=new THREE.Color(presets.cosmic.sky);
+
+    camera=new THREE.PerspectiveCamera(55,1,.1,1200);
+    camera.position.set(18,13,22);
 
     renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));
     renderer.outputEncoding=THREE.sRGBEncoding;
     renderer.shadowMap.enabled=true;
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.1;
     $("threeHost").appendChild(renderer.domElement);
 
     orbit=new THREE.OrbitControls(camera,renderer.domElement);
     orbit.enableDamping=true;
-    orbit.dampingFactor=.06;
-    orbit.target.set(0,1,0);
+    orbit.dampingFactor=.055;
+    orbit.maxPolarAngle=Math.PI*.49;
+    orbit.target.set(0,2,0);
 
-    ambient=new THREE.HemisphereLight(0xb9c7ff,0x29202c,1.2);
+    ambient=new THREE.HemisphereLight(0xb9c7ff,0x29202c,1.1);
     scene.add(ambient);
 
-    const sun=new THREE.DirectionalLight(0xffe1bd,2);
-    sun.position.set(8,12,5);sun.castShadow=true;
+    sun=new THREE.DirectionalLight(0xffdfbf,2.5);
+    sun.position.set(12,25,8);
+    sun.castShadow=true;
+    sun.shadow.mapSize.set(1024,1024);
+    sun.shadow.camera.left=-45;
+    sun.shadow.camera.right=45;
+    sun.shadow.camera.top=45;
+    sun.shadow.camera.bottom=-45;
     scene.add(sun);
 
-    const fill=new THREE.PointLight(0x7365ff,15,60);
-    fill.position.set(-5,4,-4);scene.add(fill);
+    const rim=new THREE.DirectionalLight(0x647dff,1.4);
+    rim.position.set(-15,10,-15);
+    scene.add(rim);
 
-    worldGrid=new THREE.GridHelper(100,100,0x5c5a9e,0x282942);
-    scene.add(worldGrid);
+    worldGroup=new THREE.Group();
+    worldGroup.name="Generated environment";
+    scene.add(worldGroup);
+
+    grid=new THREE.GridHelper(200,100,0x6761aa,0x272a48);
+    scene.add(grid);
 
     applyWorld(false);
     resize3D();
     animate();
     return true;
   }catch(e){
-    toast("Could not start 3D: "+e.message);
+    toast("3D initialization error: "+e.message);
     return false;
   }
 }
@@ -655,30 +721,35 @@ function resize3D(){
   const w=$("threeHost").clientWidth,h=$("threeHost").clientHeight;
   if(!w||!h)return;
   renderer.setSize(w,h,false);
-  camera.aspect=w/h;camera.updateProjectionMatrix();
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
 }
 
-function makeMaterial(color,metalness=.2,roughness=.5){
-  return new THREE.MeshStandardMaterial({
-    color:new THREE.Color(color),metalness,roughness
-  });
-}
+/* ==========================================================
+   OBJECT CREATION
+========================================================== */
 
-function addMesh(geometry,color,name,position=[0,1,0]){
-  const mesh=new THREE.Mesh(geometry,makeMaterial(color));
+function addMesh(geometry,color,name,position=[0,1,0],parent=scene){
+  const mesh=new THREE.Mesh(geometry,mat(color));
   mesh.name=name;
   mesh.position.set(...position);
-  mesh.castShadow=true;mesh.receiveShadow=true;
+  mesh.castShadow=true;
+  mesh.receiveShadow=true;
   mesh.userData.kind=name.toLowerCase();
-  scene.add(mesh);objects.push(mesh);
-  selectObject(mesh);refreshObjects();
+  parent.add(mesh);
+  if(parent===scene){
+    objects.push(mesh);
+    selectObject(mesh);
+    refreshObjects();
+  }
   return mesh;
 }
 
 function addObject(type,opts={}){
-  if(!init3D())return;
+  if(!init3D())return null;
   const color=opts.color||"#a394ff";
   let obj;
+
   switch(type){
     case "box":
       obj=addMesh(new THREE.BoxGeometry(2,2,2),color,"Cube");break;
@@ -687,48 +758,41 @@ function addObject(type,opts={}){
     case "cone":
       obj=addMesh(new THREE.ConeGeometry(1.2,2.5,48),color,"Cone");break;
     case "torus":
-      obj=addMesh(new THREE.TorusKnotGeometry(1,.3,128,16),color,"Torus Knot");break;
+      obj=addMesh(new THREE.TorusKnotGeometry(1,.28,120,16),color,"Torus Knot");break;
     case "cylinder":
-      obj=addMesh(new THREE.CylinderGeometry(1,1,2.5,48),color,"Cylinder");break;
-    case "crystal":{
-      const geo=new THREE.OctahedronGeometry(1.5,0);
-      obj=addMesh(geo,color,"Crystal");
-      obj.scale.y=1.6;break;
-    }
+      obj=addMesh(new THREE.CylinderGeometry(1,1,2.5,40),color,"Cylinder");break;
+    case "crystal":
+      obj=addMesh(new THREE.OctahedronGeometry(1.3,0),color,"Crystal");
+      obj.scale.y=1.7;break;
     case "tree":{
-      const group=new THREE.Group();group.name="Tree";
-      const trunk=new THREE.Mesh(
-        new THREE.CylinderGeometry(.18,.3,2,10),
-        makeMaterial("#67402b")
-      );
-      trunk.position.y=1;group.add(trunk);
-      const leaves=new THREE.Mesh(
-        new THREE.ConeGeometry(1.1,2.6,12),
-        makeMaterial("#347e56")
-      );
-      leaves.position.y=2.7;group.add(leaves);
-      group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
-      scene.add(group);objects.push(group);obj=group;break;
+      const g=new THREE.Group();g.name="Tree";g.userData.kind="tree";
+      const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.15,.27,2,10),mat("#65402b"));
+      trunk.position.y=1;g.add(trunk);
+      for(let i=0;i<3;i++){
+        const leaves=new THREE.Mesh(new THREE.ConeGeometry(1.1-i*.16,1.9,12),mat(i===0?"#286b43":"#397e4b"));
+        leaves.position.y=1.8+i*.65;g.add(leaves);
+      }
+      g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+      scene.add(g);objects.push(g);obj=g;break;
     }
     case "mountain":
-      obj=addMesh(new THREE.ConeGeometry(3,5,7),color,"Mountain");
-      obj.position.y=2;break;
+      obj=addMesh(new THREE.ConeGeometry(3,6,7),color,"Mountain",[0,3,0]);break;
     case "rock":
       obj=addMesh(new THREE.DodecahedronGeometry(1.5,1),color,"Rock");
       obj.scale.set(1.2,.8,1);break;
     case "arch":{
-      const g=new THREE.Group();g.name="Arch";
-      const mat=makeMaterial(color);
-      const left=new THREE.Mesh(new THREE.BoxGeometry(.5,3, .7),mat);
-      left.position.set(-1,1.5,0);
-      const right=left.clone();right.position.x=1;
-      const top=new THREE.Mesh(new THREE.BoxGeometry(2.5,.5,.7),mat);
+      const g=new THREE.Group();g.name="Arch";g.userData.kind="arch";
+      const m=mat(color);
+      const a=new THREE.Mesh(new THREE.BoxGeometry(.55,3,.8),m);
+      a.position.set(-1,1.5,0);
+      const b=a.clone();b.position.x=1;
+      const top=new THREE.Mesh(new THREE.BoxGeometry(2.6,.55,.8),m);
       top.position.y=3;
-      g.add(left,right,top);
-      g.position.set(0,0,0);
+      g.add(a,b,top);
+      g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
       scene.add(g);objects.push(g);obj=g;break;
     }
-    default:return;
+    default:return null;
   }
 
   if(opts.x!==undefined)obj.position.x=opts.x;
@@ -736,27 +800,37 @@ function addObject(type,opts={}){
   if(opts.z!==undefined)obj.position.z=opts.z;
   if(opts.scale)obj.scale.setScalar(opts.scale);
   if(opts.name)obj.name=opts.name;
-  refreshObjects();selectObject(obj);
+  refreshObjects();
+  selectObject(obj);
   return obj;
 }
 
-function removeObject(obj){
-  if(!obj||!scene)return;
-  scene.remove(obj);
-  obj.traverse?.(child=>{
-    if(child.geometry)child.geometry.dispose();
-    if(child.material){
-      if(Array.isArray(child.material))child.material.forEach(m=>m.dispose());
-      else child.material.dispose();
+document.querySelectorAll("[data-shape]").forEach(b=>{
+  b.onclick=()=>addObject(b.dataset.shape);
+});
+
+function disposeTree(obj){
+  obj.traverse(o=>{
+    if(o.geometry)o.geometry.dispose();
+    if(o.material){
+      if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());
+      else o.material.dispose();
     }
   });
+}
+
+function removeObject(obj){
+  if(!obj)return;
+  scene.remove(obj);
+  disposeTree(obj);
   objects=objects.filter(o=>o!==obj);
   if(selected===obj)selected=null;
   refreshObjects();
 }
 
 function refreshObjects(){
-  const sel=$("objectSelect");if(!sel)return;
+  $("objectStat").textContent=objects.length+" objects";
+  const sel=$("objectSelect");
   sel.innerHTML="";
   objects.forEach((o,i)=>{
     const option=document.createElement("option");
@@ -773,7 +847,7 @@ function refreshObjects(){
 function selectObject(obj){
   selected=obj;
   if(!obj)return;
-  $("selectedLabel").textContent=obj.name||"Object";
+  $("selectedLabel").textContent=obj.name;
   $("posX").value=obj.position.x.toFixed(2);
   $("posY").value=obj.position.y.toFixed(2);
   $("posZ").value=obj.position.z.toFixed(2);
@@ -781,11 +855,11 @@ function selectObject(obj){
   $("rotY").value=(obj.rotation.y*180/Math.PI).toFixed(1);
   $("rotZ").value=(obj.rotation.z*180/Math.PI).toFixed(1);
   $("objScale").value=obj.scale.x.toFixed(2);
-  const m=obj.children?.[0]?.material||obj.material;
-  if(m&&m.color){
-    try{$("objColor").value="#"+m.color.getHexString()}catch(e){}
-    $("metalness").value=m.metalness??.3;
-    $("roughness").value=m.roughness??.5;
+  const mesh=obj.isMesh?obj:obj.children.find(c=>c.isMesh);
+  if(mesh&&mesh.material&&mesh.material.color){
+    $("objColor").value="#"+mesh.material.color.getHexString();
+    $("metalness").value=mesh.material.metalness??.2;
+    $("roughness").value=mesh.material.roughness??.8;
   }
   refreshObjects();
 }
@@ -796,15 +870,15 @@ $("objectSelect").onchange=()=>{
 };
 
 $("applyObjectBtn").onclick=()=>{
-  if(!selected)return toast("Add or select an object first");
-  selected.position.set(+$("posX").value, +$("posY").value, +$("posZ").value);
+  if(!selected)return toast("Select an object first");
+  selected.position.set(+$("posX").value,+$("posY").value,+$("posZ").value);
   selected.rotation.set(
     +$("rotX").value*Math.PI/180,
     +$("rotY").value*Math.PI/180,
     +$("rotZ").value*Math.PI/180
   );
-  const scale=Math.max(.1,Math.min(30,+$("objScale").value||1));
-  selected.scale.setScalar(scale);
+  const s=Math.max(.1,Math.min(50,+$("objScale").value||1));
+  selected.scale.setScalar(s);
   selected.traverse(o=>{
     if(o.isMesh&&o.material&&o.material.color){
       o.material.color.set($("objColor").value);
@@ -812,16 +886,13 @@ $("applyObjectBtn").onclick=()=>{
       o.material.roughness=+$("roughness").value;
     }
   });
-  toast("Object updated");
+  toast("Properties updated");
 };
 
 $("duplicateObjectBtn").onclick=()=>{
   if(!selected)return toast("Select an object first");
-  const type=selected.userData.kind||"box";
-  const copy=addObject(type,{
-    x:selected.position.x+2,
-    y:selected.position.y,
-    z:selected.position.z,
+  const copy=addObject(selected.userData.kind||"box",{
+    x:selected.position.x+2,y:selected.position.y,z:selected.position.z,
     color:$("objColor").value
   });
   if(copy)copy.name=selected.name+" copy";
@@ -830,11 +901,8 @@ $("duplicateObjectBtn").onclick=()=>{
 
 $("deleteObjectBtn").onclick=()=>{
   if(selected)removeObject(selected);
+  toast("Object deleted");
 };
-
-document.querySelectorAll("[data-shape]").forEach(btn=>{
-  btn.onclick=()=>addObject(btn.dataset.shape);
-});
 
 $("rotateBtn").onclick=()=>{
   autoRotate=!autoRotate;
@@ -843,93 +911,339 @@ $("rotateBtn").onclick=()=>{
 
 $("resetCameraBtn").onclick=()=>{
   if(!camera||!orbit)return;
-  camera.position.set(9,7,12);
-  orbit.target.set(0,1,0);
+  camera.position.set(18,13,22);
+  orbit.target.set(0,2,0);
   orbit.update();
 };
 
-function removeGeneratedWorld(){
-  if(ground){scene.remove(ground);ground.geometry.dispose();ground.material.dispose();ground=null}
-  if(stars){scene.remove(stars);stars.geometry.dispose();stars.material.dispose();stars=null}
+/* ==========================================================
+   REALISTIC PROCEDURAL WORLD GENERATION
+========================================================== */
+
+function clearWorld(){
+  if(!worldGroup)return;
+  while(worldGroup.children.length){
+    const o=worldGroup.children.pop();
+    worldGroup.remove(o);
+    disposeTree(o);
+  }
+  if(ground){
+    scene.remove(ground);
+    disposeTree(ground);
+    ground=null;
+  }
+  if(stars){
+    scene.remove(stars);
+    disposeTree(stars);
+    stars=null;
+  }
 }
 
-function applyWorld(showMessage=true){
-  if(!init3D())return;
+function makeGround(){
+  const mode=$("groundMode").value;
+  if(grid)grid.visible=mode==="grid";
+  if(mode==="none"||mode==="grid")return;
+
+  const detail=$("terrainDetail").value;
+  const divisions=detail==="high"?180:detail==="medium"?100:48;
+  const geo=new THREE.PlaneGeometry(260,260,divisions,divisions);
   const env=$("environment").value;
-  const p=presets[env]||presets.cosmic;
-  $("worldColor").value=p.bg;$("fogColor").value=p.fog;
+  const pos=geo.attributes.position;
+  seed=1847;
+
+  if(mode==="terrain"){
+    for(let i=0;i<pos.count;i++){
+      const x=pos.getX(i),y=pos.getY(i);
+      const broad=Math.sin(x*.055)*1.7+Math.cos(y*.065)*1.4;
+      const medium=Math.sin(x*.15+y*.12)*.55+Math.cos(y*.2-x*.1)*.35;
+      const detailNoise=(seededRandom()-.5)*.22;
+      pos.setZ(i,broad+medium+detailNoise);
+    }
+    geo.computeVertexNormals();
+  }
+
+  let color=presets[env].ground;
+  if(env==="forest")color="#183e29";
+  if(env==="desert")color="#a87b4e";
+  if(env==="ocean")color="#123b4b";
+
+  const material=mat(color,0,.95);
+  ground=new THREE.Mesh(geo,material);
+  ground.rotation.x=-Math.PI/2;
+  ground.position.y=-.3;
+  ground.receiveShadow=true;
+  scene.add(ground);
+}
+
+function makeMountains(){
+  const env=$("environment").value;
+  const count=$("terrainDetail").value==="high"?24:14;
+  seed=3841;
+
+  for(let i=0;i<count;i++){
+    const angle=i/count*Math.PI*2;
+    const radius=38+seededRandom()*35;
+    const height=9+seededRandom()*19;
+    const width=6+seededRandom()*10;
+    const geo=new THREE.ConeGeometry(width,height,7+Math.floor(seededRandom()*4),3);
+    const col=env==="desert"?"#8f5e45":
+      env==="forest"?"#263e3b":
+      env==="alien"?"#4d315e":
+      env==="sunset"?"#584252":"#303c52";
+    const m=new THREE.Mesh(geo,mat(col,0,.95));
+    m.position.set(Math.cos(angle)*radius,height/2-1,Math.sin(angle)*radius);
+    m.rotation.y=seededRandom()*Math.PI;
+    m.scale.y=.8+seededRandom()*.9;
+    m.castShadow=true;m.receiveShadow=true;
+    worldGroup.add(m);
+  }
+}
+
+function makeForest(){
+  const detail=$("terrainDetail").value;
+  const count=detail==="high"?300:detail==="medium"?160:70;
+  seed=7721;
+
+  for(let i=0;i<count;i++){
+    const x=(seededRandom()-.5)*95;
+    const z=(seededRandom()-.5)*95;
+    if(Math.abs(x)<7&&Math.abs(z)<7)continue;
+
+    const g=new THREE.Group();
+    const trunk=new THREE.Mesh(
+      new THREE.CylinderGeometry(.12,.22,2.2,7),
+      mat("#59402b")
+    );
+    trunk.position.y=1.1;
+    g.add(trunk);
+
+    const layers=3;
+    for(let j=0;j<layers;j++){
+      const color=j===0?"#285d3c":j===1?"#34784b":"#418657";
+      const leaves=new THREE.Mesh(
+        new THREE.ConeGeometry(1.15-j*.17,1.8,8),
+        mat(color,0,.92)
+      );
+      leaves.position.y=2+j*.65;
+      g.add(leaves);
+    }
+
+    const scale=.7+seededRandom()*.9;
+    g.position.set(x,0,z);
+    g.scale.setScalar(scale);
+    g.rotation.y=seededRandom()*Math.PI*2;
+    g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+    worldGroup.add(g);
+  }
+}
+
+function makeDesertDunes(){
+  seed=942;
+  for(let i=0;i<12;i++){
+    const geo=new THREE.SphereGeometry(1,20,12);
+    const mesh=new THREE.Mesh(geo,mat(i%2?"#b98554":"#d19a62",0,.95));
+    mesh.scale.set(12+seededRandom()*14,1.2+seededRandom()*2,7+seededRandom()*12);
+    mesh.position.set((seededRandom()-.5)*110,-.4,(seededRandom()-.5)*100);
+    mesh.castShadow=true;mesh.receiveShadow=true;
+    worldGroup.add(mesh);
+  }
+}
+
+function makeTemple(){
+  const stone=mat("#62564e",.05,.88);
+  const gold=mat("#b88c54",.45,.45);
+
+  function block(w,h,d,x,y,z,material){
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+    m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
+    worldGroup.add(m);return m;
+  }
+
+  block(11,.7,9,0,.1,0,stone);
+  block(8,.5,6,0,.65,0,stone);
+
+  for(let side of [-1,1]){
+    for(let i=-2;i<=2;i++){
+      block(.55,3,.55,side*3.4,2.1,i*.9,stone);
+    }
+  }
+
+  block(7,.65,5,0,3.7,0,stone);
+  block(5,.65,4,0,4.35,0,gold);
+
+  for(let i=0;i<5;i++){
+    const tier=new THREE.Mesh(
+      new THREE.ConeGeometry(3.4-i*.48,.8,4),
+      stone
+    );
+    tier.position.set(0,5+i*.6,0);
+    tier.rotation.y=Math.PI/4;
+    tier.castShadow=true;
+    worldGroup.add(tier);
+  }
+
+  for(let side of [-1,1]){
+    const fire=new THREE.PointLight(0xffa34c,3,13);
+    fire.position.set(side*4,2,3.5);
+    worldGroup.add(fire);
+
+    const flame=new THREE.Mesh(
+      new THREE.SphereGeometry(.22,12,10),
+      new THREE.MeshBasicMaterial({color:0xffa34c})
+    );
+    flame.position.copy(fire.position);
+    worldGroup.add(flame);
+  }
+}
+
+function makeOcean(){
+  const geo=new THREE.PlaneGeometry(220,220,100,100);
+  const p=geo.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i);
+    p.setZ(i,Math.sin(x*.11)*.14+Math.cos(y*.13)*.13);
+  }
+  geo.computeVertexNormals();
+  const material=new THREE.MeshStandardMaterial({
+    color:"#0b526f",metalness:.45,roughness:.27,
+    transparent:true,opacity:.92,side:THREE.DoubleSide
+  });
+  const water=new THREE.Mesh(geo,material);
+  water.rotation.x=-Math.PI/2;
+  water.position.y=-.5;
+  water.receiveShadow=true;
+  worldGroup.add(water);
+}
+
+function makeStars(){
+  const count=+$("starCount").value;
+  const positions=new Float32Array(count*3);
+  seed=1287;
+  for(let i=0;i<count;i++){
+    positions[i*3]=(seededRandom()-.5)*350;
+    positions[i*3+1]=seededRandom()*140+3;
+    positions[i*3+2]=(seededRandom()-.5)*350;
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  stars=new THREE.Points(
+    geo,
+    new THREE.PointsMaterial({
+      color:0xffffff,size:.22,transparent:true,opacity:.9,
+      sizeAttenuation:true
+    })
+  );
+  scene.add(stars);
+}
+
+function makeParticles(){
+  const count=$("terrainDetail").value==="high"?650:260;
+  const positions=new Float32Array(count*3);
+  seed=2188;
+  for(let i=0;i<count;i++){
+    positions[i*3]=(seededRandom()-.5)*65;
+    positions[i*3+1]=seededRandom()*28;
+    positions[i*3+2]=(seededRandom()-.5)*65;
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  const particles=new THREE.Points(
+    geo,
+    new THREE.PointsMaterial({
+      color:$("environment").value==="desert"?"#ffcc8c":"#c4c9ff",
+      size:.075,transparent:true,opacity:.45
+    })
+  );
+  worldGroup.add(particles);
+}
+
+function makeMoon(){
+  const moon=new THREE.Mesh(
+    new THREE.SphereGeometry(3,40,32),
+    new THREE.MeshStandardMaterial({
+      color:"#e0e8ff",emissive:"#7588bd",emissiveIntensity:.6,
+      roughness:.85
+    })
+  );
+  moon.position.set(-24,30,-65);
+  worldGroup.add(moon);
+
+  const light=new THREE.PointLight(0x9eb9ff,2,130);
+  light.position.copy(moon.position);
+  worldGroup.add(light);
+}
+
+function applyWorld(show=true){
+  if(!init3D())return;
+
+  const env=$("environment").value;
+  const preset=presets[env]||presets.cosmic;
+
+  $("worldColor").value=preset.sky;
+  $("fogColor").value=preset.fog;
+  $("lightLevel").value=preset.light;
+
   scene.background=new THREE.Color($("worldColor").value);
   const density=+$("fogDensity").value;
-  scene.fog=density>0?new THREE.FogExp2($("fogColor").value,density):null;
+  scene.fog=density>0?
+    new THREE.FogExp2($("fogColor").value,density):null;
+
   ambient.intensity=+$("lightLevel").value;
+  sun.color.set(env==="sunset"?"#ffbd8d":
+    env==="desert"?"#ffe0ae":"#fff0d8");
+  sun.intensity=env==="night"?.9:env==="sunset"?3:2.5;
+
+  clearWorld();
+  makeGround();
+  makeStars();
+  makeParticles();
+
+  if(["mountains","forest","temple","desert","alien","sunset"].includes(env)){
+    makeMountains();
+  }
+
+  if(env==="forest")makeForest();
+  if(env==="desert")makeDesertDunes();
+  if(env==="temple")makeTemple();
+  if(env==="ocean")makeOcean();
+  if(["cosmic","night","temple","ocean"].includes(env))makeMoon();
+
   $("fogLabel").textContent=density.toFixed(3);
   $("starLabel").textContent=$("starCount").value;
   $("lightLabel").textContent=$("lightLevel").value;
-  removeGeneratedWorld();
+  $("terrainStat").textContent="Generated: "+env;
 
-  if(worldGrid)worldGrid.visible=$("groundMode").value==="grid";
-
-  if($("groundMode").value==="floor"||$("groundMode").value==="terrain"){
-    const geometry=new THREE.PlaneGeometry(200,200,80,80);
-    if($("groundMode").value==="terrain"){
-      const pos=geometry.attributes.position;
-      for(let i=0;i<pos.count;i++){
-        const x=pos.getX(i),y=pos.getY(i);
-        pos.setZ(i,Math.sin(x*.11)*.45+Math.cos(y*.12)*.5+Math.sin((x+y)*.08)*.35);
-      }
-      geometry.computeVertexNormals();
-    }
-    const material=makeMaterial(env==="desert"?"#72503a":env==="forest"?"#183e2c":"#222b3e");
-    ground=new THREE.Mesh(geometry,material);
-    ground.rotation.x=-Math.PI/2;
-    ground.position.y=-.15;ground.receiveShadow=true;
-    scene.add(ground);
-  }
-
-  const count=+$("starCount").value;
-  const positions=new Float32Array(count*3);
-  for(let i=0;i<count;i++){
-    positions[i*3]=(Math.random()-.5)*180;
-    positions[i*3+1]=Math.random()*90+2;
-    positions[i*3+2]=(Math.random()-.5)*180;
-  }
-  const sg=new THREE.BufferGeometry();
-  sg.setAttribute("position",new THREE.BufferAttribute(positions,3));
-  stars=new THREE.Points(sg,new THREE.PointsMaterial({
-    color:0xffffff,size:.16,transparent:true,opacity:.9
-  }));
-  scene.add(stars);
-
-  if(showMessage)toast("Environment applied");
+  if(show)toast("World generated: "+env);
 }
 
 $("applyWorldBtn").onclick=()=>applyWorld();
+$("addTerrainBtn").onclick=()=>{
+  addObject("mountain",{x:0,y:2,z:0,color:"#505b77"});
+};
 $("environment").onchange=()=>applyWorld();
-$("worldColor").onchange=()=>{if(scene)scene.background.set($("worldColor").value)};
-$("fogColor").onchange=()=>applyWorld();
-$("fogDensity").oninput=()=>{$("fogLabel").textContent=(+$("fogDensity").value).toFixed(3)};
-$("starCount").oninput=()=>{$("starLabel").textContent=$("starCount").value};
-$("lightLevel").oninput=()=>{$("lightLabel").textContent=$("lightLevel").value};
+$("worldColor").oninput=()=>{
+  if(scene)scene.background.set($("worldColor").value);
+};
+$("fogColor").onchange=()=>{
+  if(scene&&scene.fog)scene.fog.color.set($("fogColor").value);
+};
+$("fogDensity").oninput=()=>{
+  $("fogLabel").textContent=(+$("fogDensity").value).toFixed(3);
+};
+$("starCount").oninput=()=>{
+  $("starLabel").textContent=$("starCount").value;
+};
+$("lightLevel").oninput=()=>{
+  $("lightLabel").textContent=$("lightLevel").value;
+};
+$("groundMode").onchange=()=>applyWorld();
+$("terrainDetail").onchange=()=>applyWorld();
 
-function animate(now=performance.now()){
-  requestAnimationFrame(animate);
-  if(!renderer||!scene)return;
-  if(autoRotate&&selected)selected.rotation.y+=.004;
-  if(playing3d&&keys.length){
-    const max=Math.max(1,...keys.map(k=>k.time));
-    let t=playClock+(now-playStart)/1000;
-    if(t>max)t=t%max;
-    $("timeSlider").value=t;
-    $("timeLabel").textContent=t.toFixed(1)+" seconds";
-    applyKeys(t);
-  }
-  if(stars)stars.rotation.y+=.00005;
-  orbit?.update();
-  renderer.render(scene,camera);
-}
-window.addEventListener("resize",()=>{resizeCanvas();resize3D()});
-
-/* ---------------- 3D KEYFRAMES ---------------- */
+/* ==========================================================
+   KEYFRAME ANIMATION
+========================================================== */
 
 function recordKey(){
   if(!selected)return toast("Select a 3D object first");
@@ -940,28 +1254,29 @@ function recordKey(){
     rotation:[selected.rotation.x,selected.rotation.y,selected.rotation.z],
     scale:selected.scale.toArray()
   };
-  const idx=keys.findIndex(k=>k.name===key.name&&Math.abs(k.time-time)<.001);
-  if(idx>=0)keys[idx]=key;else keys.push(key);
+
+  const i=keys.findIndex(k=>k.name===key.name&&Math.abs(k.time-time)<.001);
+  if(i>=0)keys[i]=key;else keys.push(key);
   keys.sort((a,b)=>a.time-b.time);
-  selectedKey=keys.findIndex(k=>k.name===key.name&&k.time===time);
-  renderKeys();toast("Keyframe recorded");
+  renderKeys();
+  toast("Keyframe recorded");
 }
 
 function renderKeys(){
   $("keyCount").textContent=keys.length+" keys";
   const list=$("keyList");list.innerHTML="";
-  if(!keys.length){list.textContent="No keyframes yet.";return}
-  keys.forEach((k,i)=>{
+  if(!keys.length){list.textContent="No keyframes.";return;}
+
+  keys.forEach(k=>{
     const b=document.createElement("button");
     b.className="btn";
     b.style.margin="3px";
-    b.textContent=k.name+" @ "+k.time.toFixed(1)+"s";
+    b.textContent=k.name+" · "+k.time.toFixed(1)+"s";
     b.onclick=()=>{
-      selectedKey=i;
       $("timeSlider").value=k.time;
       $("timeLabel").textContent=k.time.toFixed(1)+" seconds";
-      const obj=objects.find(o=>o.name===k.name);
-      if(obj)selectObject(obj);
+      const o=objects.find(o=>o.name===k.name);
+      if(o)selectObject(o);
       applyKeys(k.time);
     };
     list.appendChild(b);
@@ -971,26 +1286,30 @@ function renderKeys(){
 function applyKeys(t){
   const groups={};
   keys.forEach(k=>(groups[k.name]||(groups[k.name]=[])).push(k));
-  Object.keys(groups).forEach(name=>{
+
+  for(const name in groups){
     const obj=objects.find(o=>o.name===name);
-    if(!obj)return;
+    if(!obj)continue;
     const arr=groups[name].slice().sort((a,b)=>a.time-b.time);
-    let left=arr[0],right=arr[arr.length-1];
-    if(t<=arr[0].time)left=right=arr[0];
-    else if(t>=arr[arr.length-1].time)left=right=arr[arr.length-1];
+    let a=arr[0],b=arr[arr.length-1];
+
+    if(t<=a.time)b=a;
+    else if(t>=b.time)a=b;
     else{
       for(let i=0;i<arr.length-1;i++){
         if(t>=arr[i].time&&t<=arr[i+1].time){
-          left=arr[i];right=arr[i+1];break;
+          a=arr[i];b=arr[i+1];break;
         }
       }
     }
-    const q=left===right?0:(t-left.time)/(right.time-left.time);
-    const mix=(a,b)=>a.map((v,i)=>v+(b[i]-v)*q);
-    obj.position.fromArray(mix(left.position,right.position));
-    obj.rotation.set(...mix(left.rotation,right.rotation));
-    obj.scale.fromArray(mix(left.scale,right.scale));
-  });
+
+    const f=a===b?0:(t-a.time)/(b.time-a.time);
+    const mix=(x,y)=>x.map((v,i)=>v+(y[i]-v)*f);
+
+    obj.position.fromArray(mix(a.position,b.position));
+    obj.rotation.set(...mix(a.rotation,b.rotation));
+    obj.scale.fromArray(mix(a.scale,b.scale));
+  }
 }
 
 $("recordKeyBtn").onclick=recordKey;
@@ -1000,34 +1319,41 @@ $("timeSlider").oninput=()=>{
   if(!playing3d)applyKeys(t);
 };
 $("play3dBtn").onclick=()=>{
-  if(!keys.length)return toast("Record some keyframes first");
-  playing3d=true;playStart=performance.now();playClock=+$("timeSlider").value;
+  if(!keys.length)return toast("Record keyframes first");
+  playing3d=true;
+  playStart=performance.now();
+  playClock=+$("timeSlider").value;
 };
 $("stop3dBtn").onclick=()=>playing3d=false;
 
-/* ---------------- SCENE PLANNER ---------------- */
+/* ==========================================================
+   SCENE PLANNER
+========================================================== */
 
 function makePlan(){
   const prompt=$("prompt").value.trim();
-  if(!prompt)return toast("Describe your scene first");
-  const text=prompt.toLowerCase();
-  let environment="cosmic";
-  if(/forest|tree|wood/.test(text))environment="forest";
-  else if(/mountain|landscape/.test(text))environment="mountains";
-  else if(/temple|ruin|arch/.test(text))environment="temple";
-  else if(/ocean|water|sea/.test(text))environment="ocean";
-  else if(/sunset|sunrise/.test(text))environment="sunset";
-  else if(/desert|sand/.test(text))environment="desert";
-  else if(/alien|planet/.test(text))environment="alien";
+  if(!prompt)return toast("Describe your world first");
+
+  const t=prompt.toLowerCase();
+  let env="cosmic";
+
+  if(/forest|trees|woodland/.test(t))env="forest";
+  else if(/mountain|cliff/.test(t))env="mountains";
+  else if(/temple|ancient ruins/.test(t))env="temple";
+  else if(/ocean|sea|water/.test(t))env="ocean";
+  else if(/sunset|sunrise/.test(t))env="sunset";
+  else if(/desert|dunes/.test(t))env="desert";
+  else if(/alien|planet/.test(t))env="alien";
+  else if(/night|moon/.test(t))env="night";
 
   const types=[];
-  if(/crystal|gem/.test(text))types.push("crystal");
-  if(/tree|forest/.test(text))types.push("tree");
-  if(/mountain/.test(text))types.push("mountain");
-  if(/sphere|planet|moon/.test(text))types.push("sphere");
-  if(/cube|box/.test(text))types.push("box");
-  if(/arch|temple|ruin/.test(text))types.push("arch");
-  if(/rock|stone/.test(text))types.push("rock");
+  if(/crystal|gem/.test(t))types.push("crystal");
+  if(/tree|forest/.test(t))types.push("tree");
+  if(/mountain|cliff/.test(t))types.push("mountain");
+  if(/planet|moon|sphere/.test(t))types.push("sphere");
+  if(/cube|box/.test(t))types.push("box");
+  if(/arch|temple|ruin/.test(t))types.push("arch");
+  if(/rock|stone/.test(t))types.push("rock");
   if(!types.length)types.push("crystal","sphere");
 
   lastPlan={
@@ -1035,9 +1361,10 @@ function makePlan(){
     prompt,
     style:$("style").value,
     duration:Math.max(1,Math.min(120,+$("duration").value||10)),
-    environment,
+    environment:env,
     objects:types
   };
+
   $("planOutput").value=JSON.stringify(lastPlan,null,2);
   toast("Scene plan created");
 }
@@ -1046,24 +1373,32 @@ $("makePlanBtn").onclick=makePlan;
 $("buildPlanBtn").onclick=()=>{
   if(!lastPlan)makePlan();
   if(!lastPlan)return;
+
   setMode("3d");
   $("environment").value=lastPlan.environment;
-  applyWorld();
+  applyWorld(false);
+
   objects.slice().forEach(removeObject);
   lastPlan.objects.forEach((type,i)=>{
-    addObject(type,{x:(i-(lastPlan.objects.length-1)/2)*2.5,z:-i*.5});
+    addObject(type,{
+      x:(i-(lastPlan.objects.length-1)/2)*3,
+      y:type==="mountain"?2:1,
+      z:-i*2
+    });
   });
-  toast("Starter scene created");
+
+  toast("Starter scene built");
 };
 
-/* ---------------- PROJECT SAVE / EXPORT ---------------- */
+/* ==========================================================
+   PROJECT SAVE / LOAD / EXPORT
+========================================================== */
 
 function projectData(){
   return{
-    version:1,
+    version:2,
     name:$("projectName").value||"My Animation",
-    mode,
-    frameIndex,
+    mode,frameIndex,
     frames:frames.map(f=>f.toDataURL()),
     environment:$("environment").value,
     worldColor:$("worldColor").value,
@@ -1072,74 +1407,75 @@ function projectData(){
     starCount:$("starCount").value,
     lightLevel:$("lightLevel").value,
     groundMode:$("groundMode").value,
-    objects:objects.map(o=>({
-      name:o.name,
-      kind:o.userData.kind,
-      position:o.position.toArray(),
-      rotation:[o.rotation.x,o.rotation.y,o.rotation.z],
-      scale:o.scale.toArray(),
-      color:o.children?.[0]?.material?.color
-        ?"#"+o.children[0].material.color.getHexString()
-        :o.material?.color?"#"+o.material.color.getHexString():"#a394ff"
-    })),
+    terrainDetail:$("terrainDetail").value,
+    objects:objects.map(o=>{
+      let mesh=o.isMesh?o:o.children.find(c=>c.isMesh);
+      return{
+        name:o.name,kind:o.userData.kind||"box",
+        position:o.position.toArray(),
+        rotation:[o.rotation.x,o.rotation.y,o.rotation.z],
+        scale:o.scale.toArray(),
+        color:mesh&&mesh.material&&mesh.material.color?
+          "#"+mesh.material.color.getHexString():"#a394ff"
+      };
+    }),
     keys
   };
 }
 
 function saveProject(){
   try{
-    const data=projectData();
-    localStorage.setItem("animai_project",JSON.stringify(data));
-    toast("Project saved on this device");
-    refreshSaved();
+    localStorage.setItem("animai_project",JSON.stringify(projectData()));
+    $("savedStatus").textContent="Project saved in this browser on this device.";
+    toast("Project saved");
   }catch(e){
-    toast("Storage full. Export the project JSON instead.");
+    toast("Browser storage full. Export JSON to make a backup.");
   }
-}
-
-function refreshSaved(){
-  const el=$("savedProjects");
-  if(!el)return;
-  el.textContent=localStorage.getItem("animai_project")
-    ?"A saved project exists on this device."
-    :"No saved project yet.";
 }
 
 async function loadProject(data){
   $("projectName").value=data.name||"My Animation";
+
   if(Array.isArray(data.frames)&&data.frames.length){
-    const loaded=await Promise.all(data.frames.map(src=>new Promise(resolve=>{
-      const im=new Image();
-      im.onload=()=>{
-        const c=document.createElement("canvas");
-        c.width=im.naturalWidth;c.height=im.naturalHeight;
-        c.getContext("2d").drawImage(im,0,0);resolve(c);
-      };
-      im.onerror=()=>resolve(null);im.src=src;
-    })));
+    const loaded=await Promise.all(data.frames.slice(0,120).map(src=>
+      new Promise(resolve=>{
+        const im=new Image();
+        im.onload=()=>{
+          const c=document.createElement("canvas");
+          c.width=im.naturalWidth;c.height=im.naturalHeight;
+          c.getContext("2d").drawImage(im,0,0);
+          resolve(c);
+        };
+        im.onerror=()=>resolve(null);
+        im.src=src;
+      })
+    ));
     frames=loaded.filter(Boolean);
     if(!frames.length)frames=[newFrame()];
-    frameIndex=Math.max(0,Math.min(data.frameIndex||0,frames.length-1));
+    frameIndex=Math.min(data.frameIndex||0,frames.length-1);
     renderFrame();
   }
 
   $("environment").value=data.environment||"cosmic";
-  $("worldColor").value=data.worldColor||presets.cosmic.bg;
+  $("worldColor").value=data.worldColor||presets.cosmic.sky;
   $("fogColor").value=data.fogColor||presets.cosmic.fog;
-  $("fogDensity").value=data.fogDensity??".008";
-  $("starCount").value=data.starCount??1200;
-  $("lightLevel").value=data.lightLevel??1.2;
-  $("groundMode").value=data.groundMode||"grid";
+  $("fogDensity").value=data.fogDensity??".004";
+  $("starCount").value=data.starCount??1400;
+  $("lightLevel").value=data.lightLevel??1.1;
+  $("groundMode").value=data.groundMode||"terrain";
+  $("terrainDetail").value=data.terrainDetail||"medium";
+
+  init3D();
+  objects.slice().forEach(removeObject);
 
   if(Array.isArray(data.objects)){
-    init3D();
-    objects.slice().forEach(removeObject);
-    data.objects.forEach(o=>{
+    data.objects.slice(0,300).forEach(o=>{
       const obj=addObject(o.kind||"box",{
-        name:o.name,
         x:o.position?.[0]||0,
         y:o.position?.[1]||0,
-        z:o.position?.[2]||0
+        z:o.position?.[2]||0,
+        color:o.color||"#a394ff",
+        name:o.name
       });
       if(obj){
         if(o.position)obj.position.fromArray(o.position);
@@ -1150,7 +1486,8 @@ async function loadProject(data){
   }
 
   keys=Array.isArray(data.keys)?data.keys:[];
-  renderKeys();applyWorld(false);
+  renderKeys();
+  applyWorld(false);
   setMode(data.mode||"2d");
   toast("Project loaded");
 }
@@ -1158,7 +1495,7 @@ async function loadProject(data){
 $("saveBtn").onclick=saveProject;
 $("exportBtn").onclick=()=>{
   download(
-    safeName($("projectName").value)+".json",
+    ($("projectName").value||"animation").replace(/[^a-z0-9_-]/gi,"_")+".json",
     JSON.stringify(projectData()),
     "application/json"
   );
@@ -1170,29 +1507,35 @@ $("importFile").onchange=e=>{
   const reader=new FileReader();
   reader.onload=()=>{
     try{loadProject(JSON.parse(reader.result))}
-    catch(err){toast("Invalid project file")}
+    catch(err){toast("Invalid project JSON")}
   };
   reader.readAsText(file);
   e.target.value="";
 };
 $("newBtn").onclick=()=>{
-  if(!confirm("Create a new project? Unsaved changes may be lost."))return;
-  $("stop2dBtn").click();$("stop3dBtn").click();
-  frames=[newFrame()];frameIndex=0;undoStack=[];
-  keys=[];selectedKey=-1;
+  if(!confirm("Start a new project? Unsaved work may be lost."))return;
+  $("stop2dBtn").click();
+  $("stop3dBtn").click();
+  frames=[newFrame()];
+  frameIndex=0;
+  undoStack=[];
+  keys=[];
   objects.slice().forEach(removeObject);
-  renderFrame();renderKeys();setMode("2d");
+  renderFrame();
+  renderKeys();
+  setMode("2d");
   toast("New project created");
 };
-$("savedProjects").onclick=refreshSaved;
 
-/* ---------------- APP MODES ---------------- */
+/* ==========================================================
+   MODE SWITCHING AND RENDER LOOP
+========================================================== */
 
 function setMode(next){
   mode=next;
-  document.querySelectorAll("[data-mode]").forEach(b=>
-    b.classList.toggle("active",b.dataset.mode===next)
-  );
+  document.querySelectorAll("[data-mode]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.mode===next);
+  });
 
   $("drawCanvas").style.display=next==="2d"?"block":"none";
   $("threeHost").style.display=next==="2d"?"none":"block";
@@ -1204,37 +1547,71 @@ function setMode(next){
   $("keyPanel").classList.toggle("hidden",next!=="3d");
   $("aiPanel").classList.toggle("hidden",next!=="ai");
 
-  $("stageTitle").textContent=
-    next==="2d"?"2D Animation Canvas":
-    next==="3d"?"3D World Builder":"AI Scene Planner";
+  $("stageTitle").textContent=next==="2d"?"2D Animation Canvas":
+    next==="3d"?"Realistic World Builder":"Scene Planner";
 
-  $("stageSubtitle").textContent=
-    next==="2d"?"Draw frame by frame":
-    next==="3d"?"Build and animate 3D objects":"Describe your scene";
+  $("stageSubtitle").textContent=next==="2d"?"Draw frame by frame":
+    next==="3d"?"Procedural environments and 3D objects":"Describe your scene";
 
-  $("hint").textContent=
-    next==="2d"?"Touch to draw":"Drag to orbit · pinch to zoom";
+  $("hint").textContent=next==="2d"?"Touch to draw":"Drag to orbit · pinch to zoom";
 
   if(next!=="2d"){
     init3D();
-    setTimeout(resize3D,100);
+    setTimeout(resize3D,120);
   }else{
     setTimeout(resizeCanvas,50);
   }
 }
 
-document.querySelectorAll("[data-mode]").forEach(btn=>{
-  btn.onclick=()=>setMode(btn.dataset.mode);
+document.querySelectorAll("[data-mode]").forEach(b=>{
+  b.onclick=()=>setMode(b.dataset.mode);
+});
+
+function animate(now=performance.now()){
+  requestAnimationFrame(animate);
+  if(!renderer||!scene)return;
+
+  if(autoRotate&&selected)selected.rotation.y+=.004;
+
+  if(playing3d&&keys.length){
+    const max=Math.max(1,...keys.map(k=>k.time));
+    let t=playClock+(now-playStart)/1000;
+    if(t>max){
+      t=t%max;
+      playClock=t;
+      playStart=now;
+    }
+    $("timeSlider").value=t;
+    $("timeLabel").textContent=t.toFixed(1)+" seconds";
+    applyKeys(t);
+  }
+
+  if(stars)stars.rotation.y+=.000025;
+  orbit?.update();
+  renderer.render(scene,camera);
+}
+
+window.addEventListener("resize",()=>{
+  resizeCanvas();
+  resize3D();
+});
+window.addEventListener("orientationchange",()=>{
+  setTimeout(()=>{resizeCanvas();resize3D()},250);
 });
 
 frames=[newFrame()];
 resizeCanvas();
 renderFrame();
-frameUI();
-refreshSaved();
-window.addEventListener("orientationchange",()=>{
-  setTimeout(()=>{resizeCanvas();resize3D()},250);
-});
+renderFramesUI();
+
+try{
+  const saved=localStorage.getItem("animai_project");
+  $("savedStatus").textContent=saved?
+    "A saved project exists in this browser.":
+    "No saved project yet.";
+}catch(e){
+  $("savedStatus").textContent="Browser storage is unavailable.";
+}
 </script>
 </body>
-      </html>
+  </html>
