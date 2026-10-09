@@ -4,13 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080710">
-<title>AnimAI Studio | Fantasy Character Studio</title>
+<title>AnimAI Studio | Fantasy Character Creator</title>
+
+<!-- Compatible Three.js version and controls -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <style>
 :root {
   --bg:#080710;
   --panel:#11101c;
-  --panel2:#1a1829;
+  --panel2:#191829;
   --border:#302a48;
   --text:#f3efff;
   --muted:#a09ab8;
@@ -18,337 +23,191 @@
   --cyan:#67e8f9;
   --pink:#f0abfc;
   --red:#fb7185;
+  --green:#86efac;
 }
-
-* { box-sizing:border-box; }
-
+* {box-sizing:border-box}
 body {
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:system-ui,-apple-system,sans-serif;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
 }
-
-button,input,select {
-  font:inherit;
-}
-
+button,input,select {font:inherit}
 button {
   cursor:pointer;
   touch-action:manipulation;
+  color:var(--text);
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
 }
-
-.app {
-  max-width:1450px;
-  margin:auto;
-  padding:12px;
+button:active {transform:scale(.98)}
+button.primary {
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  border-color:#a78bfa;
 }
-
+button.active {border-color:var(--cyan);color:var(--cyan)}
+input,select {
+  width:100%;
+  min-width:0;
+  color:var(--text);
+  background:#0b0a15;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px;
+}
+input[type=range] {padding:0;accent-color:var(--purple)}
+input[type=color] {height:42px;padding:4px}
+label {
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin:12px 0 6px;
+}
+.app {max-width:1450px;margin:auto;padding:12px}
 header {
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  padding:8px 0 16px;
+  padding:8px 4px 16px;
   border-bottom:1px solid var(--border);
+  margin-bottom:12px;
 }
-
-.brand {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
+.brand {display:flex;align-items:center;gap:10px;min-width:0}
 .logo {
-  width:43px;
-  height:43px;
-  display:grid;
-  place-items:center;
+  width:43px;height:43px;flex-shrink:0;
+  display:grid;place-items:center;
   border-radius:13px;
-  color:#080710;
-  font-size:23px;
-  font-weight:900;
-  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  font-size:22px;font-weight:900;
+  background:linear-gradient(135deg,#7c3aed,#06b6d4);
 }
-
-h1 {
-  font-size:16px;
-  margin:0;
-}
-
-.subtitle {
-  color:var(--muted);
-  font-size:10px;
-  margin-top:4px;
-}
-
-button {
-  color:var(--text);
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:9px;
-  padding:10px 12px;
-  font-size:11px;
-  font-weight:700;
-}
-
-button:active {
-  transform:scale(.98);
-}
-
-.primary {
-  background:linear-gradient(135deg,#a78bfa,#67e8f9);
-  color:#090713;
-  border:0;
-}
-
-.danger {
-  color:var(--red);
-}
-
-.tabs {
-  display:flex;
-  gap:7px;
-  overflow:auto;
-  padding:12px 0;
-}
-
-.tab {
-  white-space:nowrap;
-  flex-shrink:0;
-}
-
-.tab.active {
-  border-color:var(--purple);
-  background:#a78bfa22;
-}
-
+h1 {font-size:17px;margin:0}
+.subtitle {color:var(--muted);font-size:11px;margin-top:4px}
+.header-actions {display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.header-actions button {padding:9px;font-size:12px}
 .layout {
   display:grid;
-  grid-template-columns:minmax(0,1fr) 310px;
+  grid-template-columns:minmax(0,1fr);
   gap:12px;
-  align-items:start;
 }
-
 .panel {
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:13px;
+  border-radius:15px;
   overflow:hidden;
-  margin-bottom:12px;
   min-width:0;
 }
-
-.panel-head {
-  padding:13px;
+.panel-title {
+  padding:13px 14px;
+  border-bottom:1px solid var(--border);
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
-  border-bottom:1px solid var(--border);
+  gap:8px;
 }
-
-.panel-head h2 {
-  font-size:12px;
-  margin:0;
-}
-
-.panel-head span {
+.panel-title h2 {font-size:13px;margin:0}
+.badge {
   font-size:10px;
-  color:var(--muted);
+  color:var(--cyan);
+  background:#11232b;
+  border:1px solid #244854;
+  padding:5px 8px;
+  border-radius:20px;
 }
-
-.pad {
-  padding:12px;
-}
-
-.viewport {
-  position:relative;
-  height:min(67vh,650px);
-  min-height:350px;
-  background:#080a18;
-  overflow:hidden;
-  touch-action:none;
-}
-
-#scene {
+.viewport-wrap {position:relative;background:#090817}
+#viewport {
   display:block;
   width:100%;
-  height:100%;
+  height:55vh;
+  min-height:330px;
+  max-height:650px;
+  touch-action:none;
+  outline:none;
 }
-
 .overlay {
   position:absolute;
-  left:10px;
-  bottom:10px;
-  background:#090812dd;
-  color:#c5bedc;
-  border:1px solid #ffffff14;
-  border-radius:7px;
-  padding:7px 9px;
+  pointer-events:none;
+  top:12px;left:12px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.overlay span {
+  width:max-content;
+  max-width:90%;
   font-size:10px;
+  padding:6px 9px;
+  border-radius:8px;
+  background:#0b0a15d9;
+  border:1px solid #ffffff17;
+}
+.overlay .status {color:var(--green)}
+.viewport-bottom {
+  position:absolute;
+  bottom:10px;left:10px;right:10px;
+  display:flex;justify-content:space-between;gap:8px;
   pointer-events:none;
 }
-
-.status {
-  position:absolute;
-  right:10px;
-  top:10px;
-  border:1px solid #ffffff20;
-  background:#090812cc;
-  color:var(--cyan);
-  border-radius:7px;
-  padding:7px 9px;
-  font-size:10px;
+.viewport-bottom span {
+  font-size:10px;color:#ddd5ff;
+  background:#0b0a15d9;
+  padding:7px 9px;border-radius:8px;
 }
-
-.toolbar {
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-  padding:10px;
+.camera-tools {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;padding:10px;
   border-top:1px solid var(--border);
 }
-
-.field {
-  margin-bottom:13px;
+.camera-tools button {padding:10px 3px;font-size:11px}
+.workspace {display:grid;gap:12px}
+.section {padding:13px}
+.section h3 {font-size:12px;margin:0 0 10px}
+.grid2 {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grid3 {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.character-btn {font-size:11px;padding:11px 4px}
+.swatches {display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.swatch {
+  height:35px;padding:0;border-radius:9px;
+  border:2px solid #ffffff25;
 }
-
-.field label {
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  font-size:10px;
-  color:var(--muted);
-  margin-bottom:7px;
-}
-
-input[type=range] {
-  width:100%;
-  accent-color:var(--purple);
-}
-
-input[type=color] {
-  width:45px;
-  height:35px;
-  padding:2px;
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:8px;
-}
-
-input[type=file] {
-  width:100%;
-  font-size:11px;
-  color:var(--muted);
-}
-
-select,input[type=text],input[type=number] {
-  width:100%;
-  min-width:0;
-  color:var(--text);
-  background:#0b0a14;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:10px;
-  font-size:12px;
-}
-
-.row {
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.row > * {
-  flex:1 1 90px;
-  min-width:0;
-}
-
-.grid2 {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.note {
-  color:var(--muted);
-  font-size:10px;
-  line-height:1.65;
-}
-
-.stats {
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-.stat {
-  padding:8px;
-  background:#0a0913;
-  border:1px solid var(--border);
-  border-radius:8px;
-  font-size:10px;
-}
-
-.track {
-  height:4px;
-  background:#302943;
-  border-radius:4px;
-  overflow:hidden;
-  margin-top:10px;
-}
-
-.track div {
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,var(--purple),var(--cyan));
-  transition:width .2s;
-}
-
-.hidden {
-  display:none!important;
-}
-
+.swatch.active {outline:2px solid white;outline-offset:2px}
+hr {border:0;border-top:1px solid var(--border);margin:14px 0}
+.row {display:flex;align-items:center;justify-content:space-between;gap:10px}
+.row span {color:var(--muted);font-size:11px}
+.value {color:var(--cyan)!important}
+.full {width:100%;margin-top:8px}
+.hint {font-size:11px;line-height:1.6;color:var(--muted)}
 #toast {
-  position:fixed;
-  z-index:100;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  display:none;
-  max-width:90%;
-  padding:12px 16px;
-  border:1px solid var(--border);
-  background:#201b33;
-  border-radius:10px;
-  font-size:12px;
+  position:fixed;z-index:100;
+  left:50%;bottom:20px;transform:translate(-50%,20px);
+  opacity:0;pointer-events:none;
+  background:#211b37;border:1px solid var(--purple);
+  padding:12px 17px;border-radius:12px;
+  transition:.2s;max-width:90%;text-align:center;
 }
-
-#animationList {
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
+#toast.show {opacity:1;transform:translate(-50%,0)}
+#modelFile {display:none}
+.timeline {padding:12px}
+.timeline-head {display:flex;justify-content:space-between;gap:8px;align-items:center}
+.timeline-head h3 {margin:0;font-size:12px}
+#timeText {font-size:11px;color:var(--cyan)}
+.timeline input {margin:15px 0}
+.footer {text-align:center;padding:20px 8px;color:#77718e;font-size:10px}
+@media(min-width:900px) {
+  .layout {grid-template-columns:minmax(0,1fr) 330px;align-items:start}
+  #viewport {height:64vh}
+  .workspace {position:sticky;top:10px;max-height:88vh;overflow:auto}
+  .workspace::-webkit-scrollbar {width:4px}
+  .workspace::-webkit-scrollbar-thumb {background:var(--border)}
 }
-
-@media(max-width:800px) {
-  .layout {
-    grid-template-columns:minmax(0,1fr);
-  }
-
-  .viewport {
-    height:53vh;
-    min-height:340px;
-  }
-}
-
-@media(min-width:801px) {
-  .side {
-    position:sticky;
-    top:10px;
-    max-height:calc(100vh - 20px);
-    overflow-y:auto;
-  }
+@media(max-width:420px) {
+  .app {padding:8px}
+  h1 {font-size:15px}
+  .logo {width:37px;height:37px}
+  .header-actions button {padding:8px 6px;font-size:10px}
+  #viewport {height:48vh;min-height:300px}
 }
 </style>
 </head>
@@ -358,1449 +217,1302 @@ select,input[type=text],input[type=number] {
 
 <header>
   <div class="brand">
-    <div class="logo">A</div>
+    <div class="logo">✦</div>
     <div>
       <h1>AnimAI Studio</h1>
-      <div class="subtitle">FANTASY CHARACTER STUDIO</div>
+      <div class="subtitle">Fantasy Character Creator · 3D Workshop</div>
     </div>
   </div>
-
-  <button class="primary" id="saveBtn">Save Project</button>
+  <div class="header-actions">
+    <button id="saveBtn">Save</button>
+    <button id="screenshotBtn">Capture</button>
+  </div>
 </header>
-
-<nav class="tabs">
-  <button class="tab active" data-tab="character">🧙 Character</button>
-  <button class="tab" data-tab="world">🌌 Environment</button>
-  <button class="tab" data-tab="animation">🎬 Animation</button>
-  <button class="tab" data-tab="effects">✨ Magic FX</button>
-</nav>
 
 <div class="layout">
 
 <main>
-
-<section class="panel">
-  <div class="panel-head">
-    <h2>🎥 Cinematic Viewport</h2>
-    <span id="viewStatus">3D ENGINE</span>
-  </div>
-
-  <div class="viewport" id="viewport">
-    <canvas id="scene"></canvas>
-    <div class="status" id="loadStatus">INITIALIZING</div>
-    <div class="overlay">
-      Drag: rotate · Pinch: zoom · Two fingers: pan
-    </div>
-  </div>
-
-  <div class="toolbar">
-    <button id="frameBtn">Frame Scene</button>
-    <button id="resetCameraBtn">Reset Camera</button>
-    <button id="orbitBtn">Auto Orbit: OFF</button>
-    <button id="fullscreenBtn">Fullscreen</button>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <h2>📦 Character Assets</h2>
-    <span>GLB / GLTF</span>
-  </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Import a 3D character</label>
-      <input type="file" id="characterFile" accept=".glb,.gltf,.bin,.png,.jpg,.jpeg,.webp">
+  <section class="panel">
+    <div class="panel-title">
+      <h2>3D Character Viewport</h2>
+      <span class="badge" id="engineStatus">Starting 3D...</span>
     </div>
 
-    <div class="note">
-      Import a detailed fantasy character model in GLB format for the easiest
-      setup. GLTF models may need their associated texture and binary files.
-      Importing a model displays it in the scene; it does not generate a new
-      character from text.
+    <div class="viewport-wrap">
+      <canvas id="viewport" tabindex="0"></canvas>
+
+      <div class="overlay">
+        <span class="status" id="renderStatus">● Initializing renderer</span>
+        <span>Drag to rotate · Pinch to zoom</span>
+      </div>
+
+      <div class="viewport-bottom">
+        <span id="characterName">Shadow Sorcerer</span>
+        <span id="fpsText">WebGL</span>
+      </div>
     </div>
 
-    <div class="track"><div id="loadProgress"></div></div>
-
-    <div class="stats" style="margin-top:10px">
-      <div class="stat" id="modelStat">No character loaded</div>
-      <div class="stat" id="meshStat">0 meshes</div>
+    <div class="camera-tools">
+      <button id="frontBtn">Front</button>
+      <button id="sideBtn">Side</button>
+      <button id="backBtn">Back</button>
+      <button id="resetCameraBtn">Reset</button>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="panel">
-  <div class="panel-head">
-    <h2>🎞️ Animation Player</h2>
-    <span id="animationStatus">No animation</span>
-  </div>
+  <section class="panel" style="margin-top:12px">
+    <div class="panel-title">
+      <h2>Animation Timeline</h2>
+      <span class="badge" id="animBadge">Idle</span>
+    </div>
 
-  <div class="pad">
-    <div class="field">
-      <label>Animation clip</label>
+    <div class="timeline">
+      <div class="timeline-head">
+        <h3>Animation Preview</h3>
+        <span id="timeText">0.0 seconds</span>
+      </div>
+
+      <label for="animationSelect">Animation style</label>
       <select id="animationSelect">
-        <option value="-1">No animation loaded</option>
+        <option value="idle">Magical Idle</option>
+        <option value="orbit">Floating / Orbit</option>
+        <option value="power">Power Charging</option>
+        <option value="walk">Walking Motion</option>
+        <option value="dance">Ritual Dance</option>
       </select>
+
+      <input id="timelineRange" type="range" min="0" max="10" value="0" step=".1">
+
+      <div class="grid3">
+        <button id="playBtn" class="primary">▶ Play</button>
+        <button id="pauseBtn">Ⅱ Pause</button>
+        <button id="stopBtn">■ Stop</button>
+      </div>
     </div>
-
-    <div class="row">
-      <button class="primary" id="playBtn">▶ Play</button>
-      <button id="pauseBtn">Ⅱ Pause</button>
-      <button id="stopBtn">■ Stop</button>
-    </div>
-
-    <div class="field" style="margin-top:15px">
-      <label>Playback speed <span id="speedLabel">1.0×</span></label>
-      <input type="range" id="speed" min=".1" max="2" step=".1" value="1">
-    </div>
-
-    <div class="field">
-      <label>Animation progress</label>
-      <input type="range" id="animationTime" min="0" max="1000" value="0">
-    </div>
-
-    <p class="note">
-      Available animations depend on the imported model. This player cannot
-      automatically create new skeletal animations for an unrigged character.
-    </p>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <h2>💾 Project</h2>
-    <span>Local backup</span>
-  </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Project name</label>
-      <input type="text" id="projectName" value="Fantasy Scene">
-    </div>
-
-    <div class="row">
-      <button class="primary" id="exportBtn">Export Settings</button>
-      <button id="importBtn">Import Settings</button>
-      <input class="hidden" id="projectFile" type="file" accept=".json,application/json">
-    </div>
-
-    <p class="note">
-      Project settings can be exported as JSON. Character model files are
-      separate assets and are not embedded in the settings export.
-    </p>
-  </div>
-</section>
-
+  </section>
 </main>
 
-<aside class="side">
+<aside class="workspace">
 
-<section class="panel tab-panel" data-panel="character">
-  <div class="panel-head">
-    <h2>🧙 Character Controls</h2>
-    <span>Model settings</span>
+<section class="panel">
+  <div class="panel-title">
+    <h2>Fantasy Characters</h2>
+    <span class="badge">Procedural 3D</span>
   </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Character scale <span id="scaleLabel">1.0×</span></label>
-      <input type="range" id="characterScale" min=".1" max="5" step=".1" value="1">
-    </div>
-
+  <div class="section">
     <div class="grid2">
-      <div class="field">
-        <label>Position X</label>
-        <input type="number" id="characterX" value="0" step=".1">
-      </div>
-      <div class="field">
-        <label>Position Y</label>
-        <input type="number" id="characterY" value="0" step=".1">
-      </div>
-      <div class="field">
-        <label>Position Z</label>
-        <input type="number" id="characterZ" value="0" step=".1">
-      </div>
-      <div class="field">
-        <label>Rotation Y</label>
-        <input type="number" id="characterRotation" value="0" step="5">
-      </div>
+      <button class="character-btn active" data-character="sorcerer">🧙 Sorcerer</button>
+      <button class="character-btn" data-character="warrior">⚔ Warrior</button>
+      <button class="character-btn" data-character="guardian">🔱 Guardian</button>
+      <button class="character-btn" data-character="shadow">🌑 Shadow</button>
     </div>
 
-    <button class="primary" id="applyTransformBtn">Apply Transform</button>
+    <label for="modelFile">Import a custom 3D character</label>
+    <button id="importBtn" class="full">＋ Import GLB / GLTF</button>
+    <input id="modelFile" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json">
 
-    <div class="field" style="margin-top:15px">
-      <label>Character appearance</label>
-      <select id="characterLook">
-        <option value="original">Original materials</option>
-        <option value="moonlight">Moonlight blue</option>
-        <option value="arcane">Arcane violet</option>
-        <option value="inferno">Infernal red</option>
-        <option value="gold">Celestial gold</option>
-      </select>
-    </div>
-
-    <button id="appearanceBtn">Apply Appearance</button>
-
-    <p class="note">
-      Appearance presets tint model materials. They do not create new clothing,
-      faces, or detailed textures.
-    </p>
-  </div>
-</section>
-
-<section class="panel tab-panel hidden" data-panel="world">
-  <div class="panel-head">
-    <h2>🌌 Cinematic Environment</h2>
-    <span>World settings</span>
-  </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Environment</label>
-      <select id="environment">
-        <option value="dark">Dark fantasy palace</option>
-        <option value="cosmic">Cosmic universe</option>
-        <option value="temple">Ancient temple</option>
-        <option value="forest">Mystic forest</option>
-        <option value="moon">Moonlit landscape</option>
-        <option value="inferno">Infernal realm</option>
-        <option value="ice">Frozen kingdom</option>
-        <option value="void">Dark void</option>
-      </select>
-    </div>
-
-    <div class="grid2">
-      <div class="field">
-        <label>Sky colour</label>
-        <input type="color" id="skyColor" value="#080a18">
-      </div>
-      <div class="field">
-        <label>Ground colour</label>
-        <input type="color" id="groundColor" value="#181625">
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Ambient illumination <span id="ambientLabel">1.0</span></label>
-      <input type="range" id="ambientIntensity" min="0" max="3" step=".1" value="1">
-    </div>
-
-    <div class="field">
-      <label>Key light intensity <span id="keyLabel">3.0</span></label>
-      <input type="range" id="keyIntensity" min="0" max="6" step=".1" value="3">
-    </div>
-
-    <div class="field">
-      <label>Atmospheric fog <span id="fogLabel">0.012</span></label>
-      <input type="range" id="fogDensity" min="0" max=".04" step=".001" value=".012">
-    </div>
-
-    <div class="field">
-      <label>Ground visibility</label>
-      <select id="groundVisibility">
-        <option value="on">Visible</option>
-        <option value="off">Hidden</option>
-      </select>
-    </div>
-
-    <button class="primary" id="applyEnvironmentBtn">Apply Environment</button>
-  </div>
-</section>
-
-<section class="panel tab-panel hidden" data-panel="animation">
-  <div class="panel-head">
-    <h2>🎬 Camera Animation</h2>
-    <span>Simple sequence</span>
-  </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Camera movement</label>
-      <select id="cameraMotion">
-        <option value="orbit">Cinematic orbit</option>
-        <option value="push">Slow push-in</option>
-        <option value="pull">Slow pull-back</option>
-        <option value="static">Static camera</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Sequence duration <span id="durationLabel">8 seconds</span></label>
-      <input type="range" id="duration" min="2" max="30" step="1" value="8">
-    </div>
-
-    <div class="row">
-      <button class="primary" id="cameraPlayBtn">▶ Play Camera</button>
-      <button id="cameraStopBtn">■ Stop</button>
-    </div>
-
-    <p class="note">
-      Camera animation moves the view around the scene. It does not create
-      new body movements for a character.
-    </p>
-  </div>
-</section>
-
-<section class="panel tab-panel hidden" data-panel="effects">
-  <div class="panel-head">
-    <h2>✨ Magical Effects</h2>
-    <span>Particles and glow</span>
-  </div>
-
-  <div class="pad">
-    <div class="field">
-      <label>Effect preset</label>
-      <select id="effectPreset">
-        <option value="arcane">Arcane energy</option>
-        <option value="fire">Infernal embers</option>
-        <option value="ice">Frost particles</option>
-        <option value="stars">Cosmic dust</option>
-        <option value="off">Off</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Particle density <span id="particleLabel">700</span></label>
-      <input type="range" id="particleCount" min="0" max="1600" step="100" value="700">
-    </div>
-
-    <div class="field">
-      <label>Effect intensity <span id="effectIntensityLabel">1.0</span></label>
-      <input type="range" id="effectIntensity" min=".1" max="3" step=".1" value="1">
-    </div>
-
-    <div class="field">
-      <label>Effect colour</label>
-      <input type="color" id="effectColor" value="#a78bfa">
-    </div>
-
-    <div class="row">
-      <button class="primary" id="applyEffectsBtn">Apply Effects</button>
-      <button id="clearEffectsBtn">Clear Effects</button>
-    </div>
-
-    <p class="note">
-      These are real-time particle effects. They can enhance a scene but are
-      not volumetric simulations or generated AI video.
-    </p>
+    <p class="hint">Import a compatible .glb character model from your device. A .gltf file may require its related texture and resource files.</p>
   </div>
 </section>
 
 <section class="panel">
-  <div class="panel-head">
-    <h2>🛠️ Engine Status</h2>
-    <span>Diagnostics</span>
+  <div class="panel-title">
+    <h2>Appearance</h2>
+    <span class="badge">Customize</span>
   </div>
+  <div class="section">
 
-  <div class="pad">
-    <div class="stats">
-      <div class="stat" id="rendererStat">Renderer starting</div>
-      <div class="stat" id="fpsStat">FPS: --</div>
+    <label>Primary character color</label>
+    <div class="swatches" id="colorSwatches">
+      <button class="swatch active" style="background:#382078" data-color="#382078" aria-label="Purple"></button>
+      <button class="swatch" style="background:#123d56" data-color="#123d56" aria-label="Blue"></button>
+      <button class="swatch" style="background:#176346" data-color="#176346" aria-label="Green"></button>
+      <button class="swatch" style="background:#8c263d" data-color="#8c263d" aria-label="Red"></button>
+      <button class="swatch" style="background:#a77b39" data-color="#a77b39" aria-label="Gold"></button>
     </div>
 
-    <p class="note" id="diagnosticText">
-      Initializing 3D renderer...
+    <label for="customColor">Custom color</label>
+    <input type="color" id="customColor" value="#382078">
+
+    <label for="glowRange">Magical glow</label>
+    <div class="row">
+      <span>Glow intensity</span>
+      <span class="value" id="glowValue">1.0</span>
+    </div>
+    <input type="range" id="glowRange" min="0" max="3" step=".1" value="1">
+
+    <label for="scaleRange">Character size</label>
+    <div class="row">
+      <span>Scale</span>
+      <span class="value" id="scaleValue">1.0×</span>
+    </div>
+    <input type="range" id="scaleRange" min=".5" max="1.8" step=".1" value="1">
+
+    <label for="rotationRange">Character rotation</label>
+    <input type="range" id="rotationRange" min="-180" max="180" value="0">
+
+    <button id="rebuildBtn" class="full">↻ Rebuild Character</button>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title">
+    <h2>Environment Studio</h2>
+    <span class="badge">Lighting</span>
+  </div>
+
+  <div class="section">
+    <label for="environmentSelect">World environment</label>
+    <select id="environmentSelect">
+      <option value="cosmos">Deep Cosmos</option>
+      <option value="temple">Ancient Temple</option>
+      <option value="void">Dark Void</option>
+      <option value="nebula">Purple Nebula</option>
+      <option value="dawn">Mystic Dawn</option>
+    </select>
+
+    <label for="lightRange">Light intensity</label>
+    <div class="row">
+      <span>Scene illumination</span>
+      <span class="value" id="lightValue">1.0</span>
+    </div>
+    <input id="lightRange" type="range" min=".2" max="2.5" step=".1" value="1">
+
+    <label for="particleRange">Magic particles</label>
+    <div class="row">
+      <span>Particle amount</span>
+      <span class="value" id="particleValue">900</span>
+    </div>
+    <input id="particleRange" type="range" min="0" max="2000" step="100" value="900">
+
+    <button id="applyEnvironmentBtn" class="primary full">Apply Environment</button>
+    <button id="magicBtn" class="full">✧ Toggle Magic Effects</button>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-title"><h2>Project Tools</h2></div>
+  <div class="section">
+    <button id="exportBtn" class="full">Export Scene Settings</button>
+    <button id="importProjectBtn" class="full">Import Scene Settings</button>
+    <input type="file" id="projectFile" accept=".json" style="display:none">
+
+    <button id="resetProjectBtn" class="full">Reset Studio</button>
+
+    <hr>
+    <p class="hint">
+      Your scene settings can be exported as JSON. Capture saves a PNG screenshot of the viewport.
+      <br><br>
+      This is a browser-based 3D creation tool. AI image generation and full cinematic video rendering require additional services.
     </p>
   </div>
 </section>
 
 </aside>
 </div>
+
+<div class="footer">
+  ANIMAI STUDIO · FANTASY WORKSHOP · BUILT FOR THE WEB
+</div>
 </div>
 
 <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
-
 <script>
+(function(){
 "use strict";
 
 const $ = id => document.getElementById(id);
 
+const canvas = $("viewport");
+const toastElement = $("toast");
+
 let scene, camera, renderer, controls;
-let clock;
-let ambientLight, keyLight, rimLight;
-let ground, starField, particleSystem, characterRoot;
-let mixer = null;
-let animationActions = [];
-let currentAction = null;
-let currentModel = null;
-let autoOrbit = false;
-let cameraPlaying = false;
-let cameraStart = 0;
-let cameraStartPosition = null;
-let cameraTargetPosition = null;
-let particleData = null;
-let currentEffect = "arcane";
+let character = null;
+let importedModel = null;
+let characterMaterials = [];
+let particlePoints = null;
+let particleGeometry = null;
+let particleMaterial = null;
+let particlePositions = null;
+let particleSpeeds = null;
+let floorMesh = null;
+let platform = null;
+let platformRing = null;
+let animationId = 0;
+let elapsed = 0;
 let lastTime = 0;
+let running = true;
+let magicEnabled = true;
+let currentCharacter = "sorcerer";
+let currentEnvironment = "cosmos";
+let currentColor = "#382078";
+let currentAnimation = "idle";
+let characterScale = 1;
+let glowIntensity = 1;
+let lightIntensity = 1;
+let particleCount = 900;
+let starField = null;
+let starMaterial = null;
 let fpsFrames = 0;
 let fpsTimer = 0;
-let modelObjectURL = null;
-let originalMaterials = [];
-let initialCameraPosition = new THREE.Vector3(8,5,10);
-let currentEnvironment = "dark";
+let autoRotate = false;
+let disposed = false;
 
-const environments = {
-  dark: {
-    sky:"#080a18",ground:"#181625",fog:"#19172b",
-    ambient:1.0,key:3.0,density:.012,
-    keyColor:"#c6d5ff",rimColor:"#655bff"
-  },
-  cosmic: {
-    sky:"#050718",ground:"#0b1025",fog:"#17102f",
-    ambient:.65,key:2.3,density:.004,
-    keyColor:"#b5c6ff",rimColor:"#8b5cf6"
-  },
-  temple: {
-    sky:"#18101a",ground:"#38302d",fog:"#59413f",
-    ambient:1.0,key:3.5,density:.018,
-    keyColor:"#ffc68a",rimColor:"#ff8c5a"
-  },
-  forest: {
-    sky:"#071b17",ground:"#163323",fog:"#173b30",
-    ambient:1.2,key:2.4,density:.025,
-    keyColor:"#b9ffca",rimColor:"#4cc9a1"
-  },
-  moon: {
-    sky:"#071426",ground:"#263347",fog:"#263f61",
-    ambient:.8,key:2.8,density:.012,
-    keyColor:"#c9e2ff",rimColor:"#6ea8ff"
-  },
-  inferno: {
-    sky:"#190508",ground:"#291014",fog:"#651d18",
-    ambient:.5,key:4.2,density:.014,
-    keyColor:"#ffaf75",rimColor:"#ff352e"
-  },
-  ice: {
-    sky:"#071628",ground:"#b7d5ed",fog:"#7caccf",
-    ambient:1.5,key:3.0,density:.012,
-    keyColor:"#e0f6ff",rimColor:"#6edcff"
-  },
-  void: {
-    sky:"#030307",ground:"#09080e",fog:"#09080e",
-    ambient:.2,key:1.5,density:0,
-    keyColor:"#e2d7ff",rimColor:"#8b5cf6"
-  }
-};
-
-function notify(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.style.display = "block";
-  clearTimeout(notify.timer);
-  notify.timer = setTimeout(() => el.style.display = "none", 3000);
+function toast(message){
+  toastElement.textContent = message;
+  toastElement.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toastElement.classList.remove("show"),2600);
 }
 
-function downloadFile(name, content, type) {
-  const blob = content instanceof Blob
-    ? content
-    : new Blob([content], {type:type || "text/plain"});
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+function updateStatus(message){
+  $("renderStatus").textContent = "● " + message;
 }
 
-/* ---------- Tabs ---------- */
-
-document.querySelectorAll("[data-tab]").forEach(button => {
-  button.addEventListener("click", () => {
-    const name = button.dataset.tab;
-
-    document.querySelectorAll("[data-tab]").forEach(b =>
-      b.classList.toggle("active", b === button)
-    );
-
-    document.querySelectorAll("[data-panel]").forEach(panel => {
-      panel.classList.toggle("hidden", panel.dataset.panel !== name);
-    });
+function material(color,roughness=.5,metalness=.2,emissive=null,emissiveIntensity=0){
+  const m = new THREE.MeshStandardMaterial({
+    color:color,
+    roughness:roughness,
+    metalness:metalness,
+    emissive:emissive || 0x000000,
+    emissiveIntensity:emissiveIntensity
   });
-});
+  characterMaterials.push(m);
+  return m;
+}
 
-/* ---------- Renderer ---------- */
+function addMesh(parent,geometry,mat,x,y,z,sx=1,sy=1,sz=1){
+  const mesh = new THREE.Mesh(geometry,mat);
+  mesh.position.set(x,y,z);
+  mesh.scale.set(sx,sy,sz);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
 
-function init() {
-  if (!window.THREE) {
-    $("loadStatus").textContent = "3D LIBRARY FAILED";
-    $("diagnosticText").textContent =
-      "Three.js did not load. Check your internet connection and refresh.";
-    return false;
-  }
+function sphere(parent,mat,x,y,z,sx,sy,sz){
+  return addMesh(parent,new THREE.SphereGeometry(1,24,16),mat,x,y,z,sx,sy,sz);
+}
 
+function cylinder(parent,mat,x,y,z,rt,rb,height,segments=16){
+  return addMesh(parent,new THREE.CylinderGeometry(rt,rb,height,segments),mat,x,y,z);
+}
+
+function makeRing(parent,mat,x,y,z,radius,tube,rotationX=0){
+  const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius,tube,8,64),mat);
+  mesh.position.set(x,y,z);
+  mesh.rotation.x=rotationX;
+  parent.add(mesh);
+  return mesh;
+}
+
+function init(){
   try {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color("#080a18");
+    if(!window.THREE) throw new Error("Three.js failed to load.");
+    if(!THREE.OrbitControls) throw new Error("Camera controls failed to load.");
 
-    camera = new THREE.PerspectiveCamera(45, 1, .1, 2000);
-    camera.position.copy(initialCameraPosition);
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x090817);
+    scene.fog = new THREE.FogExp2(0x090817,.022);
+
+    camera = new THREE.PerspectiveCamera(45,1,.1,500);
+    camera.position.set(0,2.7,9);
 
     renderer = new THREE.WebGLRenderer({
-      canvas:$("scene"),
+      canvas:canvas,
       antialias:true,
       alpha:false,
-      powerPreference:"high-performance"
+      preserveDrawingBuffer:true
     });
-
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,2));
+    renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.1;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls = new THREE.OrbitControls(camera,canvas);
+    controls.target.set(0,1.7,0);
     controls.enableDamping = true;
-    controls.dampingFactor = .06;
-    controls.enablePan = true;
-    controls.minDistance = 1;
-    controls.maxDistance = 120;
-    controls.maxPolarAngle = Math.PI * .94;
-    controls.target.set(0,2,0);
+    controls.dampingFactor = .07;
+    controls.minDistance = 3;
+    controls.maxDistance = 18;
+    controls.maxPolarAngle = Math.PI*.91;
+    controls.update();
 
-    clock = new THREE.Clock();
+    createLights();
+    createEnvironment();
+    buildCharacter(currentCharacter);
+    createParticles();
 
-    ambientLight = new THREE.HemisphereLight(0xc5c9ff,0x28202d,1);
-    scene.add(ambientLight);
+    window.addEventListener("resize",resize);
+    bindUI();
 
-    keyLight = new THREE.DirectionalLight(0xc6d5ff,3);
-    keyLight.position.set(6,12,8);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(1024,1024);
-    keyLight.shadow.camera.left = -18;
-    keyLight.shadow.camera.right = 18;
-    keyLight.shadow.camera.top = 18;
-    keyLight.shadow.camera.bottom = -18;
-    scene.add(keyLight);
-
-    rimLight = new THREE.DirectionalLight(0x655bff,2.5);
-    rimLight.position.set(-8,5,-8);
-    scene.add(rimLight);
-
-    const fillLight = new THREE.PointLight(0x7665ff,1.2,45);
-    fillLight.position.set(0,5,4);
-    scene.add(fillLight);
-
-    makeGround();
-    makeStars();
-    makeParticles();
-
-    applyEnvironment();
     resize();
+    updateStatus("3D renderer ready");
+    $("engineStatus").textContent = "3D READY";
+
+    if(!window.WebGLRenderingContext){
+      updateStatus("WebGL is not supported");
+    }
+
     animate();
-
-    $("loadStatus").textContent = "ENGINE READY";
-    $("rendererStat").textContent = "WebGL active";
-    $("diagnosticText").textContent =
-      "3D renderer initialized. Import a GLB character to begin.";
-
-    return true;
-  } catch (error) {
-    $("loadStatus").textContent = "ENGINE ERROR";
-    $("diagnosticText").textContent = error.message;
-    return false;
+    toast("AnimAI Studio is ready!");
+  } catch(error){
+    console.error(error);
+    updateStatus("3D initialization failed");
+    $("engineStatus").textContent = "ENGINE ERROR";
+    toast(error.message || "Unable to start the 3D engine.");
   }
 }
 
-/* ---------- World ---------- */
+function createLights(){
+  scene.add(new THREE.HemisphereLight(0x9f8cff,0x10091e,1.1));
 
-function makeGround() {
-  if (ground) {
-    scene.remove(ground);
-    ground.geometry.dispose();
-    ground.material.dispose();
-  }
+  const key = new THREE.DirectionalLight(0xdcd4ff,2.2);
+  key.position.set(4,8,6);
+  key.castShadow=true;
+  key.shadow.mapSize.width=1024;
+  key.shadow.mapSize.height=1024;
+  scene.add(key);
 
-  const geometry = new THREE.PlaneGeometry(500,500,1,1);
-  const material = new THREE.MeshStandardMaterial({
-    color:$("groundColor").value,
-    roughness:.92,
-    metalness:.05
-  });
+  const rim = new THREE.PointLight(0x9b5cff,35,18);
+  rim.position.set(-4,3,-3);
+  scene.add(rim);
 
-  ground = new THREE.Mesh(geometry,material);
-  ground.rotation.x = -Math.PI/2;
-  ground.position.y = -.05;
-  ground.receiveShadow = true;
-  scene.add(ground);
+  const fill = new THREE.PointLight(0x37d9ff,16,15);
+  fill.position.set(4,2,3);
+  scene.add(fill);
+
+  scene.userData.keyLight=key;
+  scene.userData.rimLight=rim;
+  scene.userData.fillLight=fill;
 }
 
-function makeStars() {
-  if (starField) {
+function clearEnvironment(){
+  if(floorMesh){
+    scene.remove(floorMesh);
+    floorMesh.geometry.dispose();
+    floorMesh.material.dispose();
+    floorMesh=null;
+  }
+
+  if(platform){
+    scene.remove(platform);
+    platform.geometry.dispose();
+    platform.material.dispose();
+    platform=null;
+  }
+
+  if(platformRing){
+    scene.remove(platformRing);
+    platformRing.geometry.dispose();
+    platformRing.material.dispose();
+    platformRing=null;
+  }
+
+  if(starField){
     scene.remove(starField);
     starField.geometry.dispose();
-    starField.material.dispose();
+    starField=null;
   }
-
-  const count = 1700;
-  const positions = new Float32Array(count*3);
-
-  for (let i=0;i<count;i++) {
-    positions[i*3] = (Math.random()-.5)*300;
-    positions[i*3+1] = Math.random()*150+3;
-    positions[i*3+2] = (Math.random()-.5)*300;
+  if(starMaterial){
+    starMaterial.dispose();
+    starMaterial=null;
   }
+}
 
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.BufferAttribute(positions,3)
-  );
+function createEnvironment(){
+  clearEnvironment();
 
-  starField = new THREE.Points(
-    geometry,
-    new THREE.PointsMaterial({
-      color:"#d7d5ff",
-      size:.22,
-      transparent:true,
-      opacity:.7,
-      sizeAttenuation:true
+  const settings = {
+    cosmos:{bg:0x090817,fog:0x090817,density:.018,floor:0x111027,glow:0x7c3aed},
+    temple:{bg:0x171126,fog:0x171126,density:.018,floor:0x282038,glow:0xffbd75},
+    void:{bg:0x030307,fog:0x030307,density:.009,floor:0x08080e,glow:0x6d28d9},
+    nebula:{bg:0x180925,fog:0x180925,density:.014,floor:0x20102e,glow:0xe879f9},
+    dawn:{bg:0x241327,fog:0x241327,density:.012,floor:0x302037,glow:0xffb07c}
+  };
+
+  const e=settings[currentEnvironment] || settings.cosmos;
+  scene.background=new THREE.Color(e.bg);
+  scene.fog=new THREE.FogExp2(e.fog,e.density);
+
+  floorMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(200,200),
+    new THREE.MeshStandardMaterial({
+      color:e.floor,roughness:.9,metalness:.15
     })
   );
+  floorMesh.rotation.x=-Math.PI/2;
+  floorMesh.position.y=-.04;
+  floorMesh.receiveShadow=true;
+  scene.add(floorMesh);
 
+  platform = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.65,1.8,.22,64),
+    new THREE.MeshStandardMaterial({
+      color:0x19152a,metalness:.75,roughness:.3,
+      emissive:e.glow,emissiveIntensity:.16
+    })
+  );
+  platform.position.y=.08;
+  platform.receiveShadow=true;
+  platform.castShadow=true;
+  scene.add(platform);
+
+  platformRing=makeRing(
+    scene,
+    new THREE.MeshStandardMaterial({
+      color:e.glow,
+      emissive:e.glow,
+      emissiveIntensity:1.5,
+      metalness:.5,
+      roughness:.25
+    }),
+    0,.2,0,1.67,.025,0
+  );
+
+  const grid = new THREE.GridHelper(100,100,0x5a3a85,0x211b3d);
+  grid.position.y=-.025;
+  grid.material.transparent=true;
+  grid.material.opacity=.25;
+  scene.add(grid);
+
+  const starPositions=[];
+  const count=1600;
+  for(let i=0;i<count;i++){
+    starPositions.push(
+      (Math.random()-.5)*120,
+      Math.random()*55,
+      (Math.random()-.5)*120
+    );
+  }
+
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",new THREE.Float32BufferAttribute(starPositions,3));
+
+  starMaterial=new THREE.PointsMaterial({
+    color:0xd6caff,
+    size:.075,
+    transparent:true,
+    opacity:.8,
+    sizeAttenuation:true
+  });
+  starField=new THREE.Points(geo,starMaterial);
   scene.add(starField);
-}
 
-function makeParticles() {
-  if (particleSystem) {
-    scene.remove(particleSystem);
-    particleSystem.geometry.dispose();
-    particleSystem.material.dispose();
-  }
-
-  const count = +$("particleCount").value;
-  const positions = new Float32Array(count*3);
-  const velocities = new Float32Array(count*3);
-
-  for (let i=0;i<count;i++) {
-    positions[i*3] = (Math.random()-.5)*18;
-    positions[i*3+1] = Math.random()*12;
-    positions[i*3+2] = (Math.random()-.5)*18;
-
-    velocities[i*3] = (Math.random()-.5)*.3;
-    velocities[i*3+1] = .15+Math.random()*.55;
-    velocities[i*3+2] = (Math.random()-.5)*.3;
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new THREE.BufferAttribute(positions,3)
+  const glowColor=new THREE.Color(e.glow);
+  scene.userData.rimLight.color.copy(glowColor);
+  scene.userData.fillLight.color.set(
+    currentEnvironment==="temple" ? 0xffbf76 :
+    currentEnvironment==="dawn" ? 0xff9e89 : 0x37d9ff
   );
 
-  particleSystem = new THREE.Points(
-    geometry,
-    new THREE.PointsMaterial({
-      color:$("effectColor").value,
-      size:.09,
-      transparent:true,
-      opacity:.8,
-      blending:THREE.AdditiveBlending,
-      depthWrite:false
-    })
-  );
-
-  particleData = {positions,velocities,count};
-  scene.add(particleSystem);
+  applyLightIntensity();
+  updateStatus("Environment applied");
 }
 
-function applyEnvironment() {
-  if (!scene) return;
-
-  const preset = environments[$("environment").value];
-  currentEnvironment = $("environment").value;
-
-  $("skyColor").value = preset.sky;
-  $("groundColor").value = preset.ground;
-  $("ambientIntensity").value = preset.ambient;
-  $("keyIntensity").value = preset.key;
-  $("fogDensity").value = preset.density;
-
-  scene.background = new THREE.Color(preset.sky);
-  scene.fog = preset.density > 0
-    ? new THREE.FogExp2(preset.fog,preset.density)
-    : null;
-
-  ambientLight.intensity = preset.ambient;
-  keyLight.intensity = preset.key;
-  keyLight.color.set(preset.keyColor);
-  rimLight.color.set(preset.rimColor);
-
-  makeGround();
-  ground.visible = $("groundVisibility").value === "on";
-
-  $("ambientLabel").textContent = preset.ambient.toFixed(1);
-  $("keyLabel").textContent = preset.key.toFixed(1);
-  $("fogLabel").textContent = preset.density.toFixed(3);
-
-  notify("Environment applied: " + currentEnvironment);
+function applyLightIntensity(){
+  if(!scene || !scene.userData.keyLight) return;
+  scene.userData.keyLight.intensity=2.2*lightIntensity;
+  scene.userData.rimLight.intensity=35*lightIntensity;
+  scene.userData.fillLight.intensity=16*lightIntensity;
 }
 
-$("applyEnvironmentBtn").onclick = applyEnvironment;
-
-$("environment").onchange = applyEnvironment;
-
-$("skyColor").oninput = () => {
-  if (scene) scene.background.set($("skyColor").value);
-};
-
-$("groundColor").oninput = () => {
-  if (ground) ground.material.color.set($("groundColor").value);
-};
-
-$("ambientIntensity").oninput = () => {
-  if (ambientLight) ambientLight.intensity = +$("ambientIntensity").value;
-  $("ambientLabel").textContent = $("ambientIntensity").value;
-};
-
-$("keyIntensity").oninput = () => {
-  if (keyLight) keyLight.intensity = +$("keyIntensity").value;
-  $("keyLabel").textContent = $("keyIntensity").value;
-};
-
-$("fogDensity").oninput = () => {
-  const d = +$("fogDensity").value;
-  $("fogLabel").textContent = d.toFixed(3);
-
-  if (scene) {
-    scene.fog = d > 0
-      ? new THREE.FogExp2($("environment").value === "dark"
-          ? "#19172b" : $("skyColor").value,d)
-      : null;
-  }
-};
-
-$("groundVisibility").onchange = () => {
-  if (ground) ground.visible = $("groundVisibility").value === "on";
-};
-
-/* ---------- Character Import ---------- */
-
-function clearCharacter() {
-  if (!currentModel) return;
-
-  scene.remove(currentModel);
-
-  if (mixer) {
-    mixer.stopAllAction();
-    mixer = null;
-  }
-
-  currentModel.traverse(object => {
-    if (object.isMesh) {
-      if (object.geometry) object.geometry.dispose();
-
-      if (object.material) {
-        const materials = Array.isArray(object.material)
-          ? object.material : [object.material];
-
-        materials.forEach(material => {
-          if (material.map) material.map.dispose();
-          material.dispose();
-        });
-      }
+function disposeObject(root){
+  root.traverse(obj=>{
+    if(obj.geometry) obj.geometry.dispose();
+    if(obj.material){
+      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+      mats.forEach(m=>m.dispose());
     }
   });
-
-  currentModel = null;
-  characterRoot = null;
-  animationActions = [];
-  currentAction = null;
-  originalMaterials = [];
-
-  $("animationSelect").innerHTML =
-    '<option value="-1">No animation loaded</option>';
-
-  $("modelStat").textContent = "No character loaded";
-  $("meshStat").textContent = "0 meshes";
-  $("animationStatus").textContent = "No animation";
 }
 
-function countMeshes(root) {
-  let count = 0;
-
-  root.traverse(object => {
-    if (object.isMesh) count++;
-  });
-
-  return count;
+function clearCharacter(){
+  if(!character) return;
+  scene.remove(character);
+  disposeObject(character);
+  character=null;
+  characterMaterials=[];
+  importedModel=null;
 }
 
-function loadCharacterFile(file) {
-  if (!file) return;
+function buildCharacter(type){
+  clearCharacter();
+  currentCharacter=type;
 
-  if (!window.THREE || !THREE.GLTFLoader) {
-    notify("3D model loader unavailable. Refresh the page.");
-    return;
-  }
+  const root=new THREE.Group();
+  root.name="Fantasy Character";
+  scene.add(root);
+  character=root;
 
-  const extension = file.name.split(".").pop().toLowerCase();
-
-  if (extension !== "glb" && extension !== "gltf") {
-    notify("Choose a .glb or .gltf character model.");
-    return;
-  }
-
-  if (extension === "gltf") {
-    notify("For easiest importing, use a self-contained .glb file.");
-    return;
-  }
-
-  if (modelObjectURL) URL.revokeObjectURL(modelObjectURL);
-  modelObjectURL = URL.createObjectURL(file);
-
-  $("loadStatus").textContent = "LOADING CHARACTER";
-  $("loadProgress").style.width = "20%";
-  $("diagnosticText").textContent = "Loading " + file.name;
-
-  const loader = new THREE.GLTFLoader();
-
-  loader.load(
-    modelObjectURL,
-    gltf => {
-      clearCharacter();
-
-      const root = gltf.scene;
-      root.name = file.name.replace(/\.glb$/i,"");
-      root.traverse(object => {
-        if (!object.isMesh) return;
-
-        object.castShadow = true;
-        object.receiveShadow = true;
-
-        if (object.material) {
-          const materials = Array.isArray(object.material)
-            ? object.material : [object.material];
-
-          materials.forEach(material => {
-            originalMaterials.push({
-              material,
-              color:material.color ? material.color.clone() : null,
-              emissive:material.emissive ? material.emissive.clone() : null,
-              emissiveIntensity:material.emissiveIntensity
-            });
-          });
-        }
-      });
-
-      const box = new THREE.Box3().setFromObject(root);
-      const size = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
-
-      root.position.sub(center);
-      root.position.y += size.y/2;
-
-      characterRoot = new THREE.Group();
-      characterRoot.name = "Character Transform";
-      characterRoot.add(root);
-      scene.add(characterRoot);
-
-      currentModel = characterRoot;
-
-      mixer = new THREE.AnimationMixer(root);
-      animationActions = gltf.animations.map(clip => ({
-        clip,
-        action:mixer.clipAction(clip)
-      }));
-
-      const select = $("animationSelect");
-      select.innerHTML = "";
-
-      if (animationActions.length) {
-        animationActions.forEach((entry,index) => {
-          const option = document.createElement("option");
-          option.value = String(index);
-          option.textContent = entry.clip.name || "Animation " + (index+1);
-          select.appendChild(option);
-        });
-
-        $("animationStatus").textContent =
-          animationActions.length + " animations";
-      } else {
-        const option = document.createElement("option");
-        option.value = "-1";
-        option.textContent = "No animations in model";
-        select.appendChild(option);
-
-        $("animationStatus").textContent = "No embedded animations";
-      }
-
-      $("characterScale").value = 1;
-      $("scaleLabel").textContent = "1.0×";
-      $("characterX").value = 0;
-      $("characterY").value = 0;
-      $("characterZ").value = 0;
-      $("characterRotation").value = 0;
-
-      $("modelStat").textContent = file.name;
-      $("meshStat").textContent = countMeshes(root) + " meshes";
-
-      $("loadProgress").style.width = "100%";
-      $("loadStatus").textContent = "CHARACTER READY";
-      $("diagnosticText").textContent =
-        "Loaded " + file.name + " with " +
-        animationActions.length + " animation clips.";
-
-      frameScene();
-      notify("Character loaded successfully");
-    },
-    progress => {
-      if (progress.total) {
-        const pct = Math.round(progress.loaded/progress.total*100);
-        $("loadProgress").style.width = pct + "%";
-      }
-    },
-    error => {
-      $("loadStatus").textContent = "IMPORT FAILED";
-      $("loadProgress").style.width = "0%";
-      $("diagnosticText").textContent =
-        "Could not load the model. Check that it is a valid GLB file.";
-      notify("Character import failed");
-      console.error(error);
-    }
+  const robeColor=new THREE.Color(currentColor);
+  const robeMat=material(robeColor,.65,.22,robeColor,.12);
+  const metalMat=material(0xaaa3c7,.27,.82,0x3c2868,.15);
+  const darkMat=material(0x171222,.75,.25);
+  const skinMat=material(type==="shadow"?0x282337:0xb58e83,.72,.08);
+  const glowColor=new THREE.Color(
+    currentEnvironment==="temple"?0xffd08a:0x8b5cf6
   );
-}
+  const glowMat=material(glowColor,.2,.4,glowColor,glowIntensity*2);
+  const eyeMat=material(0x70eaff,.18,.1,0x35dfff,glowIntensity*2.8);
+  const goldMat=material(0xd4a94d,.28,.75,0x5c3210,.15);
 
-$("characterFile").addEventListener("change",event => {
-  loadCharacterFile(event.target.files[0]);
-  event.target.value = "";
-});
+  const body=new THREE.Group();
+  body.name="Animated Body";
+  root.add(body);
+  root.userData.body=body;
 
-/* ---------- Character transforms ---------- */
+  // Legs and boots
+  for(const side of [-1,1]){
+    const legX=side*.34;
+    cylinder(body,darkMat,legX,.52,0,.17,.21,.82);
+    sphere(body,darkMat,legX,.16,.13,.2,.14,.32);
+    cylinder(body,metalMat,legX,.67,0,.185,.19,.13);
 
-$("characterScale").oninput = () => {
-  const value = +$("characterScale").value;
-  $("scaleLabel").textContent = value.toFixed(1) + "×";
-  if (characterRoot) characterRoot.scale.setScalar(value);
-};
+    // Arms
+    const armPivot=new THREE.Group();
+    armPivot.position.set(side*.63,2.03,0);
+    body.add(armPivot);
 
-$("applyTransformBtn").onclick = () => {
-  if (!characterRoot) return notify("Import a character first");
+    const upper=cylinder(armPivot,robeMat,0,-.33,0,.17,.22,.68);
+    upper.rotation.z=side*.18;
 
-  characterRoot.position.set(
-    +$("characterX").value,
-    +$("characterY").value,
-    +$("characterZ").value
-  );
+    sphere(armPivot,metalMat,0,-.1,0,.22,.19,.2);
+    cylinder(armPivot,darkMat,0,-.73,0,.14,.16,.2);
+    sphere(armPivot,skinMat,0,-.91,0,.13,.15,.13);
 
-  characterRoot.rotation.y =
-    +$("characterRotation").value * Math.PI/180;
+    root.userData["arm"+side]=armPivot;
 
-  notify("Character transform applied");
-};
+    // Shoulder armor
+    const shoulder=sphere(body,metalMat,side*.68,2.12,0,.28,.21,.3);
+    shoulder.rotation.z=side*-.3;
+  }
 
-$("characterLook").onchange = applyAppearance;
-$("appearanceBtn").onclick = applyAppearance;
+  // Torso
+  cylinder(body,robeMat,0,1.48,0,.43,.66,1.25,24);
+  sphere(body,robeMat,0,1.82,0,.52,.43,.38);
 
-function applyAppearance() {
-  if (!currentModel) return notify("Import a character first");
+  // Chest armor
+  sphere(body,metalMat,0,1.82,.34,.37,.36,.12);
 
-  const preset = $("characterLook").value;
+  // Waist belt
+  cylinder(body,goldMat,0,.96,0,.45,.44,.14,24);
 
-  const looks = {
-    original:null,
-    moonlight:"#a8c8ff",
-    arcane:"#b69aff",
-    inferno:"#ff7665",
-    gold:"#ffcf78"
-  };
+  // Hanging robe panels
+  for(const side of [-1,1]){
+    const panel=sphere(body,robeMat,side*.28,.58,0,.28,.62,.19);
+    panel.rotation.z=side*.15;
+  }
 
-  const tint = looks[preset];
+  // Neck
+  cylinder(body,skinMat,0,2.16,0,.16,.16,.28);
 
-  originalMaterials.forEach(entry => {
-    if (!entry.color || !entry.material.color) return;
+  // Head
+  sphere(body,skinMat,0,2.47,0,.31,.4,.29);
 
-    entry.material.color.copy(entry.color);
+  // Face shadow mask
+  if(type==="shadow"){
+    sphere(body,darkMat,0,2.48,.19,.29,.3,.12);
+  }
 
-    if (tint) {
-      entry.material.color.multiply(new THREE.Color(tint));
+  // Eyes
+  for(const side of [-1,1]){
+    sphere(body,eyeMat,side*.12,2.49,.258,.052,.032,.024);
+  }
+
+  // Hood and headwear
+  if(type==="sorcerer" || type==="shadow"){
+    const hood=sphere(body,robeMat,0,2.72,-.015,.43,.46,.39);
+    hood.scale.y=1.1;
+
+    const brim=cylinder(body,metalMat,0,2.63,0,.45,.45,.08,32);
+    const hat=cylinder(body,robeMat,0,3.03,0,.03,.34,.8,32);
+    hat.rotation.z=-.08;
+
+    sphere(body,glowMat,0,2.83,.37,.07,.07,.07);
+  }else if(type==="warrior"){
+    const helmet=sphere(body,metalMat,0,2.68,0,.36,.32,.32);
+    cylinder(body,goldMat,0,2.85,0,.06,.12,.35);
+    for(const side of [-1,1]){
+      const horn=cylinder(body,goldMat,side*.34,2.79,0,.015,.1,.42);
+      horn.rotation.z=-side*.55;
     }
-
-    if (entry.material.emissive) {
-      if (preset === "arcane") {
-        entry.material.emissive.set("#30105e");
-        entry.material.emissiveIntensity = .3;
-      } else if (preset === "inferno") {
-        entry.material.emissive.set("#54120b");
-        entry.material.emissiveIntensity = .25;
-      } else {
-        entry.material.emissive.copy(entry.emissive || new THREE.Color(0));
-        entry.material.emissiveIntensity = entry.emissiveIntensity ?? 0;
-      }
+  }else{
+    const crown=cylinder(body,goldMat,0,2.79,0,.2,.29,.18,6);
+    for(let i=0;i<5;i++){
+      const angle=i*Math.PI*2/5;
+      const spike=cylinder(body,goldMat,
+        Math.cos(angle)*.25,2.98,Math.sin(angle)*.25,
+        .015,.07,.32,6
+      );
+      spike.rotation.z=Math.cos(angle)*-.5;
+      spike.rotation.x=Math.sin(angle)*.5;
     }
-  });
-
-  notify("Appearance applied");
-}
-
-/* ---------- Character animation playback ---------- */
-
-function chooseAnimation() {
-  const index = +$("animationSelect").value;
-
-  if (currentAction) {
-    currentAction.stop();
-    currentAction = null;
   }
 
-  if (index < 0 || !animationActions[index]) {
-    $("animationStatus").textContent = "No animation selected";
-    return;
+  // Staff
+  if(type==="sorcerer" || type==="guardian"){
+    const staff=new THREE.Group();
+    staff.position.set(.87,0,.05);
+    staff.rotation.z=-.12;
+    body.add(staff);
+
+    cylinder(staff,goldMat,0,1.15,0,.045,.06,2.3,12);
+    sphere(staff,glowMat,0,2.42,0,.18,.18,.18);
+    makeRing(staff,glowMat,0,2.42,0,.25,.025,Math.PI/2);
+    staff.name="Magic Staff";
+    root.userData.staff=staff;
   }
 
-  currentAction = animationActions[index].action;
-  currentAction.reset();
-  currentAction.enabled = true;
-  currentAction.setEffectiveTimeScale(+$("speed").value);
-  currentAction.setEffectiveWeight(1);
-  currentAction.play();
-
-  $("animationStatus").textContent =
-    animationActions[index].clip.name || "Animation playing";
-}
-
-$("animationSelect").onchange = chooseAnimation;
-
-$("playBtn").onclick = () => {
-  if (!animationActions.length) {
-    return notify("Import a character with embedded animations first");
-  }
-
-  const index = +$("animationSelect").value;
-
-  if (index < 0) return notify("Choose an animation");
-
-  if (!currentAction) {
-    chooseAnimation();
-  } else {
-    currentAction.paused = false;
-    currentAction.play();
-  }
-};
-
-$("pauseBtn").onclick = () => {
-  if (currentAction) currentAction.paused = true;
-};
-
-$("stopBtn").onclick = () => {
-  if (currentAction) {
-    currentAction.stop();
-    currentAction = null;
-  }
-
-  if (mixer) mixer.setTime(0);
-
-  $("animationTime").value = 0;
-  $("animationStatus").textContent = "Stopped";
-};
-
-$("speed").oninput = () => {
-  $("speedLabel").textContent = (+$("speed").value).toFixed(1) + "×";
-
-  if (currentAction) {
-    currentAction.setEffectiveTimeScale(+$("speed").value);
-  }
-};
-
-$("animationTime").oninput = () => {
-  if (!currentAction || !mixer) return;
-
-  const entry = animationActions[+$("animationSelect").value];
-  if (!entry) return;
-
-  const time = (+$("animationTime").value/1000)*entry.clip.duration;
-  mixer.setTime(time);
-};
-
-/* ---------- Camera controls ---------- */
-
-function frameScene() {
-  if (!camera || !controls) return;
-
-  const box = new THREE.Box3();
-
-  if (currentModel) {
-    box.setFromObject(currentModel);
-  } else {
-    box.set(
-      new THREE.Vector3(-2,0,-2),
-      new THREE.Vector3(2,5,2)
+  // Shoulder and robe ornamentation
+  for(let i=0;i<5;i++){
+    const ornament=sphere(
+      body,
+      i%2===0?goldMat:glowMat,
+      (i-2)*.13,1.47,.41,.035,.055,.025
     );
   }
 
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
+  // Floating magical rings
+  root.userData.magicRings=[];
+  for(let i=0;i<3;i++){
+    const ring=makeRing(
+      root,glowMat,0,1.55+i*.55,0,1.05+i*.16,.012,Math.PI/2
+    );
+    ring.name="Magic Ring";
+    root.userData.magicRings.push(ring);
+  }
 
-  const maxSize = Math.max(size.x,size.y,size.z,2);
-  const distance = maxSize * 2.3;
-
-  controls.target.copy(center);
-  camera.position.set(
-    center.x + distance*.65,
-    center.y + distance*.35,
-    center.z + distance
+  // Restore scaling and orientation
+  root.scale.setScalar(characterScale);
+  root.rotation.y=THREE.MathUtils.degToRad(
+    Number($("rotationRange").value||0)
   );
 
-  camera.near = Math.max(.01,distance/1000);
-  camera.far = distance*100;
-  camera.updateProjectionMatrix();
+  $("characterName").textContent=({
+    sorcerer:"Shadow Sorcerer",
+    warrior:"Arcane Warrior",
+    guardian:"Celestial Guardian",
+    shadow:"Void Wraith"
+  })[type] || "Fantasy Character";
 
-  controls.update();
-}
-
-$("frameBtn").onclick = frameScene;
-
-$("resetCameraBtn").onclick = () => {
-  camera.position.copy(initialCameraPosition);
-  controls.target.set(0,2,0);
-  controls.update();
-};
-
-$("orbitBtn").onclick = () => {
-  autoOrbit = !autoOrbit;
-  $("orbitBtn").textContent = "Auto Orbit: " + (autoOrbit ? "ON" : "OFF");
-};
-
-$("fullscreenBtn").onclick = async () => {
-  const el = $("viewport");
-
-  try {
-    if (!document.fullscreenElement) {
-      await el.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
-  } catch (error) {
-    notify("Fullscreen is unavailable in this browser");
-  }
-};
-
-/* ---------- Camera animation ---------- */
-
-$("duration").oninput = () => {
-  $("durationLabel").textContent = $("duration").value + " seconds";
-};
-
-$("cameraPlayBtn").onclick = () => {
-  cameraPlaying = true;
-  cameraStart = performance.now();
-  cameraStartPosition = camera.position.clone();
-
-  const target = controls.target.clone();
-  const distance = camera.position.distanceTo(target);
-
-  const mode = $("cameraMotion").value;
-
-  if (mode === "push") {
-    cameraTargetPosition = target.clone().add(
-      camera.position.clone().sub(target).normalize().multiplyScalar(distance*.45)
-    );
-  } else if (mode === "pull") {
-    cameraTargetPosition = target.clone().add(
-      camera.position.clone().sub(target).normalize().multiplyScalar(distance*1.7)
-    );
-  } else {
-    cameraTargetPosition = camera.position.clone();
-  }
-
-  notify("Camera sequence started");
-};
-
-$("cameraStopBtn").onclick = () => {
-  cameraPlaying = false;
-  notify("Camera sequence stopped");
-};
-
-/* ---------- Magical particle effects ---------- */
-
-$("particleCount").oninput = () => {
-  $("particleLabel").textContent = $("particleCount").value;
-};
-
-$("effectIntensity").oninput = () => {
-  $("effectIntensityLabel").textContent = (+$("effectIntensity").value).toFixed(1);
-};
-
-$("effectPreset").onchange = () => {
-  const colors = {
-    arcane:"#a78bfa",
-    fire:"#ff713b",
-    ice:"#75e3ff",
-    stars:"#e6d8ff",
-    off:"#000000"
-  };
-
-  $("effectColor").value = colors[$("effectPreset").value];
-};
-
-$("applyEffectsBtn").onclick = () => {
-  currentEffect = $("effectPreset").value;
-  makeParticles();
-  notify("Magical effects applied");
-};
-
-$("clearEffectsBtn").onclick = () => {
-  $("effectPreset").value = "off";
-  $("particleCount").value = 0;
-  $("particleLabel").textContent = "0";
-  makeParticles();
-  notify("Magical effects cleared");
-};
-
-function updateParticles(delta,time) {
-  if (!particleSystem || !particleData) return;
-
-  const positions = particleData.positions;
-  const velocities = particleData.velocities;
-  const count = particleData.count;
-
-  const preset = $("effectPreset").value;
-
-  particleSystem.visible = preset !== "off" && count > 0;
-
-  particleSystem.material.color.set($("effectColor").value);
-  particleSystem.material.opacity = Math.min(
-    1,.55*(+$("effectIntensity").value)
-  );
-
-  for (let i=0;i<count;i++) {
-    const ix=i*3;
-
-    positions[ix] += velocities[ix]*delta;
-    positions[ix+1] += velocities[ix+1]*delta;
-    positions[ix+2] += velocities[ix+2]*delta;
-
-    if (preset === "fire") {
-      positions[ix+1] += Math.sin(time*3+i)*delta*.35;
-    }
-
-    if (positions[ix+1] > 13) {
-      positions[ix] = (Math.random()-.5)*18;
-      positions[ix+1] = .1;
-      positions[ix+2] = (Math.random()-.5)*18;
-    }
-  }
-
-  particleSystem.geometry.attributes.position.needsUpdate = true;
-}
-
-/* ---------- Project save and export ---------- */
-
-function getProject() {
-  return {
-    version:1,
-    name:$("projectName").value,
-    environment:$("environment").value,
-    skyColor:$("skyColor").value,
-    groundColor:$("groundColor").value,
-    ambientIntensity:$("ambientIntensity").value,
-    keyIntensity:$("keyIntensity").value,
-    fogDensity:$("fogDensity").value,
-    groundVisibility:$("groundVisibility").value,
-    characterScale:$("characterScale").value,
-    characterX:$("characterX").value,
-    characterY:$("characterY").value,
-    characterZ:$("characterZ").value,
-    characterRotation:$("characterRotation").value,
-    characterLook:$("characterLook").value,
-    cameraMotion:$("cameraMotion").value,
-    duration:$("duration").value,
-    effectPreset:$("effectPreset").value,
-    particleCount:$("particleCount").value,
-    effectIntensity:$("effectIntensity").value,
-    effectColor:$("effectColor").value,
-    cameraPosition:camera ? camera.position.toArray() : [8,5,10],
-    cameraTarget:controls ? controls.target.toArray() : [0,2,0]
-  };
-}
-
-function saveProject() {
-  try {
-    localStorage.setItem("animai_fantasy_project",JSON.stringify(getProject()));
-    notify("Project settings saved on this device");
-  } catch (error) {
-    notify("Could not save settings. Export a JSON backup instead.");
-  }
-}
-
-$("saveBtn").onclick = saveProject;
-
-$("exportBtn").onclick = () => {
-  const name = ($("projectName").value || "fantasy-scene")
-    .replace(/[^a-z0-9_-]/gi,"_");
-
-  downloadFile(name+".json",JSON.stringify(getProject(),null,2),"application/json");
-};
-
-$("importBtn").onclick = () => $("projectFile").click();
-
-$("projectFile").onchange = event => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    try {
-      const data = JSON.parse(reader.result);
-      applyProject(data);
-      notify("Project settings imported");
-    } catch (error) {
-      notify("Invalid project settings file");
-    }
-  };
-
-  reader.readAsText(file);
-  event.target.value = "";
-};
-
-function applyProject(data) {
-  const fields = [
-    "projectName","environment","skyColor","groundColor",
-    "ambientIntensity","keyIntensity","fogDensity","groundVisibility",
-    "characterScale","characterX","characterY","characterZ",
-    "characterRotation","characterLook","cameraMotion","duration",
-    "effectPreset","particleCount","effectIntensity","effectColor"
-  ];
-
-  fields.forEach(id => {
-    if (data[id] !== undefined) $(id).value = data[id];
+  document.querySelectorAll("[data-character]").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.character===type);
   });
 
-  $("scaleLabel").textContent = (+$("characterScale").value).toFixed(1)+"×";
-  $("durationLabel").textContent = $("duration").value+" seconds";
-  $("particleLabel").textContent = $("particleCount").value;
-  $("effectIntensityLabel").textContent = (+$("effectIntensity").value).toFixed(1);
+  document.querySelectorAll(".swatch").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.color.toLowerCase()===currentColor.toLowerCase());
+  });
 
-  if (characterRoot) {
-    characterRoot.scale.setScalar(+$("characterScale").value);
-    characterRoot.position.set(
-      +$("characterX").value,
-      +$("characterY").value,
-      +$("characterZ").value
-    );
-    characterRoot.rotation.y = +$("characterRotation").value*Math.PI/180;
-  }
-
-  applyEnvironment();
-  makeParticles();
-
-  if (data.cameraPosition) camera.position.fromArray(data.cameraPosition);
-  if (data.cameraTarget) controls.target.fromArray(data.cameraTarget);
-
-  controls.update();
+  updateStatus("Character created");
 }
 
-try {
-  const saved = localStorage.getItem("animai_fantasy_project");
-
-  if (saved) {
-    const data = JSON.parse(saved);
-
-    window.addEventListener("load",() => {
-      applyProject(data);
-    },{once:true});
-  }
-} catch (error) {
-  console.warn("No saved project available",error);
-}
-
-/* ---------- Resize and animation loop ---------- */
-
-function resize() {
-  if (!renderer || !camera) return;
-
-  const host = $("viewport");
-  const width = host.clientWidth;
-  const height = host.clientHeight;
-
-  if (!width || !height) return;
-
-  renderer.setSize(width,height,false);
-  camera.aspect = width/height;
-  camera.updateProjectionMatrix();
-}
-
-function animate(now) {
-  requestAnimationFrame(animate);
-
-  if (!renderer || !scene || !camera) return;
-
-  const delta = Math.min(clock.getDelta(),.05);
-  const elapsed = clock.elapsedTime;
-
-  if (mixer) mixer.update(delta);
-
-  if (starField) {
-    starField.rotation.y += delta*.003;
+function createParticles(){
+  if(particlePoints){
+    scene.remove(particlePoints);
+    particleGeometry.dispose();
+    particleMaterial.dispose();
   }
 
+  const count=2000;
+  particlePositions=new Float32Array(count*3);
+  particleSpeeds=new Float32Array(count);
+
+  for(let i=0;i<count;i++){
+    const j=i*3;
+    particlePositions[j]=(Math.random()-.5)*7;
+    particlePositions[j+1]=Math.random()*6;
+    particlePositions[j+2]=(Math.random()-.5)*7;
+    particleSpeeds[i]=.25+Math.random()*.9;
+  }
+
+  particleGeometry=new THREE.BufferGeometry();
+  particleGeometry.setAttribute(
+    "position",new THREE.BufferAttribute(particlePositions,3)
+  );
+
+  particleMaterial=new THREE.PointsMaterial({
+    color:0xc8a7ff,
+    size:.055,
+    transparent:true,
+    opacity:.85,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending,
+    sizeAttenuation:true
+  });
+
+  particlePoints=new THREE.Points(particleGeometry,particleMaterial);
+  scene.add(particlePoints);
+  particleGeometry.setDrawRange(0,particleCount);
+}
+
+function updateParticles(delta,elapsedTime){
+  if(!particlePoints) return;
+
+  particlePoints.visible=magicEnabled && particleCount>0;
+  if(!particlePoints.visible) return;
+
+  particleGeometry.setDrawRange(0,particleCount);
+  const pos=particleGeometry.attributes.position.array;
+
+  for(let i=0;i<particleCount;i++){
+    const j=i*3;
+    pos[j+1]+=particleSpeeds[i]*delta*.35;
+
+    if(pos[j+1]>5.5){
+      pos[j+1]=.1;
+      pos[j]=(Math.random()-.5)*5;
+      pos[j+2]=(Math.random()-.5)*5;
+    }
+
+    pos[j]+=(Math.sin(elapsedTime+i)*.0008);
+  }
+
+  particleGeometry.attributes.position.needsUpdate=true;
+  particlePoints.rotation.y=elapsedTime*.025;
+}
+
+function animateCharacter(delta,time){
+  if(!character) return;
+
+  const body=character.userData.body;
+
+  if(body){
+    body.position.y=0;
+    body.rotation.z=0;
+
+    if(currentAnimation==="idle"){
+      body.position.y=Math.sin(time*1.4)*.035;
+      body.rotation.y=Math.sin(time*.45)*.06;
+    }
+
+    if(currentAnimation==="orbit"){
+      body.position.y=.15+Math.sin(time*1.6)*.12;
+      character.rotation.y+=delta*.5;
+    }
+
+    if(currentAnimation==="power"){
+      body.position.y=Math.sin(time*2)*.045;
+      const pulse=1+Math.sin(time*3)*.06;
+      if(character.userData.magicRings){
+        character.userData.magicRings.forEach(r=>r.scale.setScalar(pulse));
+      }
+    }
+
+    if(currentAnimation==="walk"){
+      body.position.y=Math.abs(Math.sin(time*4))*.08;
+      body.rotation.z=Math.sin(time*4)*.035;
+
+      if(character.userData.arm1){
+        character.userData.arm1.rotation.x=Math.sin(time*4)*.45;
+      }
+      if(character.userData.armMinus1){
+        character.userData.armMinus1.rotation.x=-Math.sin(time*4)*.45;
+      }
+    }
+
+    if(currentAnimation==="dance"){
+      body.position.y=Math.abs(Math.sin(time*2.4))*.16;
+      body.rotation.y=Math.sin(time*2.4)*.25;
+
+      if(character.userData.arm1){
+        character.userData.arm1.rotation.z=-.6+Math.sin(time*2.4)*.4;
+      }
+      if(character.userData.armMinus1){
+        character.userData.armMinus1.rotation.z=.6-Math.sin(time*2.4)*.4;
+      }
+    }
+  }
+
+  if(character.userData.magicRings){
+    character.userData.magicRings.forEach((ring,i)=>{
+      ring.visible=magicEnabled;
+      ring.rotation.y=time*(.35+i*.18)*(i%2===0?1:-1);
+      ring.rotation.x=Math.PI/2+Math.sin(time*.5+i)*.2;
+    });
+  }
+
+  if(character.userData.staff && magicEnabled){
+    character.userData.staff.rotation.z=-.12+Math.sin(time*1.5)*.045;
+  }
+}
+
+function animate(now){
+  animationId=requestAnimationFrame(animate);
+  if(!renderer || !scene || !camera) return;
+
+  const time=now*.001;
+  const delta=Math.min(.05,lastTime ? time-lastTime : .016);
+  lastTime=time;
+
+  if(running) elapsed+=delta;
+
+  animateCharacter(delta,elapsed);
   updateParticles(delta,elapsed);
 
-  if (autoOrbit && controls) {
-    const offset = camera.position.clone().sub(controls.target);
-    offset.applyAxisAngle(new THREE.Vector3(0,1,0),delta*.3);
-    camera.position.copy(controls.target).add(offset);
+  if(starField){
+    starField.rotation.y=elapsed*.003;
   }
 
-  if (cameraPlaying) {
-    const duration = +$("duration").value;
-    const elapsedSequence = (now-cameraStart)/1000;
-    const t = Math.min(1,elapsedSequence/duration);
-    const eased = t*t*(3-2*t);
-    const motion = $("cameraMotion").value;
-
-    if (motion === "orbit") {
-      const target = controls.target;
-      const radius = cameraStartPosition.distanceTo(target);
-      const angle = elapsedSequence*.35;
-
-      camera.position.x = target.x + Math.sin(angle)*radius;
-      camera.position.z = target.z + Math.cos(angle)*radius;
-    } else if (motion === "push" || motion === "pull") {
-      camera.position.lerpVectors(
-        cameraStartPosition,cameraTargetPosition,eased
-      );
-    }
-
-    if (elapsedSequence >= duration) {
-      cameraPlaying = false;
-    }
+  if(platformRing){
+    platformRing.rotation.z=elapsed*.12;
+    platformRing.material.emissiveIntensity=.6+Math.sin(elapsed*2)*.35;
   }
 
   controls.update();
   renderer.render(scene,camera);
 
   fpsFrames++;
-
-  if (now-fpsTimer>1000) {
-    $("fpsStat").textContent = "FPS: "+fpsFrames;
+  fpsTimer+=delta;
+  if(fpsTimer>=1){
+    $("fpsText").textContent=fpsFrames+" FPS";
     fpsFrames=0;
-    fpsTimer=now;
+    fpsTimer=0;
+  }
+
+  $("timeText").textContent=elapsed.toFixed(1)+" seconds";
+  $("timelineRange").value=Math.min(10,elapsed%10).toFixed(1);
+}
+
+function resize(){
+  if(!renderer || !camera) return;
+
+  const width=Math.max(1,canvas.clientWidth);
+  const height=Math.max(1,canvas.clientHeight);
+
+  camera.aspect=width/height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(width,height,false);
+}
+
+function setCamera(mode){
+  if(!camera || !controls) return;
+
+  const target=controls.target.clone();
+
+  if(mode==="front"){
+    camera.position.set(0,2.7,9);
+  }else if(mode==="side"){
+    camera.position.set(9,2.7,0);
+  }else if(mode==="back"){
+    camera.position.set(0,2.7,-9);
+  }else{
+    camera.position.set(0,2.7,9);
+    target.set(0,1.7,0);
+  }
+
+  controls.target.copy(target);
+  controls.update();
+}
+
+function setGlow(value){
+  glowIntensity=Number(value);
+  $("glowValue").textContent=glowIntensity.toFixed(1);
+
+  characterMaterials.forEach(m=>{
+    if(m.emissive && m.emissive.getHex()!==0){
+      m.emissiveIntensity=glowIntensity*2;
+    }
+  });
+}
+
+function setCharacterColor(color){
+  currentColor=color;
+  $("customColor").value=color;
+
+  if(character){
+    buildCharacter(currentCharacter);
   }
 }
 
-window.addEventListener("resize",resize);
+function bindUI(){
+  document.querySelectorAll("[data-character]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      if(importedModel){
+        toast("Switching character replaces the imported model.");
+      }
+      buildCharacter(btn.dataset.character);
+    });
+  });
 
-window.addEventListener("orientationchange",() => {
-  setTimeout(resize,250);
-});
+  document.querySelectorAll(".swatch").forEach(btn=>{
+    btn.addEventListener("click",()=>setCharacterColor(btn.dataset.color));
+  });
 
-document.addEventListener("visibilitychange",() => {
-  if (document.hidden && currentAction) {
-    currentAction.paused = true;
+  $("customColor").addEventListener("input",e=>setCharacterColor(e.target.value));
+
+  $("glowRange").addEventListener("input",e=>setGlow(e.target.value));
+
+  $("scaleRange").addEventListener("input",e=>{
+    characterScale=Number(e.target.value);
+    $("scaleValue").textContent=characterScale.toFixed(1)+"×";
+    if(character) character.scale.setScalar(characterScale);
+  });
+
+  $("rotationRange").addEventListener("input",e=>{
+    if(character) character.rotation.y=THREE.MathUtils.degToRad(Number(e.target.value));
+  });
+
+  $("environmentSelect").addEventListener("change",e=>{
+    currentEnvironment=e.target.value;
+  });
+
+  $("applyEnvironmentBtn").addEventListener("click",()=>{
+    currentEnvironment=$("environmentSelect").value;
+    createEnvironment();
+    toast("Environment applied successfully");
+  });
+
+  $("lightRange").addEventListener("input",e=>{
+    lightIntensity=Number(e.target.value);
+    $("lightValue").textContent=lightIntensity.toFixed(1);
+    applyLightIntensity();
+  });
+
+  $("particleRange").addEventListener("input",e=>{
+    particleCount=Number(e.target.value);
+    $("particleValue").textContent=String(particleCount);
+    if(particleGeometry) particleGeometry.setDrawRange(0,particleCount);
+  });
+
+  $("magicBtn").addEventListener("click",()=>{
+    magicEnabled=!magicEnabled;
+    $("magicBtn").classList.toggle("active",magicEnabled);
+    if(particlePoints) particlePoints.visible=magicEnabled;
+    toast(magicEnabled?"Magic effects enabled":"Magic effects disabled");
+  });
+
+  $("frontBtn").addEventListener("click",()=>setCamera("front"));
+  $("sideBtn").addEventListener("click",()=>setCamera("side"));
+  $("backBtn").addEventListener("click",()=>setCamera("back"));
+  $("resetCameraBtn").addEventListener("click",()=>{
+    setCamera("reset");
+    toast("Camera reset");
+  });
+
+  $("rebuildBtn").addEventListener("click",()=>{
+    buildCharacter(currentCharacter);
+    toast("Character rebuilt");
+  });
+
+  $("animationSelect").addEventListener("change",e=>{
+    currentAnimation=e.target.value;
+    $("animBadge").textContent=e.target.options[e.target.selectedIndex].text;
+    toast("Animation changed");
+  });
+
+  $("playBtn").addEventListener("click",()=>{
+    running=true;
+    $("playBtn").classList.add("active");
+    toast("Animation playing");
+  });
+
+  $("pauseBtn").addEventListener("click",()=>{
+    running=false;
+    $("playBtn").classList.remove("active");
+    toast("Animation paused");
+  });
+
+  $("stopBtn").addEventListener("click",()=>{
+    running=false;
+    elapsed=0;
+    if(character){
+      character.rotation.y=THREE.MathUtils.degToRad(Number($("rotationRange").value));
+    }
+    $("timelineRange").value=0;
+    $("timeText").textContent="0.0 seconds";
+    $("playBtn").classList.remove("active");
+    toast("Animation stopped");
+  });
+
+  $("timelineRange").addEventListener("input",e=>{
+    elapsed=Number(e.target.value);
+    $("timeText").textContent=elapsed.toFixed(1)+" seconds";
+    animateCharacter(0,elapsed);
+  });
+
+  $("saveBtn").addEventListener("click",saveProject);
+  $("exportBtn").addEventListener("click",exportProject);
+
+  $("importProjectBtn").addEventListener("click",()=>{
+    $("projectFile").click();
+  });
+
+  $("projectFile").addEventListener("change",importProject);
+
+  $("resetProjectBtn").addEventListener("click",()=>{
+    if(!confirm("Reset the scene and restore the default character?")) return;
+    currentEnvironment="cosmos";
+    currentColor="#382078";
+    currentAnimation="idle";
+    characterScale=1;
+    glowIntensity=1;
+    lightIntensity=1;
+    particleCount=900;
+    magicEnabled=true;
+
+    $("environmentSelect").value=currentEnvironment;
+    $("animationSelect").value=currentAnimation;
+    $("scaleRange").value=1;
+    $("scaleValue").textContent="1.0×";
+    $("glowRange").value=1;
+    $("lightRange").value=1;
+    $("particleRange").value=900;
+    $("particleValue").textContent="900";
+    $("customColor").value=currentColor;
+    $("rotationRange").value=0;
+
+    createEnvironment();
+    buildCharacter("sorcerer");
+    setGlow(1);
+    applyLightIntensity();
+    setCamera("reset");
+    running=true;
+    elapsed=0;
+    toast("Studio reset");
+  });
+
+  $("screenshotBtn").addEventListener("click",captureScreenshot);
+  $("importBtn").addEventListener("click",()=> $("modelFile").click());
+  $("modelFile").addEventListener("change",importModel);
+
+  // Pause animation when the tab is hidden.
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){
+      running=false;
+    }else{
+      running=true;
+      lastTime=0;
+    }
+  });
+}
+
+function projectData(){
+  return {
+    app:"AnimAI Studio",
+    version:1,
+    character:currentCharacter,
+    color:currentColor,
+    scale:characterScale,
+    glow:glowIntensity,
+    environment:currentEnvironment,
+    lightIntensity:lightIntensity,
+    particleCount:particleCount,
+    magicEnabled:magicEnabled,
+    animation:currentAnimation,
+    rotation:Number($("rotationRange").value||0),
+    camera:{
+      position:camera?camera.position.toArray():[0,2.7,9],
+      target:controls?controls.target.toArray():[0,1.7,0]
+    }
+  };
+}
+
+function saveProject(){
+  try{
+    localStorage.setItem("animai-studio-project",JSON.stringify(projectData()));
+    toast("Project settings saved on this device");
+  }catch(error){
+    toast("Unable to save. Device storage may be full.");
   }
-});
+}
 
-/* ---------- Start ---------- */
+function downloadJSON(data,filename){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+function exportProject(){
+  downloadJSON(projectData(),"animai-studio-project.json");
+  toast("Scene settings exported");
+}
+
+function importProject(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      applyProjectData(data);
+      toast("Project settings imported");
+    }catch(error){
+      toast("Invalid project settings file");
+    }
+    event.target.value="";
+  };
+  reader.readAsText(file);
+}
+
+function applyProjectData(data){
+  if(data.environment){
+    currentEnvironment=data.environment;
+    $("environmentSelect").value=currentEnvironment;
+    createEnvironment();
+  }
+
+  if(data.color){
+    currentColor=data.color;
+    $("customColor").value=currentColor;
+  }
+
+  if(data.character && ["sorcerer","warrior","guardian","shadow"].includes(data.character)){
+    buildCharacter(data.character);
+  }
+
+  if(Number.isFinite(data.scale)){
+    characterScale=data.scale;
+    $("scaleRange").value=characterScale;
+    $("scaleValue").textContent=characterScale.toFixed(1)+"×";
+    if(character) character.scale.setScalar(characterScale);
+  }
+
+  if(Number.isFinite(data.glow)){
+    $("glowRange").value=data.glow;
+    setGlow(data.glow);
+  }
+
+  if(Number.isFinite(data.lightIntensity)){
+    lightIntensity=data.lightIntensity;
+    $("lightRange").value=lightIntensity;
+    $("lightValue").textContent=lightIntensity.toFixed(1);
+    applyLightIntensity();
+  }
+
+  if(Number.isFinite(data.particleCount)){
+    particleCount=Math.max(0,Math.min(2000,data.particleCount));
+    $("particleRange").value=particleCount;
+    $("particleValue").textContent=String(particleCount);
+  }
+
+  if(typeof data.magicEnabled==="boolean"){
+    magicEnabled=data.magicEnabled;
+    $("magicBtn").classList.toggle("active",magicEnabled);
+  }
+
+  if(data.animation){
+    currentAnimation=data.animation;
+    $("animationSelect").value=currentAnimation;
+  }
+
+  if(Number.isFinite(data.rotation)){
+    $("rotationRange").value=data.rotation;
+    if(character) character.rotation.y=THREE.MathUtils.degToRad(data.rotation);
+  }
+
+  if(data.camera && data.camera.position && data.camera.target){
+    camera.position.fromArray(data.camera.position);
+    controls.target.fromArray(data.camera.target);
+    controls.update();
+  }
+
+  if(particleGeometry) particleGeometry.setDrawRange(0,particleCount);
+}
+
+function captureScreenshot(){
+  try{
+    renderer.render(scene,camera);
+    const url=renderer.domElement.toDataURL("image/png");
+    const a=document.createElement("a");
+    a.href=url;
+    a.download="animai-studio.png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast("Screenshot captured");
+  }catch(error){
+    console.error(error);
+    toast("Screenshot failed. Try another browser.");
+  }
+}
+
+function importModel(event){
+  const file=event.target.files && event.target.files[0];
+  if(!file) return;
+
+  if(!THREE.GLTFLoader){
+    toast("3D model loader is unavailable");
+    event.target.value="";
+    return;
+  }
+
+  const loader=new THREE.GLTFLoader();
+  const url=URL.createObjectURL(file);
+
+  updateStatus("Loading 3D model...");
+
+  loader.load(url,gltf=>{
+    if(importedModel){
+      scene.remove(importedModel);
+      disposeObject(importedModel);
+    }else if(character){
+      clearCharacter();
+    }
+
+    importedModel=gltf.scene;
+    importedModel.name="Imported Character";
+
+    const box=new THREE.Box3().setFromObject(importedModel);
+    const size=box.getSize(new THREE.Vector3());
+    const center=box.getCenter(new THREE.Vector3());
+
+    const maxDimension=Math.max(size.x,size.y,size.z);
+    if(maxDimension>0){
+      const scale=3.3/maxDimension;
+      importedModel.scale.multiplyScalar(scale);
+    }
+
+    const newBox=new THREE.Box3().setFromObject(importedModel);
+    const newCenter=newBox.getCenter(new THREE.Vector3());
+    importedModel.position.x-=newCenter.x;
+    importedModel.position.y-=newBox.min.y;
+    importedModel.position.z-=newCenter.z;
+
+    scene.add(importedModel);
+    character=importedModel;
+    currentCharacter="imported";
+
+    $("characterName").textContent=file.name;
+    document.querySelectorAll("[data-character]").forEach(btn=>{
+      btn.classList.remove("active");
+    });
+
+    controls.target.set(0,1.6,0);
+    setCamera("reset");
+
+    URL.revokeObjectURL(url);
+    updateStatus("Custom model loaded");
+    toast("3D model imported successfully");
+    event.target.value="";
+  },undefined,error=>{
+    console.error(error);
+    URL.revokeObjectURL(url);
+    updateStatus("Model import failed");
+    toast("Could not load this model. Try a valid GLB file.");
+    event.target.value="";
+  });
+}
+
+window.addEventListener("error",function(event){
+  console.error("Studio error:",event.message);
+});
 
 init();
 
+})();
 </script>
 </body>
-  </html>
+      </html>
