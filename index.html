@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080a10">
+<title>AnimAI Studio</title>
+
+<style>
+:root{
+  --bg:#080a10;
+  --panel:#10141e;
+  --panel2:#191f2e;
+  --border:#2b3449;
+  --text:#f1f4ff;
+  --muted:#929db5;
+  --accent:#a18bff;
+  --cyan:#5bdcff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,sans-serif
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+.app{max-width:1400px;margin:auto;padding:10px}
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:12px 0;border-bottom:1px solid var(--border)
+}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#b49aff,#55e4ff);
+  color:#080a10;font-size:23px;font-weight:900
+}
+h1{font-size:16px;margin:0}
+.subtitle{font-size:10px;color:var(--muted);margin-top:4px}
+.btn,.tab{
+  background:var(--panel2);color:var(--text);
+  border:1px solid var(--border);border-radius:9px;
+  padding:9px 11px;font-size:11px;font-weight:700
+}
+.btn.primary{
+  background:linear-gradient(135deg,#b49aff,#55e4ff);
+  color:#080a10;border:0
+}
+.btn.active,.tab.active{border-color:var(--accent);background:#a18bff28}
+.btn.danger{color:#ff8298}
+.tabs{display:flex;gap:7px;overflow:auto;padding:12px 0}
+.tab{white-space:nowrap;flex-shrink:0}
+.layout{
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;
+  gap:12px;align-items:start
+}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:13px;overflow:hidden;margin-bottom:12px;min-width:0
+}
+.panelHead{
+  padding:12px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:8px
+}
+.panelHead h2{font-size:12px;margin:0}
+.panelHead span{font-size:10px;color:var(--muted)}
+.stage{position:relative;background:#05070d}
+#drawCanvas{display:block;width:100%;height:340px;touch-action:none}
+#threeHost{display:none;width:100%;height:390px;touch-action:none}
+#threeHost canvas{display:block;width:100%;height:100%;touch-action:none}
+.hint{
+  position:absolute;bottom:8px;left:8px;
+  background:#080a10dd;color:var(--muted);
+  font-size:10px;padding:6px 8px;border-radius:6px;pointer-events:none
+}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:10px}
+.hidden{display:none!important}
+.pad{padding:12px}
+.field{margin-bottom:12px;min-width:0}
+.field label{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}
+input[type=color]{
+  width:40px;height:36px;padding:2px;background:var(--panel);
+  border:1px solid var(--border);border-radius:7px
+}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],input[type=number],select,textarea{
+  width:100%;min-width:0;background:#090c14;color:var(--text);
+  border:1px solid var(--border);border-radius:8px;
+  padding:10px;font-size:12px
+}
+textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1 1 70px;min-width:0}
+.note{font-size:10px;color:var(--muted);line-height:1.6}
+.frames{display:flex;gap:7px;overflow:auto;padding:10px}
+.frame{
+  flex:0 0 60px;height:54px;border:1px solid var(--border);
+  background:#080b13;color:var(--muted);border-radius:8px;
+  font-size:10px
+}
+.frame.active{border:2px solid var(--accent);color:white}
+#toast{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  background:#252c40;border:1px solid var(--border);
+  padding:12px 16px;border-radius:10px;font-size:12px;
+  z-index:99;display:none;max-width:90%
+}
+@media(max-width:760px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  #threeHost{height:350px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div class="brand">
+    <div class="logo">A</div>
+    <div>
+      <h1>AnimAI Studio</h1>
+      <div class="subtitle">2D animation · 3D worlds · Scene planner</div>
+    </div>
+  </div>
+  <button class="btn primary" id="saveBtn">Save</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-mode="2d">🎨 2D Studio</button>
+  <button class="tab" data-mode="3d">🌌 3D World</button>
+  <button class="tab" data-mode="ai">🤖 Scene Planner</button>
+</nav>
+
+<div class="layout">
+<main>
+
+<section class="panel">
+  <div class="panelHead">
+    <div>
+      <h2 id="stageTitle">2D Animation Canvas</h2>
+      <span id="stageSubtitle">Draw frame by frame</span>
+    </div>
+    <button class="btn" id="clearBtn">Clear</button>
+  </div>
+
+  <div class="stage">
+    <canvas id="drawCanvas"></canvas>
+    <div id="threeHost"></div>
+    <div class="hint" id="hint">Touch to draw</div>
+  </div>
+
+  <div class="toolbar" id="tools2d">
+    <input type="color" id="brushColor" value="#a394ff" aria-label="Brush colour">
+    <button class="btn active" id="penBtn">Pen</button>
+    <button class="btn" id="eraserBtn">Eraser</button>
+    <button class="btn" id="undoBtn">Undo</button>
+    <button class="btn" id="addFrameBtn">+ Frame</button>
+    <button class="btn" id="duplicateFrameBtn">Duplicate</button>
+    <button class="btn" id="onionBtn">Onion skin</button>
+    <button class="btn" id="circleBtn">Circle</button>
+    <button class="btn" id="pngBtn">Export PNG</button>
+  </div>
+
+  <div class="toolbar hidden" id="tools3d">
+    <button class="btn" data-shape="box">Cube</button>
+    <button class="btn" data-shape="sphere">Sphere</button>
+    <button class="btn" data-shape="cone">Cone</button>
+    <button class="btn" data-shape="torus">Torus</button>
+    <button class="btn" data-shape="cylinder">Cylinder</button>
+    <button class="btn" data-shape="crystal">Crystal</button>
+    <button class="btn" data-shape="tree">Tree</button>
+    <button class="btn" data-shape="mountain">Mountain</button>
+    <button class="btn" data-shape="rock">Rock</button>
+    <button class="btn" data-shape="arch">Arch</button>
+    <button class="btn" id="rotateBtn">Auto rotate: OFF</button>
+    <button class="btn" id="resetCameraBtn">Reset camera</button>
+  </div>
+</section>
+
+<section class="panel" id="timelinePanel">
+  <div class="panelHead">
+    <h2>🎞️ Animation Timeline</h2>
+    <span id="frameCount">1 frame</span>
+  </div>
+  <div class="pad">
+    <div class="row">
+      <button class="btn primary" id="play2dBtn">▶ Play</button>
+      <button class="btn" id="stop2dBtn">■ Stop</button>
+      <button class="btn danger" id="deleteFrameBtn">Delete frame</button>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Playback FPS: <span id="fpsLabel">8</span></label>
+      <input type="range" id="fps" min="1" max="24" value="8">
+    </div>
+  </div>
+  <div class="frames" id="frameList"></div>
+</section>
+
+<section class="panel hidden" id="worldPanel">
+  <div class="panelHead">
+    <h2>🌍 World Builder</h2><span>Environment controls</span>
+  </div>
+  <div class="pad">
+    <div class="field">
+      <label>Environment preset</label>
+      <select id="environment">
+        <option value="cosmic">Cosmic universe</option>
+        <option value="sunset">Cinematic sunset</option>
+        <option value="forest">Mystic forest</option>
+        <option value="mountains">Mountain landscape</option>
+        <option value="temple">Ancient temple</option>
+        <option value="ocean">Moonlit ocean</option>
+        <option value="alien">Alien planet</option>
+        <option value="desert">Desert world</option>
+        <option value="night">Moonlit night</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>World colour</label>
+        <input type="color" id="worldColor" value="#090b24">
+      </div>
+      <div class="field">
+        <label>Fog colour</label>
+        <input type="color" id="fogColor" value="#17102d">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Fog density: <span id="fogLabel">0.008</span></label>
+      <input type="range" id="fogDensity" min="0" max=".06" step=".001" value=".008">
+    </div>
+
+    <div class="field">
+      <label>Stars: <span id="starLabel">1200</span></label>
+      <input type="range" id="starCount" min="0" max="3000" step="100" value="1200">
+    </div>
+
+    <div class="field">
+      <label>Ambient light: <span id="lightLabel">1.2</span></label>
+      <input type="range" id="lightLevel" min="0" max="3" step=".1" value="1.2">
+    </div>
+
+    <div class="field">
+      <label>Ground</label>
+      <select id="groundMode">
+        <option value="grid">Editor grid</option>
+        <option value="floor">Studio floor</option>
+        <option value="terrain">Landscape terrain</option>
+        <option value="none">No ground</option>
+      </select>
+    </div>
+
+    <button class="btn primary" id="applyWorldBtn">Apply environment</button>
+    <p class="note">Environments are created using procedural 3D geometry, lights, fog and particles. Detailed imported assets can improve realism.</p>
+  </div>
+</section>
+
+<section class="panel hidden" id="objectPanel">
+  <div class="panelHead">
+    <h2>🎮 Object Properties</h2><span id="selectedLabel">No object</span>
+  </div>
+  <div class="pad">
+    <div class="field">
+      <label>Select object</label>
+      <select id="objectSelect"></select>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Position X</label><input id="posX" type="number" step=".1" value="0"></div>
+      <div class="field"><label>Position Y</label><input id="posY" type="number" step=".1" value="0"></div>
+      <div class="field"><label>Position Z</label><input id="posZ" type="number" step=".1" value="0"></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Rotation X</label><input id="rotX" type="number" step="5" value="0"></div>
+      <div class="field"><label>Rotation Y</label><input id="rotY" type="number" step="5" value="0"></div>
+      <div class="field"><label>Rotation Z</label><input id="rotZ" type="number" step="5" value="0"></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Scale</label><input id="objScale" type="number" min=".1" max="30" step=".1" value="1"></div>
+      <div class="field"><label>Colour</label><input id="objColor" type="color" value="#a394ff"></div>
+    </div>
+
+    <div class="field">
+      <label>Metalness</label>
+      <input type="range" id="metalness" min="0" max="1" step=".1" value=".3">
+    </div>
+    <div class="field">
+      <label>Roughness</label>
+      <input type="range" id="roughness" min="0" max="1" step=".1" value=".5">
+    </div>
+
+    <button class="btn primary" id="applyObjectBtn">Apply properties</button>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="duplicateObjectBtn">Duplicate object</button>
+      <button class="btn danger" id="deleteObjectBtn">Delete object</button>
+    </div>
+  </div>
+</section>
+
+<section class="panel hidden" id="keyPanel">
+  <div class="panelHead"><h2>🎬 3D Keyframes</h2><span id="keyCount">0 keys</span></div>
+  <div class="pad">
+    <div class="field">
+      <label>Timeline: <span id="timeLabel">0.0 seconds</span></label>
+      <input type="range" id="timeSlider" min="0" max="10" step=".1" value="0">
+    </div>
+    <div class="row">
+      <button class="btn primary" id="recordKeyBtn">◆ Record key</button>
+      <button class="btn" id="play3dBtn">▶ Play</button>
+      <button class="btn" id="stop3dBtn">■ Stop</button>
+    </div>
+    <div id="keyList" class="note" style="margin-top:12px">No keyframes yet.</div>
+  </div>
+</section>
+
+<section class="panel hidden" id="aiPanel">
+  <div class="panelHead"><h2>🤖 Scene Planner</h2><span>Prompt to starter scene</span></div>
+  <div class="pad">
+    <div class="field">
+      <label>Project name</label>
+      <input id="projectName" type="text" value="My Animation">
+    </div>
+    <div class="field">
+      <label>Describe your world</label>
+      <textarea id="prompt" placeholder="A glowing crystal in an ancient temple under a starry sky..."></textarea>
+    </div>
+    <div class="field">
+      <label>Visual style</label>
+      <select id="style">
+        <option>Cinematic</option>
+        <option>Fantasy</option>
+        <option>Stylized</option>
+        <option>Science fiction</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Animation duration in seconds</label>
+      <input id="duration" type="number" min="1" max="120" value="10">
+    </div>
+    <div class="row">
+      <button class="btn primary" id="makePlanBtn">Create scene plan</button>
+      <button class="btn" id="buildPlanBtn">Build 3D scene</button>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Scene plan</label>
+      <textarea id="planOutput" readonly placeholder="Your scene plan will appear here"></textarea>
+    </div>
+    <p class="note">This is a local keyword-based planner, not a generative AI model. No paid AI API is required.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panelHead"><h2>📦 Project</h2><span>Local save and export</span></div>
+  <div class="pad">
+    <div class="row">
+      <button class="btn" id="exportBtn">Export project JSON</button>
+      <button class="btn" id="importBtn">Import project JSON</button>
+      <button class="btn" id="newBtn">New project</button>
+      <input class="hidden" type="file" id="importFile" accept=".json,application/json">
+    </div>
+    <p class="note">Project data is stored in your browser when you use Save. Export JSON to keep a backup. Imported 3D models are not embedded in the JSON file.</p>
+    <div id="savedProjects" class="note"></div>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+"use strict";
+
+const $=id=>document.getElementById(id);
+let mode="2d",drawing=false,erasing=false,onion=false;
+let frames=[],frameIndex=0,undoStack=[];
+let playback=null;
+let scene,camera,renderer,orbit,worldGrid,ground,stars,ambient;
+let objects=[],selected=null,autoRotate=false;
+let keys=[],selectedKey=-1,playing3d=false,playStart=0,playClock=0;
+let lastPlan=null;
+
+function toast(message){
+  const el=$("toast");
+  el.textContent=message;
+  el.style.display="block";
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.style.display="none",2400);
+}
+
+function download(name,data,type="application/octet-stream"){
+  const blob=new Blob([data],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function safeName(s){
+  return (s||"animation").replace(/[^a-z0-9_-]/gi,"_").slice(0,60)||"animation";
+}
+
+/* ---------------- 2D STUDIO ---------------- */
+
+const canvas=$("drawCanvas");
+const ctx=canvas.getContext("2d");
+
+function newFrame(){
+  const c=document.createElement("canvas");
+  c.width=1000;c.height=600;
+  const x=c.getContext("2d");
+  x.fillStyle="#080b12";
+  x.fillRect(0,0,c.width,c.height);
+  return c;
+}
+
+function resizeCanvas(){
+  const rect=canvas.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
+  const old=document.createElement("canvas");
+  old.width=canvas.width||1000;
+  old.height=canvas.height||600;
+  if(canvas.width)old.getContext("2d").drawImage(canvas,0,0);
+  canvas.width=Math.round(rect.width*devicePixelRatio);
+  canvas.height=Math.round(rect.height*devicePixelRatio);
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  renderFrame();
+}
+
+function renderFrame(){
+  if(!frames[frameIndex])frames[frameIndex]=newFrame();
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  if(!w||!h)return;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#080b12";ctx.fillRect(0,0,w,h);
+
+  if(onion&&frameIndex>0){
+    ctx.globalAlpha=.22;
+    ctx.drawImage(frames[frameIndex-1],0,0,w,h);
+    ctx.globalAlpha=1;
+  }
+  ctx.drawImage(frames[frameIndex],0,0,w,h);
+  frameUI();
+}
+
+function canvasPoint(e){
+  const r=canvas.getBoundingClientRect();
+  return {
+    x:(e.clientX-r.left)/r.width*frames[frameIndex].width,
+    y:(e.clientY-r.top)/r.height*frames[frameIndex].height
+  };
+}
+
+function startDraw(e){
+  if(mode!=="2d")return;
+  drawing=true;
+  canvas.setPointerCapture?.(e.pointerId);
+  const p=canvasPoint(e);
+  const c=frames[frameIndex],x=c.getContext("2d");
+  undoStack.push(c.toDataURL());
+  if(undoStack.length>30)undoStack.shift();
+  x.beginPath();x.moveTo(p.x,p.y);
+  x.lineCap="round";x.lineJoin="round";
+  x.strokeStyle=erasing?"#080b12":$("brushColor").value;
+  x.lineWidth=erasing?40:8;
+  x.stroke();
+  renderFrame();
+}
+
+function moveDraw(e){
+  if(!drawing)return;
+  const p=canvasPoint(e);
+  const c=frames[frameIndex],x=c.getContext("2d");
+  x.lineTo(p.x,p.y);
+  x.strokeStyle=erasing?"#080b12":$("brushColor").value;
+  x.lineWidth=erasing?40:8;
+  x.lineCap="round";x.lineJoin="round";
+  x.stroke();
+  renderFrame();
+}
+
+function endDraw(){drawing=false}
+canvas.addEventListener("pointerdown",startDraw);
+canvas.addEventListener("pointermove",moveDraw);
+canvas.addEventListener("pointerup",endDraw);
+canvas.addEventListener("pointercancel",endDraw);
+
+function frameUI(){
+  $("frameCount").textContent=frames.length+" frame"+(frames.length===1?"":"s");
+  const list=$("frameList");list.innerHTML="";
+  frames.forEach((f,i)=>{
+    const b=document.createElement("button");
+    b.className="frame"+(i===frameIndex?" active":"");
+    b.textContent="Frame "+(i+1);
+    b.onclick=()=>{frameIndex=i;renderFrame()};
+    list.appendChild(b);
+  });
+}
+
+$("penBtn").onclick=()=>{
+  erasing=false;$("penBtn").classList.add("active");
+  $("eraserBtn").classList.remove("active");
+};
+$("eraserBtn").onclick=()=>{
+  erasing=true;$("eraserBtn").classList.add("active");
+  $("penBtn").classList.remove("active");
+};
+$("undoBtn").onclick=()=>{
+  if(!undoStack.length)return toast("Nothing to undo");
+  const im=new Image();
+  im.onload=()=>{
+    const c=frames[frameIndex],x=c.getContext("2d");
+    x.clearRect(0,0,c.width,c.height);x.drawImage(im,0,0);
+    renderFrame();
+  };
+  im.src=undoStack.pop();
+};
+$("clearBtn").onclick=()=>{
+  if(mode==="2d"){
+    frames[frameIndex]=newFrame();undoStack=[];renderFrame();
+  }else{
+    objects.slice().forEach(removeObject);
+    refreshObjects();
+  }
+};
+$("addFrameBtn").onclick=()=>{
+  frames.splice(frameIndex+1,0,newFrame());frameIndex++;renderFrame();
+};
+$("duplicateFrameBtn").onclick=()=>{
+  const c=document.createElement("canvas");
+  c.width=frames[frameIndex].width;c.height=frames[frameIndex].height;
+  c.getContext("2d").drawImage(frames[frameIndex],0,0);
+  frames.splice(frameIndex+1,0,c);frameIndex++;renderFrame();
+};
+$("deleteFrameBtn").onclick=()=>{
+  if(frames.length===1){frames[0]=newFrame();frameIndex=0}
+  else{frames.splice(frameIndex,1);frameIndex=Math.max(0,frameIndex-1)}
+  renderFrame();
+};
+$("onionBtn").onclick=()=>{
+  onion=!onion;$("onionBtn").classList.toggle("active",onion);renderFrame();
+};
+$("circleBtn").onclick=()=>{
+  const c=frames[frameIndex],x=c.getContext("2d");
+  undoStack.push(c.toDataURL());
+  x.beginPath();x.arc(c.width/2,c.height/2,100,0,Math.PI*2);
+  x.strokeStyle=$("brushColor").value;x.lineWidth=8;x.stroke();
+  renderFrame();
+};
+$("pngBtn").onclick=()=>download(
+  "animation-frame-"+(frameIndex+1)+".png",
+  frames[frameIndex].toDataURL().split(",")[1]
+    ?dataURLtoBlob(frames[frameIndex].toDataURL())
+    :new Blob([]),
+  "image/png"
+);
+
+function dataURLtoBlob(url){
+  const parts=url.split(",");
+  const mime=parts[0].match(/:(.*?);/)[1];
+  const binary=atob(parts[1]);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:mime});
+}
+
+$("fps").oninput=()=>{$("fpsLabel").textContent=$("fps").value};
+$("play2dBtn").onclick=()=>{
+  if(playback)return;
+  playback=setInterval(()=>{
+    frameIndex=(frameIndex+1)%frames.length;renderFrame();
+  },1000/+$("fps").value);
+};
+$("stop2dBtn").onclick=()=>{
+  clearInterval(playback);playback=null;
+};
+
+/* ---------------- 3D WORLD BUILDER ---------------- */
+
+const presets={
+  cosmic:{bg:"#080b24",fog:"#17102d"},
+  sunset:{bg:"#49213b",fog:"#9c4f58"},
+  forest:{bg:"#071b16",fog:"#244b38"},
+  mountains:{bg:"#142438",fog:"#50647a"},
+  temple:{bg:"#1a1428",fog:"#59415d"},
+  ocean:{bg:"#031525",fog:"#17455e"},
+  alien:{bg:"#190b2b",fog:"#59317b"},
+  desert:{bg:"#38231b",fog:"#a46a45"},
+  night:{bg:"#050b1d",fog:"#172744"}
+};
+
+function init3D(){
+  if(renderer)return true;
+  if(!window.THREE){
+    toast("3D library failed to load. Check your internet connection.");
+    return false;
+  }
+
+  try{
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color($("worldColor").value);
+    camera=new THREE.PerspectiveCamera(55,1,.1,1000);
+    camera.position.set(9,7,12);
+
+    renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.outputEncoding=THREE.sRGBEncoding;
+    renderer.shadowMap.enabled=true;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    $("threeHost").appendChild(renderer.domElement);
+
+    orbit=new THREE.OrbitControls(camera,renderer.domElement);
+    orbit.enableDamping=true;
+    orbit.dampingFactor=.06;
+    orbit.target.set(0,1,0);
+
+    ambient=new THREE.HemisphereLight(0xb9c7ff,0x29202c,1.2);
+    scene.add(ambient);
+
+    const sun=new THREE.DirectionalLight(0xffe1bd,2);
+    sun.position.set(8,12,5);sun.castShadow=true;
+    scene.add(sun);
+
+    const fill=new THREE.PointLight(0x7365ff,15,60);
+    fill.position.set(-5,4,-4);scene.add(fill);
+
+    worldGrid=new THREE.GridHelper(100,100,0x5c5a9e,0x282942);
+    scene.add(worldGrid);
+
+    applyWorld(false);
+    resize3D();
+    animate();
+    return true;
+  }catch(e){
+    toast("Could not start 3D: "+e.message);
+    return false;
+  }
+}
+
+function resize3D(){
+  if(!renderer||!camera)return;
+  const w=$("threeHost").clientWidth,h=$("threeHost").clientHeight;
+  if(!w||!h)return;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+
+function makeMaterial(color,metalness=.2,roughness=.5){
+  return new THREE.MeshStandardMaterial({
+    color:new THREE.Color(color),metalness,roughness
+  });
+}
+
+function addMesh(geometry,color,name,position=[0,1,0]){
+  const mesh=new THREE.Mesh(geometry,makeMaterial(color));
+  mesh.name=name;
+  mesh.position.set(...position);
+  mesh.castShadow=true;mesh.receiveShadow=true;
+  mesh.userData.kind=name.toLowerCase();
+  scene.add(mesh);objects.push(mesh);
+  selectObject(mesh);refreshObjects();
+  return mesh;
+}
+
+function addObject(type,opts={}){
+  if(!init3D())return;
+  const color=opts.color||"#a394ff";
+  let obj;
+  switch(type){
+    case "box":
+      obj=addMesh(new THREE.BoxGeometry(2,2,2),color,"Cube");break;
+    case "sphere":
+      obj=addMesh(new THREE.SphereGeometry(1.2,48,32),color,"Sphere");break;
+    case "cone":
+      obj=addMesh(new THREE.ConeGeometry(1.2,2.5,48),color,"Cone");break;
+    case "torus":
+      obj=addMesh(new THREE.TorusKnotGeometry(1,.3,128,16),color,"Torus Knot");break;
+    case "cylinder":
+      obj=addMesh(new THREE.CylinderGeometry(1,1,2.5,48),color,"Cylinder");break;
+    case "crystal":{
+      const geo=new THREE.OctahedronGeometry(1.5,0);
+      obj=addMesh(geo,color,"Crystal");
+      obj.scale.y=1.6;break;
+    }
+    case "tree":{
+      const group=new THREE.Group();group.name="Tree";
+      const trunk=new THREE.Mesh(
+        new THREE.CylinderGeometry(.18,.3,2,10),
+        makeMaterial("#67402b")
+      );
+      trunk.position.y=1;group.add(trunk);
+      const leaves=new THREE.Mesh(
+        new THREE.ConeGeometry(1.1,2.6,12),
+        makeMaterial("#347e56")
+      );
+      leaves.position.y=2.7;group.add(leaves);
+      group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+      scene.add(group);objects.push(group);obj=group;break;
+    }
+    case "mountain":
+      obj=addMesh(new THREE.ConeGeometry(3,5,7),color,"Mountain");
+      obj.position.y=2;break;
+    case "rock":
+      obj=addMesh(new THREE.DodecahedronGeometry(1.5,1),color,"Rock");
+      obj.scale.set(1.2,.8,1);break;
+    case "arch":{
+      const g=new THREE.Group();g.name="Arch";
+      const mat=makeMaterial(color);
+      const left=new THREE.Mesh(new THREE.BoxGeometry(.5,3, .7),mat);
+      left.position.set(-1,1.5,0);
+      const right=left.clone();right.position.x=1;
+      const top=new THREE.Mesh(new THREE.BoxGeometry(2.5,.5,.7),mat);
+      top.position.y=3;
+      g.add(left,right,top);
+      g.position.set(0,0,0);
+      scene.add(g);objects.push(g);obj=g;break;
+    }
+    default:return;
+  }
+
+  if(opts.x!==undefined)obj.position.x=opts.x;
+  if(opts.y!==undefined)obj.position.y=opts.y;
+  if(opts.z!==undefined)obj.position.z=opts.z;
+  if(opts.scale)obj.scale.setScalar(opts.scale);
+  if(opts.name)obj.name=opts.name;
+  refreshObjects();selectObject(obj);
+  return obj;
+}
+
+function removeObject(obj){
+  if(!obj||!scene)return;
+  scene.remove(obj);
+  obj.traverse?.(child=>{
+    if(child.geometry)child.geometry.dispose();
+    if(child.material){
+      if(Array.isArray(child.material))child.material.forEach(m=>m.dispose());
+      else child.material.dispose();
+    }
+  });
+  objects=objects.filter(o=>o!==obj);
+  if(selected===obj)selected=null;
+  refreshObjects();
+}
+
+function refreshObjects(){
+  const sel=$("objectSelect");if(!sel)return;
+  sel.innerHTML="";
+  objects.forEach((o,i)=>{
+    const option=document.createElement("option");
+    option.value=String(i);
+    option.textContent=o.name||("Object "+(i+1));
+    sel.appendChild(option);
+  });
+  if(selected){
+    const i=objects.indexOf(selected);
+    if(i>=0)sel.value=String(i);
+  }
+}
+
+function selectObject(obj){
+  selected=obj;
+  if(!obj)return;
+  $("selectedLabel").textContent=obj.name||"Object";
+  $("posX").value=obj.position.x.toFixed(2);
+  $("posY").value=obj.position.y.toFixed(2);
+  $("posZ").value=obj.position.z.toFixed(2);
+  $("rotX").value=(obj.rotation.x*180/Math.PI).toFixed(1);
+  $("rotY").value=(obj.rotation.y*180/Math.PI).toFixed(1);
+  $("rotZ").value=(obj.rotation.z*180/Math.PI).toFixed(1);
+  $("objScale").value=obj.scale.x.toFixed(2);
+  const m=obj.children?.[0]?.material||obj.material;
+  if(m&&m.color){
+    try{$("objColor").value="#"+m.color.getHexString()}catch(e){}
+    $("metalness").value=m.metalness??.3;
+    $("roughness").value=m.roughness??.5;
+  }
+  refreshObjects();
+}
+
+$("objectSelect").onchange=()=>{
+  const obj=objects[+$("objectSelect").value];
+  if(obj)selectObject(obj);
+};
+
+$("applyObjectBtn").onclick=()=>{
+  if(!selected)return toast("Add or select an object first");
+  selected.position.set(+$("posX").value, +$("posY").value, +$("posZ").value);
+  selected.rotation.set(
+    +$("rotX").value*Math.PI/180,
+    +$("rotY").value*Math.PI/180,
+    +$("rotZ").value*Math.PI/180
+  );
+  const scale=Math.max(.1,Math.min(30,+$("objScale").value||1));
+  selected.scale.setScalar(scale);
+  selected.traverse(o=>{
+    if(o.isMesh&&o.material&&o.material.color){
+      o.material.color.set($("objColor").value);
+      o.material.metalness=+$("metalness").value;
+      o.material.roughness=+$("roughness").value;
+    }
+  });
+  toast("Object updated");
+};
+
+$("duplicateObjectBtn").onclick=()=>{
+  if(!selected)return toast("Select an object first");
+  const type=selected.userData.kind||"box";
+  const copy=addObject(type,{
+    x:selected.position.x+2,
+    y:selected.position.y,
+    z:selected.position.z,
+    color:$("objColor").value
+  });
+  if(copy)copy.name=selected.name+" copy";
+  refreshObjects();
+};
+
+$("deleteObjectBtn").onclick=()=>{
+  if(selected)removeObject(selected);
+};
+
+document.querySelectorAll("[data-shape]").forEach(btn=>{
+  btn.onclick=()=>addObject(btn.dataset.shape);
+});
+
+$("rotateBtn").onclick=()=>{
+  autoRotate=!autoRotate;
+  $("rotateBtn").textContent="Auto rotate: "+(autoRotate?"ON":"OFF");
+};
+
+$("resetCameraBtn").onclick=()=>{
+  if(!camera||!orbit)return;
+  camera.position.set(9,7,12);
+  orbit.target.set(0,1,0);
+  orbit.update();
+};
+
+function removeGeneratedWorld(){
+  if(ground){scene.remove(ground);ground.geometry.dispose();ground.material.dispose();ground=null}
+  if(stars){scene.remove(stars);stars.geometry.dispose();stars.material.dispose();stars=null}
+}
+
+function applyWorld(showMessage=true){
+  if(!init3D())return;
+  const env=$("environment").value;
+  const p=presets[env]||presets.cosmic;
+  $("worldColor").value=p.bg;$("fogColor").value=p.fog;
+  scene.background=new THREE.Color($("worldColor").value);
+  const density=+$("fogDensity").value;
+  scene.fog=density>0?new THREE.FogExp2($("fogColor").value,density):null;
+  ambient.intensity=+$("lightLevel").value;
+  $("fogLabel").textContent=density.toFixed(3);
+  $("starLabel").textContent=$("starCount").value;
+  $("lightLabel").textContent=$("lightLevel").value;
+  removeGeneratedWorld();
+
+  if(worldGrid)worldGrid.visible=$("groundMode").value==="grid";
+
+  if($("groundMode").value==="floor"||$("groundMode").value==="terrain"){
+    const geometry=new THREE.PlaneGeometry(200,200,80,80);
+    if($("groundMode").value==="terrain"){
+      const pos=geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){
+        const x=pos.getX(i),y=pos.getY(i);
+        pos.setZ(i,Math.sin(x*.11)*.45+Math.cos(y*.12)*.5+Math.sin((x+y)*.08)*.35);
+      }
+      geometry.computeVertexNormals();
+    }
+    const material=makeMaterial(env==="desert"?"#72503a":env==="forest"?"#183e2c":"#222b3e");
+    ground=new THREE.Mesh(geometry,material);
+    ground.rotation.x=-Math.PI/2;
+    ground.position.y=-.15;ground.receiveShadow=true;
+    scene.add(ground);
+  }
+
+  const count=+$("starCount").value;
+  const positions=new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    positions[i*3]=(Math.random()-.5)*180;
+    positions[i*3+1]=Math.random()*90+2;
+    positions[i*3+2]=(Math.random()-.5)*180;
+  }
+  const sg=new THREE.BufferGeometry();
+  sg.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  stars=new THREE.Points(sg,new THREE.PointsMaterial({
+    color:0xffffff,size:.16,transparent:true,opacity:.9
+  }));
+  scene.add(stars);
+
+  if(showMessage)toast("Environment applied");
+}
+
+$("applyWorldBtn").onclick=()=>applyWorld();
+$("environment").onchange=()=>applyWorld();
+$("worldColor").onchange=()=>{if(scene)scene.background.set($("worldColor").value)};
+$("fogColor").onchange=()=>applyWorld();
+$("fogDensity").oninput=()=>{$("fogLabel").textContent=(+$("fogDensity").value).toFixed(3)};
+$("starCount").oninput=()=>{$("starLabel").textContent=$("starCount").value};
+$("lightLevel").oninput=()=>{$("lightLabel").textContent=$("lightLevel").value};
+
+function animate(now=performance.now()){
+  requestAnimationFrame(animate);
+  if(!renderer||!scene)return;
+  if(autoRotate&&selected)selected.rotation.y+=.004;
+  if(playing3d&&keys.length){
+    const max=Math.max(1,...keys.map(k=>k.time));
+    let t=playClock+(now-playStart)/1000;
+    if(t>max)t=t%max;
+    $("timeSlider").value=t;
+    $("timeLabel").textContent=t.toFixed(1)+" seconds";
+    applyKeys(t);
+  }
+  if(stars)stars.rotation.y+=.00005;
+  orbit?.update();
+  renderer.render(scene,camera);
+}
+window.addEventListener("resize",()=>{resizeCanvas();resize3D()});
+
+/* ---------------- 3D KEYFRAMES ---------------- */
+
+function recordKey(){
+  if(!selected)return toast("Select a 3D object first");
+  const time=+$("timeSlider").value;
+  const key={
+    name:selected.name,time,
+    position:selected.position.toArray(),
+    rotation:[selected.rotation.x,selected.rotation.y,selected.rotation.z],
+    scale:selected.scale.toArray()
+  };
+  const idx=keys.findIndex(k=>k.name===key.name&&Math.abs(k.time-time)<.001);
+  if(idx>=0)keys[idx]=key;else keys.push(key);
+  keys.sort((a,b)=>a.time-b.time);
+  selectedKey=keys.findIndex(k=>k.name===key.name&&k.time===time);
+  renderKeys();toast("Keyframe recorded");
+}
+
+function renderKeys(){
+  $("keyCount").textContent=keys.length+" keys";
+  const list=$("keyList");list.innerHTML="";
+  if(!keys.length){list.textContent="No keyframes yet.";return}
+  keys.forEach((k,i)=>{
+    const b=document.createElement("button");
+    b.className="btn";
+    b.style.margin="3px";
+    b.textContent=k.name+" @ "+k.time.toFixed(1)+"s";
+    b.onclick=()=>{
+      selectedKey=i;
+      $("timeSlider").value=k.time;
+      $("timeLabel").textContent=k.time.toFixed(1)+" seconds";
+      const obj=objects.find(o=>o.name===k.name);
+      if(obj)selectObject(obj);
+      applyKeys(k.time);
+    };
+    list.appendChild(b);
+  });
+}
+
+function applyKeys(t){
+  const groups={};
+  keys.forEach(k=>(groups[k.name]||(groups[k.name]=[])).push(k));
+  Object.keys(groups).forEach(name=>{
+    const obj=objects.find(o=>o.name===name);
+    if(!obj)return;
+    const arr=groups[name].slice().sort((a,b)=>a.time-b.time);
+    let left=arr[0],right=arr[arr.length-1];
+    if(t<=arr[0].time)left=right=arr[0];
+    else if(t>=arr[arr.length-1].time)left=right=arr[arr.length-1];
+    else{
+      for(let i=0;i<arr.length-1;i++){
+        if(t>=arr[i].time&&t<=arr[i+1].time){
+          left=arr[i];right=arr[i+1];break;
+        }
+      }
+    }
+    const q=left===right?0:(t-left.time)/(right.time-left.time);
+    const mix=(a,b)=>a.map((v,i)=>v+(b[i]-v)*q);
+    obj.position.fromArray(mix(left.position,right.position));
+    obj.rotation.set(...mix(left.rotation,right.rotation));
+    obj.scale.fromArray(mix(left.scale,right.scale));
+  });
+}
+
+$("recordKeyBtn").onclick=recordKey;
+$("timeSlider").oninput=()=>{
+  const t=+$("timeSlider").value;
+  $("timeLabel").textContent=t.toFixed(1)+" seconds";
+  if(!playing3d)applyKeys(t);
+};
+$("play3dBtn").onclick=()=>{
+  if(!keys.length)return toast("Record some keyframes first");
+  playing3d=true;playStart=performance.now();playClock=+$("timeSlider").value;
+};
+$("stop3dBtn").onclick=()=>playing3d=false;
+
+/* ---------------- SCENE PLANNER ---------------- */
+
+function makePlan(){
+  const prompt=$("prompt").value.trim();
+  if(!prompt)return toast("Describe your scene first");
+  const text=prompt.toLowerCase();
+  let environment="cosmic";
+  if(/forest|tree|wood/.test(text))environment="forest";
+  else if(/mountain|landscape/.test(text))environment="mountains";
+  else if(/temple|ruin|arch/.test(text))environment="temple";
+  else if(/ocean|water|sea/.test(text))environment="ocean";
+  else if(/sunset|sunrise/.test(text))environment="sunset";
+  else if(/desert|sand/.test(text))environment="desert";
+  else if(/alien|planet/.test(text))environment="alien";
+
+  const types=[];
+  if(/crystal|gem/.test(text))types.push("crystal");
+  if(/tree|forest/.test(text))types.push("tree");
+  if(/mountain/.test(text))types.push("mountain");
+  if(/sphere|planet|moon/.test(text))types.push("sphere");
+  if(/cube|box/.test(text))types.push("box");
+  if(/arch|temple|ruin/.test(text))types.push("arch");
+  if(/rock|stone/.test(text))types.push("rock");
+  if(!types.length)types.push("crystal","sphere");
+
+  lastPlan={
+    name:$("projectName").value||"My Animation",
+    prompt,
+    style:$("style").value,
+    duration:Math.max(1,Math.min(120,+$("duration").value||10)),
+    environment,
+    objects:types
+  };
+  $("planOutput").value=JSON.stringify(lastPlan,null,2);
+  toast("Scene plan created");
+}
+
+$("makePlanBtn").onclick=makePlan;
+$("buildPlanBtn").onclick=()=>{
+  if(!lastPlan)makePlan();
+  if(!lastPlan)return;
+  setMode("3d");
+  $("environment").value=lastPlan.environment;
+  applyWorld();
+  objects.slice().forEach(removeObject);
+  lastPlan.objects.forEach((type,i)=>{
+    addObject(type,{x:(i-(lastPlan.objects.length-1)/2)*2.5,z:-i*.5});
+  });
+  toast("Starter scene created");
+};
+
+/* ---------------- PROJECT SAVE / EXPORT ---------------- */
+
+function projectData(){
+  return{
+    version:1,
+    name:$("projectName").value||"My Animation",
+    mode,
+    frameIndex,
+    frames:frames.map(f=>f.toDataURL()),
+    environment:$("environment").value,
+    worldColor:$("worldColor").value,
+    fogColor:$("fogColor").value,
+    fogDensity:$("fogDensity").value,
+    starCount:$("starCount").value,
+    lightLevel:$("lightLevel").value,
+    groundMode:$("groundMode").value,
+    objects:objects.map(o=>({
+      name:o.name,
+      kind:o.userData.kind,
+      position:o.position.toArray(),
+      rotation:[o.rotation.x,o.rotation.y,o.rotation.z],
+      scale:o.scale.toArray(),
+      color:o.children?.[0]?.material?.color
+        ?"#"+o.children[0].material.color.getHexString()
+        :o.material?.color?"#"+o.material.color.getHexString():"#a394ff"
+    })),
+    keys
+  };
+}
+
+function saveProject(){
+  try{
+    const data=projectData();
+    localStorage.setItem("animai_project",JSON.stringify(data));
+    toast("Project saved on this device");
+    refreshSaved();
+  }catch(e){
+    toast("Storage full. Export the project JSON instead.");
+  }
+}
+
+function refreshSaved(){
+  const el=$("savedProjects");
+  if(!el)return;
+  el.textContent=localStorage.getItem("animai_project")
+    ?"A saved project exists on this device."
+    :"No saved project yet.";
+}
+
+async function loadProject(data){
+  $("projectName").value=data.name||"My Animation";
+  if(Array.isArray(data.frames)&&data.frames.length){
+    const loaded=await Promise.all(data.frames.map(src=>new Promise(resolve=>{
+      const im=new Image();
+      im.onload=()=>{
+        const c=document.createElement("canvas");
+        c.width=im.naturalWidth;c.height=im.naturalHeight;
+        c.getContext("2d").drawImage(im,0,0);resolve(c);
+      };
+      im.onerror=()=>resolve(null);im.src=src;
+    })));
+    frames=loaded.filter(Boolean);
+    if(!frames.length)frames=[newFrame()];
+    frameIndex=Math.max(0,Math.min(data.frameIndex||0,frames.length-1));
+    renderFrame();
+  }
+
+  $("environment").value=data.environment||"cosmic";
+  $("worldColor").value=data.worldColor||presets.cosmic.bg;
+  $("fogColor").value=data.fogColor||presets.cosmic.fog;
+  $("fogDensity").value=data.fogDensity??".008";
+  $("starCount").value=data.starCount??1200;
+  $("lightLevel").value=data.lightLevel??1.2;
+  $("groundMode").value=data.groundMode||"grid";
+
+  if(Array.isArray(data.objects)){
+    init3D();
+    objects.slice().forEach(removeObject);
+    data.objects.forEach(o=>{
+      const obj=addObject(o.kind||"box",{
+        name:o.name,
+        x:o.position?.[0]||0,
+        y:o.position?.[1]||0,
+        z:o.position?.[2]||0
+      });
+      if(obj){
+        if(o.position)obj.position.fromArray(o.position);
+        if(o.rotation)obj.rotation.set(...o.rotation);
+        if(o.scale)obj.scale.fromArray(o.scale);
+      }
+    });
+  }
+
+  keys=Array.isArray(data.keys)?data.keys:[];
+  renderKeys();applyWorld(false);
+  setMode(data.mode||"2d");
+  toast("Project loaded");
+}
+
+$("saveBtn").onclick=saveProject;
+$("exportBtn").onclick=()=>{
+  download(
+    safeName($("projectName").value)+".json",
+    JSON.stringify(projectData()),
+    "application/json"
+  );
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=e=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{loadProject(JSON.parse(reader.result))}
+    catch(err){toast("Invalid project file")}
+  };
+  reader.readAsText(file);
+  e.target.value="";
+};
+$("newBtn").onclick=()=>{
+  if(!confirm("Create a new project? Unsaved changes may be lost."))return;
+  $("stop2dBtn").click();$("stop3dBtn").click();
+  frames=[newFrame()];frameIndex=0;undoStack=[];
+  keys=[];selectedKey=-1;
+  objects.slice().forEach(removeObject);
+  renderFrame();renderKeys();setMode("2d");
+  toast("New project created");
+};
+$("savedProjects").onclick=refreshSaved;
+
+/* ---------------- APP MODES ---------------- */
+
+function setMode(next){
+  mode=next;
+  document.querySelectorAll("[data-mode]").forEach(b=>
+    b.classList.toggle("active",b.dataset.mode===next)
+  );
+
+  $("drawCanvas").style.display=next==="2d"?"block":"none";
+  $("threeHost").style.display=next==="2d"?"none":"block";
+  $("tools2d").classList.toggle("hidden",next!=="2d");
+  $("tools3d").classList.toggle("hidden",next!=="3d");
+  $("timelinePanel").classList.toggle("hidden",next!=="2d");
+  $("worldPanel").classList.toggle("hidden",next!=="3d");
+  $("objectPanel").classList.toggle("hidden",next!=="3d");
+  $("keyPanel").classList.toggle("hidden",next!=="3d");
+  $("aiPanel").classList.toggle("hidden",next!=="ai");
+
+  $("stageTitle").textContent=
+    next==="2d"?"2D Animation Canvas":
+    next==="3d"?"3D World Builder":"AI Scene Planner";
+
+  $("stageSubtitle").textContent=
+    next==="2d"?"Draw frame by frame":
+    next==="3d"?"Build and animate 3D objects":"Describe your scene";
+
+  $("hint").textContent=
+    next==="2d"?"Touch to draw":"Drag to orbit · pinch to zoom";
+
+  if(next!=="2d"){
+    init3D();
+    setTimeout(resize3D,100);
+  }else{
+    setTimeout(resizeCanvas,50);
+  }
+}
+
+document.querySelectorAll("[data-mode]").forEach(btn=>{
+  btn.onclick=()=>setMode(btn.dataset.mode);
+});
+
+frames=[newFrame()];
+resizeCanvas();
+renderFrame();
+frameUI();
+refreshSaved();
+window.addEventListener("orientationchange",()=>{
+  setTimeout(()=>{resizeCanvas();resize3D()},250);
+});
+</script>
+</body>
+      </html>
