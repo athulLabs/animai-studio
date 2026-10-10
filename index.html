@@ -2,1467 +2,1337 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#080610">
-<title>AnimAI Studio — Fantasy Animation Lab</title>
-
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080a10">
+<title>AnimAI Studio — Character Lab</title>
 
 <style>
 :root{
-  --bg:#080610;--panel:#110e1c;--panel2:#1a1529;
-  --border:#35294b;--text:#f5f0ff;--muted:#a59bbd;
-  --purple:#a78bfa;--cyan:#67e8f9;--green:#86efac;
+  --bg:#080a10;
+  --panel:#10141e;
+  --panel2:#171c28;
+  --line:#292f40;
+  --text:#edf1ff;
+  --muted:#929bb2;
+  --blue:#76a9ff;
+  --purple:#ad8bff;
+  --cyan:#5de7ed;
+  --danger:#ff7388;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+  overflow-x:hidden;
 }
-button,input,select,textarea{font:inherit}
-button{
-  color:var(--text);background:var(--panel2);
-  border:1px solid var(--border);padding:10px 12px;
-  border-radius:10px;cursor:pointer;touch-action:manipulation;
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--blue);
+  outline-offset:2px;
 }
-button:active{transform:scale(.98)}
-button.primary{background:linear-gradient(135deg,#6d28d9,#9333ea);border-color:var(--purple)}
-button.active{border-color:var(--cyan);color:var(--cyan)}
-input,select,textarea{
-  width:100%;min-width:0;background:#0b0913;color:var(--text);
-  border:1px solid var(--border);border-radius:9px;padding:10px;
-}
-textarea{resize:vertical;min-height:85px;line-height:1.5}
-input[type=range]{padding:0;accent-color:var(--purple)}
-input[type=color]{height:42px;padding:4px}
-label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
-.app{max-width:1500px;margin:auto;padding:12px}
+.app{min-height:100vh}
 header{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;padding:8px 2px 15px;border-bottom:1px solid var(--border);
-  margin-bottom:12px;
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 15px;
+  background:#0c0f17;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:850}
 .logo{
-  width:43px;height:43px;display:grid;place-items:center;
-  flex-shrink:0;border-radius:13px;font-size:23px;
-  background:linear-gradient(135deg,#6d28d9,#06b6d4);
+  width:34px;height:34px;border-radius:11px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#7b9cff,#bd7bff);
+  color:#080a10;font-size:20px;
 }
-h1{font-size:17px;margin:0}
-.subtitle{font-size:11px;color:var(--muted);margin-top:4px}
-.header-actions{display:flex;gap:6px}
-.header-actions button{font-size:11px;padding:9px}
-.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.brand small{display:block;color:var(--muted);font-size:10px;font-weight:500}
+.header-actions{display:flex;gap:7px}
+.btn{
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 11px;
+  font-size:12px;
+  font-weight:700;
+}
+.btn.primary{
+  color:#080a10;
+  border:0;
+  background:linear-gradient(120deg,#7ab6ff,#b9a0ff);
+}
+.btn.active{border-color:var(--blue);color:var(--blue)}
+.workspace{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 345px;
+  gap:12px;
+  padding:12px;
+  max-width:1700px;
+  margin:auto;
+}
+.left{min-width:0}
+.viewport{
+  position:relative;
+  height:min(68vh,720px);
+  min-height:360px;
+  overflow:hidden;
+  border:1px solid #262d40;
+  border-radius:16px;
+  background:
+    radial-gradient(ellipse at 50% 45%,#1a2644 0%,#0b1020 48%,#06080e 100%);
+}
+#stage{position:absolute;inset:0}
+#stage canvas{display:block;width:100%;height:100%}
+.view-top{
+  position:absolute;top:12px;left:12px;right:12px;
+  display:flex;justify-content:space-between;gap:8px;
+  pointer-events:none;
+}
+.pill{
+  padding:7px 10px;border-radius:8px;
+  background:#0a0d16c9;border:1px solid #ffffff1b;
+  color:#cbd7f3;font-size:11px;
+}
+.view-bottom{
+  position:absolute;bottom:12px;left:12px;right:12px;
+  display:flex;gap:7px;flex-wrap:wrap;
+}
+.view-bottom .btn{background:#0a0d16d9}
+.loading{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:#cbd7f3;font-size:13px;pointer-events:none;
+}
+.reference{
+  position:absolute;right:12px;top:62px;width:100px;
+  max-height:145px;object-fit:contain;
+  border-radius:8px;border:1px solid #ffffff44;
+  display:none;background:#090b12cc;
+}
 .panel{
-  min-width:0;overflow:hidden;background:var(--panel);
-  border:1px solid var(--border);border-radius:15px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:15px;
+  overflow:hidden;
 }
 .panel-title{
+  padding:14px 15px;
+  border-bottom:1px solid var(--line);
   display:flex;align-items:center;justify-content:space-between;
-  gap:8px;padding:13px;border-bottom:1px solid var(--border);
+  font-size:13px;font-weight:800;
 }
-.panel-title h2{font-size:13px;margin:0}
-.badge{
-  font-size:10px;color:var(--cyan);background:#10232b;
-  border:1px solid #244653;padding:5px 8px;border-radius:20px;
-  white-space:nowrap;
+.tabs{
+  display:flex;overflow-x:auto;gap:5px;padding:10px;
+  border-bottom:1px solid var(--line);
 }
-.viewport-wrap{position:relative;background:#080610}
-#viewport{
-  display:block;width:100%;height:48vh;min-height:300px;
-  max-height:680px;touch-action:none;outline:none;
+.tab{
+  border:1px solid transparent;border-radius:8px;
+  padding:8px 10px;white-space:nowrap;
+  color:var(--muted);background:transparent;font-size:11px;
 }
-.overlay{
-  position:absolute;top:10px;left:10px;display:flex;
-  flex-direction:column;gap:5px;pointer-events:none;
+.tab.active{
+  color:var(--blue);background:#18243b;border-color:#30486d;
 }
-.overlay span,.view-bottom span{
-  width:max-content;max-width:95%;background:#080610dc;
-  border:1px solid #ffffff1c;padding:6px 8px;border-radius:7px;
-  font-size:10px;
+.controls{padding:14px}
+.section{display:none}
+.section.active{display:block}
+.field{margin-bottom:17px}
+.field-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;margin-bottom:8px;
 }
-#renderStatus{color:var(--green)}
-.view-bottom{
-  position:absolute;bottom:9px;left:9px;right:9px;
-  display:flex;justify-content:space-between;gap:5px;pointer-events:none;
+.field label{font-size:12px;font-weight:650}
+.value{font-size:11px;color:var(--cyan)}
+input[type=range]{width:100%;accent-color:var(--blue)}
+select,input[type=text],input[type=number]{
+  width:100%;background:#0a0d15;border:1px solid var(--line);
+  border-radius:9px;padding:10px;color:var(--text);
 }
-.camera-tools{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:6px;padding:9px;border-top:1px solid var(--border);
+.colors{display:flex;gap:9px;flex-wrap:wrap}
+.swatch{
+  width:30px;height:30px;border-radius:50%;
+  border:2px solid #ffffff30;padding:0;
 }
-.camera-tools button{font-size:11px;padding:10px 3px}
-.workspace{display:grid;gap:12px;align-content:start}
-.section{padding:12px}
-.section h3{font-size:12px;margin:0 0 10px}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-.full{width:100%;margin-top:8px}
-.small{font-size:11px;padding:9px 5px}
-.hint{font-size:11px;color:var(--muted);line-height:1.6}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.row span{font-size:11px;color:var(--muted)}
-.value{color:var(--cyan)!important}
-.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.swatch{height:34px;padding:0;border:2px solid #ffffff25}
-.swatch.active{outline:2px solid white;outline-offset:2px}
-hr{border:0;border-top:1px solid var(--border);margin:14px 0}
-.timeline{padding:12px}
-.timeline-head{display:flex;justify-content:space-between;gap:8px}
-.timeline-head h3{margin:0;font-size:12px}
-#timeText{font-size:11px;color:var(--cyan)}
-#timelineRange{margin:15px 0}
-.keyframe-track{
-  position:relative;height:35px;border-radius:8px;
-  background:#0b0913;border:1px solid var(--border);
-  margin:12px 0;overflow:hidden;
+.swatch.active{outline:2px solid var(--blue);outline-offset:3px}
+.color-row{display:flex;gap:10px;align-items:center}
+input[type=color]{
+  width:43px;height:36px;border:0;background:transparent;
+  padding:0;border-radius:8px;
 }
-.keyframe-marker{
-  position:absolute;top:8px;width:10px;height:16px;
-  background:var(--purple);border:1px solid white;
-  transform:translateX(-50%) rotate(45deg);padding:0;
+.choice-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
 }
-.keyframe-playhead{
-  position:absolute;top:0;bottom:0;width:2px;
-  background:var(--cyan);pointer-events:none;
+.choice{
+  background:#151b29;border:1px solid var(--line);
+  color:var(--text);padding:11px 8px;border-radius:10px;
+  font-size:11px;text-align:left;
 }
-.keyframe-empty{
-  position:absolute;inset:0;display:grid;place-items:center;
-  color:#6f6687;font-size:10px;pointer-events:none;
+.choice.active{border-color:var(--blue);background:#1a2942}
+.choice span{display:block;font-size:19px;margin-bottom:6px}
+.action-row{display:flex;gap:8px;flex-wrap:wrap}
+.action-row .btn{flex:1}
+.note{
+  font-size:11px;line-height:1.6;color:var(--muted);
+  background:#0b101a;border:1px solid var(--line);
+  border-radius:10px;padding:11px;margin:10px 0 14px;
 }
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
-.stat{border:1px solid var(--border);border-radius:9px;padding:9px 5px;text-align:center}
-.stat strong{display:block;color:var(--cyan);font-size:14px}
-.stat span{display:block;color:var(--muted);font-size:9px;margin-top:3px}
-.footer{text-align:center;color:#766b8b;font-size:10px;padding:20px 6px}
-#modelFile,#projectFile{display:none}
+.status{
+  margin-top:12px;padding:11px 13px;border-radius:10px;
+  background:#0d121d;border:1px solid var(--line);
+  color:var(--muted);font-size:11px;line-height:1.5;
+}
+.bottom-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;
+}
+.mini-panel{padding:14px}
+.mini-panel h3{font-size:12px;margin:0 0 10px}
+.timeline{
+  display:flex;align-items:center;gap:8px;
+  overflow-x:auto;padding:7px 0;
+}
+.key{
+  min-width:48px;height:42px;border-radius:9px;
+  border:1px solid var(--line);background:#151b29;
+  color:var(--text);font-size:10px;
+}
+.key.active{border-color:var(--blue);background:#1a2942}
+.metric{font-size:11px;color:var(--muted);line-height:1.8}
 #toast{
-  position:fixed;z-index:100;left:50%;bottom:20px;
-  transform:translate(-50%,20px);opacity:0;pointer-events:none;
-  background:#211832;border:1px solid var(--purple);
-  border-radius:12px;padding:12px 16px;max-width:92%;
-  text-align:center;font-size:12px;transition:.2s;
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  background:#eaf0ff;color:#0b0e15;padding:11px 16px;
+  border-radius:10px;font-size:12px;font-weight:750;
+  z-index:30;display:none;max-width:90%;text-align:center;
 }
-#toast.show{opacity:1;transform:translate(-50%,0)}
-@media(min-width:900px){
-  .layout{grid-template-columns:minmax(0,1fr) 345px;align-items:start}
-  #viewport{height:64vh}
-  .workspace{position:sticky;top:8px;max-height:94vh;overflow:auto}
-}
-@media(max-width:420px){
-  .app{padding:7px}h1{font-size:15px}.logo{width:37px;height:37px}
-  .header-actions button{font-size:10px;padding:8px 6px}
-  #viewport{height:43vh;min-height:290px}
+footer{padding:18px;text-align:center;color:#69738c;font-size:10px}
+.hidden{display:none!important}
+@media(max-width:850px){
+  .workspace{grid-template-columns:1fr;padding:8px;gap:9px}
+  .viewport{height:53vh;min-height:320px}
+  .bottom-grid{grid-template-columns:1fr}
+  header{padding:0 10px}
+  .brand{font-size:13px}
+  .header-actions .btn{padding:8px;font-size:10px}
 }
 </style>
 </head>
 
 <body>
 <div class="app">
-
 <header>
   <div class="brand">
     <div class="logo">✦</div>
-    <div>
-      <h1>AnimAI Studio</h1>
-      <div class="subtitle">Cinematic Fantasy · 3D Animation Lab</div>
-    </div>
+    <div>AnimAI Studio<small>ADVANCED CHARACTER LAB</small></div>
   </div>
   <div class="header-actions">
-    <button id="saveBtn">Save</button>
-    <button id="captureBtn">Capture</button>
+    <button class="btn" id="resetBtn">Reset</button>
+    <button class="btn primary" id="saveBtn">Save Character</button>
   </div>
 </header>
 
-<div class="layout">
-<main>
+<main class="workspace">
+  <section class="left">
+    <div class="viewport">
+      <div id="stage"></div>
+      <div class="loading" id="loading">Preparing 3D character lab…</div>
+      <img class="reference" id="referencePreview" alt="Character reference">
+      <div class="view-top">
+        <div class="pill">● 3D CHARACTER PREVIEW</div>
+        <div class="pill" id="viewStatus">INITIALIZING</div>
+      </div>
+      <div class="view-bottom">
+        <button class="btn" id="rotateBtn">⟳ Auto Rotate</button>
+        <button class="btn" id="gridBtn">▦ Grid</button>
+        <button class="btn" id="screenshotBtn">▣ Screenshot</button>
+      </div>
+    </div>
 
-<section class="panel">
-  <div class="panel-title">
-    <h2>3D Cinematic Viewport</h2>
-    <span class="badge" id="engineBadge">Starting…</span>
-  </div>
-  <div class="viewport-wrap">
-    <canvas id="viewport" tabindex="0"></canvas>
-    <div class="overlay">
-      <span id="renderStatus">● Loading 3D engine</span>
-      <span>Drag to rotate · Pinch to zoom</span>
+    <div class="bottom-grid">
+      <div class="panel mini-panel">
+        <h3>ANIMATION TIMELINE</h3>
+        <div class="action-row">
+          <button class="btn" id="poseBtn">Capture Pose</button>
+          <button class="btn" id="playBtn">▶ Play Preview</button>
+        </div>
+        <div class="timeline" id="timeline">
+          <button class="key active">00:00</button>
+        </div>
+        <div class="metric">Save different character poses as keyframes. This starter version provides basic pose interpolation.</div>
+      </div>
+      <div class="panel mini-panel">
+        <h3>CHARACTER PROJECT</h3>
+        <div class="metric" id="projectInfo">
+          Character: Astral Warrior<br>
+          Model: Procedural 3D<br>
+          Reference: Not loaded<br>
+          Save: Local browser
+        </div>
+        <div class="action-row" style="margin-top:10px">
+          <button class="btn" id="exportBtn">Export Settings</button>
+          <button class="btn" id="importSettingsBtn">Load Settings</button>
+        </div>
+        <input type="file" id="settingsFile" accept=".json,application/json" class="hidden">
+      </div>
     </div>
-    <div class="view-bottom">
-      <span id="characterName">Shadow Sorcerer</span>
-      <span id="fpsText">WebGL</span>
-    </div>
-  </div>
-  <div class="camera-tools">
-    <button id="frontBtn">Front</button>
-    <button id="sideBtn">Side</button>
-    <button id="backBtn">Back</button>
-    <button id="resetCameraBtn">Reset</button>
-  </div>
-</section>
+  </section>
 
-<section class="panel" style="margin-top:12px">
-  <div class="panel-title"><h2>AI Motion Director</h2><span class="badge">Prompt Studio</span></div>
-  <div class="section">
-    <label for="promptInput">Describe the animation</label>
-    <textarea id="promptInput" placeholder="A sorcerer raises his arms while purple magic surrounds him. The camera slowly moves closer."></textarea>
-    <label for="motionSelect">Motion template</label>
-    <select id="motionSelect">
-      <option value="idle">Magical Idle</option>
-      <option value="power">Charge Magical Power</option>
-      <option value="dance">Ritual Movement</option>
-      <option value="walk">Walking Motion</option>
-      <option value="orbit">Floating and Rotating</option>
-      <option value="dramatic">Dramatic Reveal</option>
-    </select>
-    <div class="grid2">
-      <button id="generateMotionBtn" class="primary">✦ Generate Preview</button>
-      <button id="stopMotionBtn">Stop Motion</button>
+  <aside class="panel">
+    <div class="panel-title">
+      <span>✦ Character Workshop</span>
+      <span style="color:var(--cyan);font-size:10px">LIVE EDIT</span>
     </div>
-    <p class="hint" id="promptStatus">Local animation templates. Genuine AI motion generation requires an external AI model or API.</p>
-  </div>
-</section>
 
-<section class="panel" style="margin-top:12px">
-  <div class="panel-title"><h2>Animation Timeline</h2><span class="badge" id="animationBadge">Magical Idle</span></div>
-  <div class="timeline">
-    <div class="timeline-head"><h3>Scene Time</h3><span id="timeText">0.0 / 10 sec</span></div>
-    <label for="durationInput">Animation duration (seconds)</label>
-    <input id="durationInput" type="number" min="1" max="120" value="10">
-    <input id="timelineRange" type="range" min="0" max="10" value="0" step=".05">
-    <div class="grid3">
-      <button id="playBtn" class="primary">▶ Play</button>
-      <button id="pauseBtn">Ⅱ Pause</button>
-      <button id="stopBtn">■ Stop</button>
+    <div class="tabs">
+      <button class="tab active" data-tab="body">Body</button>
+      <button class="tab" data-tab="face">Face</button>
+      <button class="tab" data-tab="hair">Hair</button>
+      <button class="tab" data-tab="outfit">Outfit</button>
+      <button class="tab" data-tab="magic">Magic FX</button>
+      <button class="tab" data-tab="reference">Reference</button>
     </div>
-    <hr>
-    <div class="row"><span>Keyframe editor</span><span id="keyframeCount" class="value">0 keyframes</span></div>
-    <div class="keyframe-track" id="keyframeTrack">
-      <div class="keyframe-empty" id="keyframeEmpty">No keyframes yet</div>
-      <div class="keyframe-playhead" id="keyframePlayhead"></div>
-    </div>
-    <div class="grid2">
-      <button id="addKeyframeBtn">＋ Add Keyframe</button>
-      <button id="clearKeyframesBtn">Clear Keyframes</button>
-    </div>
-    <p class="hint">Keyframes store character position, rotation and scale. Playback interpolates between saved poses.</p>
-  </div>
-</section>
 
-<section class="panel" style="margin-top:12px">
-  <div class="panel-title"><h2>Camera Director</h2><span class="badge">Cinematic</span></div>
-  <div class="section">
-    <label for="cameraMotionSelect">Camera movement</label>
-    <select id="cameraMotionSelect">
-      <option value="static">Static Camera</option>
-      <option value="push">Slow Push In</option>
-      <option value="orbit">Orbit Shot</option>
-      <option value="pull">Slow Pull Back</option>
-      <option value="shake">Dramatic Shake</option>
-    </select>
-    <label for="cameraSpeed">Camera movement speed</label>
-    <div class="row"><span>Speed</span><span class="value" id="cameraSpeedValue">1.0×</span></div>
-    <input id="cameraSpeed" type="range" min=".2" max="2" value="1" step=".1">
-    <button id="applyCameraBtn" class="full">Apply Camera Movement</button>
-  </div>
-</section>
+    <div class="controls">
+      <section class="section active" id="body">
+        <div class="field">
+          <div class="field-head"><label>Character Preset</label></div>
+          <select id="preset">
+            <option value="warrior">Astral Warrior</option>
+            <option value="sage">Mystic Sage</option>
+            <option value="guardian">Cosmic Guardian</option>
+          </select>
+        </div>
 
+        <div class="field">
+          <div class="field-head"><label>Height</label><span class="value" id="heightVal">1.00</span></div>
+          <input type="range" id="height" min="0.75" max="1.3" value="1" step="0.01">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Muscularity</label><span class="value" id="muscleVal">70%</span></div>
+          <input type="range" id="muscle" min="0.3" max="1.4" value="0.7" step="0.01">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Shoulder Width</label><span class="value" id="shoulderVal">1.00</span></div>
+          <input type="range" id="shoulders" min="0.65" max="1.5" value="1" step="0.01">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Body Proportions</label><span class="value" id="proportionVal">1.00</span></div>
+          <input type="range" id="proportion" min="0.75" max="1.25" value="1" step="0.01">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Skin Material</label></div>
+          <div class="colors" id="skinSwatches">
+            <button class="swatch active" data-color="#4b9ed8" style="background:#4b9ed8" title="Azure"></button>
+            <button class="swatch" data-color="#ba8664" style="background:#ba8664" title="Bronze"></button>
+            <button class="swatch" data-color="#d9c4a6" style="background:#d9c4a6" title="Ivory"></button>
+            <button class="swatch" data-color="#777c9e" style="background:#777c9e" title="Mystic"></button>
+            <button class="swatch" data-color="#7651a9" style="background:#7651a9" title="Violet"></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Custom Skin Colour</label></div>
+          <div class="color-row">
+            <input type="color" id="skinColor" value="#4b9ed8">
+            <span class="metric">Change the character's base material.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="face">
+        <div class="note">The current model uses procedural 3D shapes. These controls customize its stylized facial features; they do not sculpt a photorealistic human face.</div>
+        <div class="field">
+          <div class="field-head"><label>Face Shape</label></div>
+          <select id="faceShape">
+            <option value="1">Balanced</option>
+            <option value="0.88">Narrow</option>
+            <option value="1.15">Broad</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Eye Size</label><span class="value" id="eyeVal">1.00</span></div>
+          <input type="range" id="eyeSize" min="0.7" max="1.5" value="1" step="0.05">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Eye Glow</label></div>
+          <select id="eyeGlow">
+            <option value="#8feaff">Ice Blue</option>
+            <option value="#c49aff">Arcane Violet</option>
+            <option value="#fff1c1">Divine Gold</option>
+            <option value="#ff657f">Crimson</option>
+            <option value="#ffffff">White</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Facial Hair</label></div>
+          <select id="beard">
+            <option value="none">Clean Shaven</option>
+            <option value="short">Short Beard</option>
+            <option value="long">Long Mystic Beard</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Expression Style</label></div>
+          <select id="expression">
+            <option value="calm">Calm</option>
+            <option value="fierce">Fierce</option>
+            <option value="wise">Wise</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section" id="hair">
+        <div class="field">
+          <div class="field-head"><label>Hair Style</label></div>
+          <div class="choice-grid" id="hairChoices">
+            <button class="choice active" data-hair="long"><span>〰️</span>Long Flowing</button>
+            <button class="choice" data-hair="bun"><span>◉</span>Mystic Bun</button>
+            <button class="choice" data-hair="short"><span>✦</span>Short Hair</button>
+            <button class="choice" data-hair="none"><span>○</span>Bald</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Hair Colour</label></div>
+          <div class="colors" id="hairSwatches">
+            <button class="swatch active" data-color="#11131c" style="background:#11131c"></button>
+            <button class="swatch" data-color="#34252b" style="background:#34252b"></button>
+            <button class="swatch" data-color="#e2d6c3" style="background:#e2d6c3"></button>
+            <button class="swatch" data-color="#527ba7" style="background:#527ba7"></button>
+            <button class="swatch" data-color="#8b70c7" style="background:#8b70c7"></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Hair Length</label><span class="value" id="hairLengthVal">1.00</span></div>
+          <input type="range" id="hairLength" min="0.5" max="1.6" value="1" step="0.05">
+        </div>
+      </section>
+
+      <section class="section" id="outfit">
+        <div class="field">
+          <div class="field-head"><label>Outfit Type</label></div>
+          <div class="choice-grid" id="outfitChoices">
+            <button class="choice active" data-outfit="robes"><span>♜</span>Cosmic Robes</button>
+            <button class="choice" data-outfit="armor"><span>🛡</span>Warrior Armour</button>
+            <button class="choice" data-outfit="cloth"><span>◈</span>Dark Cloth</button>
+            <button class="choice" data-outfit="royal"><span>♛</span>Royal Attire</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Clothing Colour</label></div>
+          <div class="colors" id="clothSwatches">
+            <button class="swatch active" data-color="#151b30" style="background:#151b30"></button>
+            <button class="swatch" data-color="#111114" style="background:#111114"></button>
+            <button class="swatch" data-color="#8b253e" style="background:#8b253e"></button>
+            <button class="swatch" data-color="#a98a4d" style="background:#a98a4d"></button>
+            <button class="swatch" data-color="#e1e6ed" style="background:#e1e6ed"></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Jewellery</label></div>
+          <select id="jewellery">
+            <option value="beads">Rudraksha-style Beads</option>
+            <option value="gold">Gold Ornaments</option>
+            <option value="silver">Silver Ornaments</option>
+            <option value="none">No Jewellery</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Shoulder Ornament</label></div>
+          <select id="ornament">
+            <option value="on">Enabled</option>
+            <option value="off">Disabled</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section" id="magic">
+        <div class="field">
+          <div class="field-head"><label>Energy Colour</label></div>
+          <div class="colors" id="magicSwatches">
+            <button class="swatch active" data-color="#46aaff" style="background:#46aaff"></button>
+            <button class="swatch" data-color="#a77aff" style="background:#a77aff"></button>
+            <button class="swatch" data-color="#ffe19a" style="background:#ffe19a"></button>
+            <button class="swatch" data-color="#ff527b" style="background:#ff527b"></button>
+            <button class="swatch" data-color="#63ffd3" style="background:#63ffd3"></button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Magical Aura</label><span class="value" id="auraVal">65%</span></div>
+          <input type="range" id="aura" min="0" max="100" value="65">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Floating Particles</label><span class="value" id="particlesVal">65%</span></div>
+          <input type="range" id="particles" min="0" max="100" value="65">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Ground Fog</label></div>
+          <select id="fog">
+            <option value="on">Enabled</option>
+            <option value="off">Disabled</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Lighting</label></div>
+          <select id="lighting">
+            <option value="cinematic">Cinematic Blue</option>
+            <option value="divine">Divine Gold</option>
+            <option value="moon">Moonlight</option>
+            <option value="dark">Dark Fantasy</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section" id="reference">
+        <div class="note">Upload an image to keep your design reference visible beside the 3D preview. The image guides your work but does not automatically turn into a 3D model.</div>
+        <div class="field">
+          <div class="field-head"><label>Reference Image</label></div>
+          <input type="file" id="referenceFile" accept="image/*">
+        </div>
+        <div class="action-row">
+          <button class="btn" id="clearReferenceBtn">Remove Image</button>
+        </div>
+        <div class="field" style="margin-top:17px">
+          <div class="field-head"><label>Character Name</label></div>
+          <input type="text" id="characterName" value="Astral Warrior" maxlength="70">
+        </div>
+        <div class="field">
+          <div class="field-head"><label>Design Notes</label></div>
+          <input type="text" id="designNotes" placeholder="Describe your character…">
+        </div>
+        <div class="note">The current model is assembled from procedural shapes. This is the foundation for a more advanced editor; it is not yet an AI mesh generator or a professional sculpting tool.</div>
+      </section>
+
+      <div class="status" id="status">
+        Character lab ready. Change any control to update the 3D preview.
+      </div>
+    </div>
+  </aside>
 </main>
 
-<aside class="workspace">
-
-<section class="panel">
-  <div class="panel-title"><h2>Fantasy Characters</h2><span class="badge">3D</span></div>
-  <div class="section">
-    <div class="grid2">
-      <button data-character="sorcerer" class="active">🧙 Sorcerer</button>
-      <button data-character="warrior">⚔ Warrior</button>
-      <button data-character="guardian">🔱 Guardian</button>
-      <button data-character="shadow">🌑 Shadow</button>
-    </div>
-    <label>Import a 3D character</label>
-    <button id="importModelBtn" class="full">＋ Import GLB / GLTF</button>
-    <input type="file" id="modelFile" accept=".glb,.gltf">
-    <p class="hint">GLB models may contain skeletal animations. GLTF files may need companion resources.</p>
-    <div id="modelAnimationBox" style="display:none">
-      <label for="modelAnimationSelect">Imported model animation</label>
-      <select id="modelAnimationSelect"></select>
-      <button id="playModelAnimationBtn" class="full">Play Model Animation</button>
-    </div>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-title"><h2>Character Appearance</h2><span class="badge">Customize</span></div>
-  <div class="section">
-    <label>Primary color</label>
-    <div class="swatches">
-      <button class="swatch active" style="background:#382078" data-color="#382078"></button>
-      <button class="swatch" style="background:#123d56" data-color="#123d56"></button>
-      <button class="swatch" style="background:#176346" data-color="#176346"></button>
-      <button class="swatch" style="background:#8c263d" data-color="#8c263d"></button>
-      <button class="swatch" style="background:#a77b39" data-color="#a77b39"></button>
-    </div>
-    <label for="customColor">Custom color</label>
-    <input type="color" id="customColor" value="#382078">
-    <label for="glowRange">Magical glow</label>
-    <div class="row"><span>Intensity</span><span id="glowValue" class="value">1.0</span></div>
-    <input id="glowRange" type="range" min="0" max="3" value="1" step=".1">
-    <label for="scaleRange">Character scale</label>
-    <div class="row"><span>Size</span><span id="scaleValue" class="value">1.0×</span></div>
-    <input id="scaleRange" type="range" min=".5" max="1.8" value="1" step=".1">
-    <label for="rotationRange">Character rotation</label>
-    <input id="rotationRange" type="range" min="-180" max="180" value="0">
-    <button id="rebuildBtn" class="full">↻ Rebuild Character</button>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-title"><h2>Cinematic Environment</h2><span class="badge">Lighting</span></div>
-  <div class="section">
-    <label for="environmentSelect">World</label>
-    <select id="environmentSelect">
-      <option value="cosmos">Deep Cosmos</option>
-      <option value="temple">Ancient Temple</option>
-      <option value="void">Dark Void</option>
-      <option value="nebula">Purple Nebula</option>
-      <option value="dawn">Mystic Dawn</option>
-    </select>
-    <label for="lightRange">Lighting intensity</label>
-    <div class="row"><span>Scene lighting</span><span id="lightValue" class="value">1.0</span></div>
-    <input id="lightRange" type="range" min=".2" max="2.5" value="1" step=".1">
-    <label for="particleRange">Magic particles</label>
-    <div class="row"><span>Particle count</span><span id="particleValue" class="value">900</span></div>
-    <input id="particleRange" type="range" min="0" max="2000" value="900" step="100">
-    <label for="fogRange">Atmospheric fog</label>
-    <input id="fogRange" type="range" min="0" max="50" value="18">
-    <button id="applyEnvironmentBtn" class="primary full">Apply Environment</button>
-    <button id="toggleMagicBtn" class="full">✧ Toggle Magic Effects</button>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-title"><h2>Export & Projects</h2></div>
-  <div class="section">
-    <button id="saveProjectBtn" class="full">Save Project on Device</button>
-    <button id="exportProjectBtn" class="full">Export Project JSON</button>
-    <button id="importProjectBtn" class="full">Import Project JSON</button>
-    <input type="file" id="projectFile" accept=".json">
-    <button id="exportAnimationBtn" class="full">Export Animation Data</button>
-    <button id="resetBtn" class="full">Reset Studio</button>
-    <div class="stat-grid">
-      <div class="stat"><strong id="statKeyframes">0</strong><span>KEYFRAMES</span></div>
-      <div class="stat"><strong id="statDuration">10s</strong><span>DURATION</span></div>
-      <div class="stat"><strong id="statParticles">900</strong><span>PARTICLES</span></div>
-    </div>
-    <hr>
-    <p class="hint">Project export stores settings and keyframes, not rendered video or imported model files.</p>
-  </div>
-</section>
-
-</aside>
+<footer>ANIMAI STUDIO · CHARACTER LAB · Your design, your world.</footer>
 </div>
 
-<div class="footer">ANIMAI STUDIO · FANTASY ANIMATION WORKSHOP</div>
-</div>
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script>
 (function(){
 "use strict";
 
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
+const state = {
+  name:"Astral Warrior",
+  preset:"warrior",
+  height:1,
+  muscle:0.7,
+  shoulders:1,
+  proportion:1,
+  skin:"#4b9ed8",
+  faceShape:1,
+  eyeSize:1,
+  eyeGlow:"#8feaff",
+  beard:"none",
+  expression:"calm",
+  hair:"long",
+  hairColor:"#11131c",
+  hairLength:1,
+  outfit:"robes",
+  cloth:"#151b30",
+  jewellery:"beads",
+  ornament:"on",
+  magic:"#46aaff",
+  aura:65,
+  particles:65,
+  fog:"on",
+  lighting:"cinematic",
+  autoRotate:false,
+  grid:true,
+  referenceData:null,
+  notes:""
+};
 
-let scene,camera,renderer,controls;
-let character=null,body=null,importedModel=null;
-let modelMixer=null,modelActions=[],activeModelAction=null;
-let particles=null,particleGeometry=null,particleMaterial=null;
-let floor=null,platform=null,platformRing=null,starField=null,gridHelper=null;
-let characterMaterials=[];
-let running=false,magicEnabled=true;
-let currentCharacter="sorcerer",currentColor="#382078";
-let currentEnvironment="cosmos",currentMotion="idle";
-let elapsed=0,lastTime=0,fpsFrames=0,fpsElapsed=0;
-let glowIntensity=1,characterScale=1,lightIntensity=1;
-let particleCount=900,sceneDuration=10;
-let cameraMode="static",cameraSpeed=1,cameraStartTime=0;
-let keyframes=[],cameraBase=null;
+let scene,camera,renderer,character,bodyGroup,particleSystem;
+let floorGrid,platform,auraMesh;
+let hairGroup,beardGroup,eyeGroup,outfitGroup,ornamentGroup;
+let clock;
+let savedPoses=[];
+let playing=false;
+let referenceURL=null;
+let modelReady=false;
 
-function toast(message){
+function toast(msg){
   const el=$("toast");
-  el.textContent=message;
-  el.classList.add("show");
+  el.textContent=msg;
+  el.style.display="block";
   clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.classList.remove("show"),2600);
+  toast.timer=setTimeout(()=>el.style.display="none",2400);
 }
-
-function status(message){$("renderStatus").textContent="● "+message}
-
-function createMaterial(color,roughness=.5,metalness=.25,emissive=0x000000,intensity=0){
-  const m=new THREE.MeshStandardMaterial({
-    color,roughness,metalness,emissive,emissiveIntensity:intensity
-  });
-  characterMaterials.push(m);
-  return m;
-}
-
-function mesh(parent,geometry,mat,x,y,z,sx=1,sy=1,sz=1){
-  const obj=new THREE.Mesh(geometry,mat);
-  obj.position.set(x,y,z);
-  obj.scale.set(sx,sy,sz);
-  obj.castShadow=true;
-  obj.receiveShadow=true;
-  parent.add(obj);
-  return obj;
-}
-
-function sphere(parent,mat,x,y,z,sx,sy,sz){
-  return mesh(parent,new THREE.SphereGeometry(1,24,16),mat,x,y,z,sx,sy,sz);
-}
-
-function cylinder(parent,mat,x,y,z,top,bottom,height,segments=20){
-  return mesh(parent,new THREE.CylinderGeometry(top,bottom,height,segments),mat,x,y,z);
-}
-
-function ring(parent,mat,x,y,z,radius,tube,rx=0){
-  const obj=new THREE.Mesh(new THREE.TorusGeometry(radius,tube,8,64),mat);
-  obj.position.set(x,y,z);
-  obj.rotation.x=rx;
-  parent.add(obj);
-  return obj;
-}
+function status(msg){$("status").textContent=msg}
 
 function init(){
+  if(!window.THREE){
+    $("loading").textContent="3D library could not load. Check your internet connection and refresh.";
+    return;
+  }
   try{
-    if(!window.THREE)throw Error("Three.js failed to load. Check your internet connection.");
-    if(!THREE.OrbitControls)throw Error("Camera controls failed to load.");
-
     scene=new THREE.Scene();
-    scene.background=new THREE.Color(0x090817);
-    scene.fog=new THREE.FogExp2(0x090817,.018);
+    scene.background=new THREE.Color("#080b14");
+    scene.fog=new THREE.FogExp2("#080b14",0.035);
 
-    camera=new THREE.PerspectiveCamera(42,1,.1,400);
-    camera.position.set(0,2.8,9);
+    const host=$("stage");
+    const w=host.clientWidth||600;
+    const h=host.clientHeight||450;
+    camera=new THREE.PerspectiveCamera(38,w/h,0.1,100);
+    camera.position.set(5,3.3,7);
+    camera.lookAt(0,1.7,0);
 
-    renderer=new THREE.WebGLRenderer({
-      canvas:$("viewport"),antialias:true,alpha:false,preserveDrawingBuffer:true
-    });
+    renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-    renderer.setSize($("viewport").clientWidth,$("viewport").clientHeight,false);
-    renderer.outputEncoding=THREE.sRGBEncoding;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.15;
+    renderer.setSize(w,h);
     renderer.shadowMap.enabled=true;
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+    renderer.outputEncoding=THREE.sRGBEncoding;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.2;
+    host.appendChild(renderer.domElement);
 
-    controls=new THREE.OrbitControls(camera,renderer.domElement);
-    controls.target.set(0,1.7,0);
-    controls.enableDamping=true;
-    controls.dampingFactor=.07;
-    controls.minDistance=3;
-    controls.maxDistance=22;
-    controls.maxPolarAngle=Math.PI*.91;
-    controls.update();
+    scene.add(new THREE.HemisphereLight(0x8bbaff,0x11101c,1.3));
 
-    createLights();
-    createEnvironment();
-    buildCharacter(currentCharacter);
+    const key=new THREE.DirectionalLight(0xe0e9ff,2.3);
+    key.position.set(4,8,5);
+    key.castShadow=true;
+    scene.add(key);
+
+    const rim=new THREE.PointLight(0x348bff,3.5,14);
+    rim.position.set(-4,4,-3);
+    scene.add(rim);
+
+    const fill=new THREE.PointLight(0x9c72ff,1.8,12);
+    fill.position.set(3,2,3);
+    scene.add(fill);
+
+    floorGrid=new THREE.GridHelper(20,40,0x354a74,0x1b2945);
+    floorGrid.position.y=0.02;
+    scene.add(floorGrid);
+
+    const floor=new THREE.Mesh(
+      new THREE.PlaneGeometry(200,200),
+      new THREE.MeshStandardMaterial({color:0x080b13,roughness:0.95})
+    );
+    floor.rotation.x=-Math.PI/2;
+    floor.position.y=-0.03;
+    floor.receiveShadow=true;
+    scene.add(floor);
+
+    platform=new THREE.Mesh(
+      new THREE.CylinderGeometry(1.15,1.25,0.12,64),
+      new THREE.MeshStandardMaterial({
+        color:0x151b2d,metalness:0.6,roughness:0.3,
+        emissive:0x13264b,emissiveIntensity:0.8
+      })
+    );
+    platform.position.y=0.06;
+    scene.add(platform);
+
+    const ring=new THREE.Mesh(
+      new THREE.TorusGeometry(1.13,0.018,8,80),
+      new THREE.MeshBasicMaterial({color:0x438bff})
+    );
+    ring.rotation.x=Math.PI/2;
+    ring.position.y=0.14;
+    scene.add(ring);
+
+    buildCharacter();
     createParticles();
-    bindUI();
-    resize();
+    updateLighting();
+    $("loading").style.display="none";
+    $("viewStatus").textContent="3D READY";
+    modelReady=true;
+    clock=new THREE.Clock();
+    animate();
 
+    const resize=()=>{
+      if(!renderer)return;
+      const ww=host.clientWidth||600;
+      const hh=host.clientHeight||450;
+      camera.aspect=ww/hh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(ww,hh);
+    };
     window.addEventListener("resize",resize);
-    $("engineBadge").textContent="3D READY";
-    status("Cinematic engine ready");
-    loadSavedProject();
-    requestAnimationFrame(animate);
-  }catch(err){
-    console.error(err);
-    $("engineBadge").textContent="ENGINE ERROR";
-    status(err.message||"3D initialization failed");
-    toast(err.message||"3D engine failed");
+    if(window.ResizeObserver)new ResizeObserver(resize).observe(host);
+    bindControls();
+    status("Ready. Your edits update the procedural 3D character.");
+  }catch(e){
+    console.error(e);
+    $("loading").textContent="Could not initialize the 3D preview. Try refreshing this page.";
   }
 }
 
-function createLights(){
-  scene.add(new THREE.HemisphereLight(0xa99aff,0x10081d,1.1));
-
-  const key=new THREE.DirectionalLight(0xe5dcff,2.5);
-  key.position.set(4,8,5);
-  key.castShadow=true;
-  key.shadow.mapSize.set(1024,1024);
-  scene.add(key);
-
-  const rim=new THREE.PointLight(0x9b5cff,38,20);
-  rim.position.set(-4,4,-3);
-  scene.add(rim);
-
-  const fill=new THREE.PointLight(0x38d9ff,18,16);
-  fill.position.set(4,2,3);
-  scene.add(fill);
-
-  const top=new THREE.SpotLight(0xffffff,1.7,30,Math.PI/5,.4,1);
-  top.position.set(0,9,3);
-  top.target.position.set(0,1,0);
-  scene.add(top);
-  scene.add(top.target);
-
-  scene.userData.keyLight=key;
-  scene.userData.rimLight=rim;
-  scene.userData.fillLight=fill;
-  scene.userData.topLight=top;
+function material(color,roughness=.65,metalness=.05,emissive=null){
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness,
+    metalness,
+    emissive:emissive||0x000000,
+    emissiveIntensity:emissive?0.6:0
+  });
 }
+function addMesh(parent,geo,mat,pos,scale,rot){
+  const m=new THREE.Mesh(geo,mat);
+  if(pos)m.position.set(pos[0],pos[1],pos[2]);
+  if(scale)m.scale.set(scale[0],scale[1],scale[2]);
+  if(rot)m.rotation.set(rot[0],rot[1],rot[2]);
+  m.castShadow=true;
+  m.receiveShadow=true;
+  parent.add(m);
+  return m;
+}
+function sphere(parent,mat,pos,scale){
+  return addMesh(parent,new THREE.SphereGeometry(1,24,18),mat,pos,scale);
+}
+function cylinder(parent,mat,r1,r2,h,pos,segments=16){
+  return addMesh(parent,new THREE.CylinderGeometry(r1,r2,h,segments),mat,pos);
+}
+function capsuleLike(parent,mat,a,b,r1,r2){
+  const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b);
+  const diff=vb.clone().sub(va);
+  const mesh=new THREE.Mesh(
+    new THREE.CylinderGeometry(r2,r1,diff.length(),16),
+    mat
+  );
+  mesh.position.copy(va.clone().add(vb).multiplyScalar(.5));
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),diff.normalize());
+  mesh.castShadow=true;
+  parent.add(mesh);
+  sphere(parent,mat,a,[r1,r1,r1]);
+  sphere(parent,mat,b,[r2,r2,r2]);
+  return mesh;
+}
+function buildCharacter(){
+  if(character)scene.remove(character);
+  character=new THREE.Group();
+  scene.add(character);
+  bodyGroup=new THREE.Group();
+  character.add(bodyGroup);
 
-function clearEnvironment(){
-  [floor,platform,platformRing,starField,gridHelper].forEach(obj=>{
-    if(!obj)return;
-    scene.remove(obj);
-    if(obj.geometry)obj.geometry.dispose();
-    if(obj.material){
-      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-      mats.forEach(m=>m.dispose());
+  const skin=material(state.skin,.5,.04);
+  const darkSkin=material(new THREE.Color(state.skin).multiplyScalar(.73),.6,.02);
+  const cloth=material(state.cloth,.82,.05);
+  const trim=material(
+    state.jewellery==="gold"?"#c6a15a":
+    state.jewellery==="silver"?"#b9c5d9":
+    "#533d32",.42,.7
+  );
+  const hairMat=material(state.hairColor,.82,0);
+  const gold=material("#c8a35c",.35,.75);
+  const glowMat=new THREE.MeshStandardMaterial({
+    color:state.magic,emissive:state.magic,emissiveIntensity:2,
+    transparent:true,opacity:Math.max(.05,state.aura/100)
+  });
+
+  const s=state.muscle;
+  const sh=state.shoulders;
+  const pr=state.proportion;
+  const H=state.height;
+
+  // Legs
+  const legScale=.88*pr;
+  capsuleLike(bodyGroup,cloth,[-.24,.96,0],[-.27,.32,0],.14*legScale,.105);
+  capsuleLike(bodyGroup,cloth,[.24,.96,0],[.27,.32,0],.14*legScale,.105);
+  sphere(bodyGroup,material("#171722"),[-.27,.16,.045],[.16,.12,.25]);
+  sphere(bodyGroup,material("#171722"),[.27,.16,.045],[.16,.12,.25]);
+
+  // Torso, waist and neck
+  sphere(bodyGroup,cloth,[0,1.52,0],[.43*sh,.53*pr,.25]);
+  sphere(bodyGroup,skin,[0,1.95,0],[.43*s*sh,.29,.235]);
+  sphere(bodyGroup,skin,[0,1.72,0],[.32*s,.32,.21]);
+  cylinder(bodyGroup,skin,.105,.12,.24,[0,2.18,0],20);
+
+  // Arms
+  capsuleLike(bodyGroup,skin,[-.42*sh,1.99,0],[-.68*sh,1.59,0],.14*s,.105*s);
+  capsuleLike(bodyGroup,skin,[-.68*sh,1.59,0],[-.65*sh,1.2,0],.105*s,.075);
+  capsuleLike(bodyGroup,skin,[.42*sh,1.99,0],[.68*sh,1.59,0],.14*s,.105*s);
+  capsuleLike(bodyGroup,skin,[.68*sh,1.59,0],[.65*sh,1.2,0],.105*s,.075);
+  sphere(bodyGroup,skin,[-.65*sh,1.13,0],[.085,.12,.08]);
+  sphere(bodyGroup,skin,[.65*sh,1.13,0],[.085,.12,.08]);
+
+  // Head
+  const head=sphere(bodyGroup,skin,[0,2.43,0],[.225*Number(state.faceShape),.29,.205]);
+  head.scale.x*=Number(state.faceShape);
+  sphere(bodyGroup,skin,[0,2.22,.04],[.15,.12,.16]);
+
+  // Ears
+  sphere(bodyGroup,skin,[-.23,2.42,0],[.045,.075,.04]);
+  sphere(bodyGroup,skin,[.23,2.42,0],[.045,.075,.04]);
+
+  // Eyes and brows
+  eyeGroup=new THREE.Group();
+  bodyGroup.add(eyeGroup);
+  const eyeMat=new THREE.MeshBasicMaterial({color:state.eyeGlow});
+  const eyeSize=Number(state.eyeSize);
+  sphere(eyeGroup,eyeMat,[-.09,2.46,.185],[.035*eyeSize,.018*eyeSize,.012]);
+  sphere(eyeGroup,eyeMat,[.09,2.46,.185],[.035*eyeSize,.018*eyeSize,.012]);
+  const brow=material("#17141c");
+  capsuleLike(eyeGroup,brow,[-.15,2.50,.175],[-.04,2.51,.18],.018,.016);
+  capsuleLike(eyeGroup,brow,[.04,2.51,.18],[.15,2.50,.175],.016,.018);
+
+  // Nose
+  sphere(bodyGroup,skin,[0,2.405,.195],[.04,.075,.04]);
+
+  // Hair
+  hairGroup=new THREE.Group();
+  bodyGroup.add(hairGroup);
+  if(state.hair!=="none"){
+    sphere(hairGroup,hairMat,[0,2.62,0],[.24,.14,.22]);
+    if(state.hair==="long"){
+      for(let i=0;i<9;i++){
+        const x=(i-4)*.047;
+        const strand=sphere(hairGroup,hairMat,[x,2.24-(Math.abs(i-4)*.01),-.035],[.035,.42*state.hairLength,.04]);
+        strand.rotation.z=(i-4)*-.035;
+      }
+      for(let side of [-1,1]){
+        for(let i=0;i<3;i++){
+          const strand=sphere(hairGroup,hairMat,[side*(.19+i*.015),2.40-i*.12,.015],[.045,.18,.045]);
+          strand.rotation.z=side*-.3;
+        }
+      }
+    }else if(state.hair==="bun"){
+      sphere(hairGroup,hairMat,[0,2.81,0],[.12,.13,.12]);
+      for(let side of [-1,1]){
+        sphere(hairGroup,hairMat,[side*.17,2.52,0],[.07,.17,.08]);
+      }
+    }else if(state.hair==="short"){
+      sphere(hairGroup,hairMat,[0,2.59,0],[.23,.12,.22]);
     }
-  });
-  floor=platform=platformRing=starField=gridHelper=null;
-}
-
-function createEnvironment(){
-  if(!scene)return;
-  clearEnvironment();
-
-  const worlds={
-    cosmos:{bg:0x080718,floor:0x111027,glow:0x8b5cf6,fog:.018},
-    temple:{bg:0x1b1420,floor:0x302331,glow:0xffc078,fog:.016},
-    void:{bg:0x030307,floor:0x090811,glow:0x6d28d9,fog:.008},
-    nebula:{bg:0x1c0929,floor:0x251033,glow:0xf0abfc,fog:.013},
-    dawn:{bg:0x271627,floor:0x382438,glow:0xffa77c,fog:.012}
-  };
-
-  const w=worlds[currentEnvironment]||worlds.cosmos;
-  scene.background=new THREE.Color(w.bg);
-  scene.fog=new THREE.FogExp2(w.bg,w.fog);
-
-  floor=new THREE.Mesh(
-    new THREE.PlaneGeometry(200,200),
-    new THREE.MeshStandardMaterial({color:w.floor,roughness:.92,metalness:.15})
-  );
-  floor.rotation.x=-Math.PI/2;
-  floor.position.y=-.05;
-  floor.receiveShadow=true;
-  scene.add(floor);
-
-  gridHelper=new THREE.GridHelper(100,100,0x684c9a,0x2a2140);
-  gridHelper.position.y=-.025;
-  gridHelper.material.transparent=true;
-  gridHelper.material.opacity=.28;
-  scene.add(gridHelper);
-
-  platform=new THREE.Mesh(
-    new THREE.CylinderGeometry(1.65,1.8,.22,64),
-    new THREE.MeshStandardMaterial({
-      color:0x19152a,metalness:.8,roughness:.27,
-      emissive:w.glow,emissiveIntensity:.18
-    })
-  );
-  platform.position.y=.08;
-  platform.castShadow=true;
-  platform.receiveShadow=true;
-  scene.add(platform);
-
-  platformRing=ring(scene,new THREE.MeshStandardMaterial({
-    color:w.glow,emissive:w.glow,emissiveIntensity:1.6,
-    metalness:.4,roughness:.25
-  }),0,.2,0,1.68,.025);
-
-  const positions=[];
-  for(let i=0;i<1800;i++){
-    positions.push((Math.random()-.5)*120,Math.random()*55,(Math.random()-.5)*120);
   }
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
-  const starMaterial=new THREE.PointsMaterial({
-    color:0xd9d0ff,size:.07,transparent:true,opacity:.8
-  });
-  starField=new THREE.Points(geo,starMaterial);
-  scene.add(starField);
 
-  scene.userData.rimLight.color.setHex(w.glow);
-  scene.userData.fillLight.color.setHex(
-    currentEnvironment==="temple"?0xffc078:
-    currentEnvironment==="dawn"?0xff8d86:0x38d9ff
-  );
-  applyLighting();
-  status("Environment applied");
-}
+  // Beard
+  beardGroup=new THREE.Group();
+  bodyGroup.add(beardGroup);
+  if(state.beard!=="none"){
+    const beardLength=state.beard==="long"?.29:.14;
+    sphere(beardGroup,hairMat,[0,2.24,.13],[.12,beardLength,.09]);
+    sphere(beardGroup,hairMat,[0,2.15,.14],[.085,beardLength*.65,.07]);
+  }
 
-function applyLighting(){
-  if(!scene||!scene.userData.keyLight)return;
-  scene.userData.keyLight.intensity=2.5*lightIntensity;
-  scene.userData.rimLight.intensity=38*lightIntensity;
-  scene.userData.fillLight.intensity=18*lightIntensity;
-  scene.userData.topLight.intensity=1.7*lightIntensity;
-}
-
-function disposeObject(root){
-  root.traverse(obj=>{
-    if(obj.geometry)obj.geometry.dispose();
-    if(obj.material){
-      const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-      mats.forEach(m=>m.dispose());
+  // Clothing and drapery
+  outfitGroup=new THREE.Group();
+  bodyGroup.add(outfitGroup);
+  if(state.outfit==="robes"||state.outfit==="royal"){
+    const robeMat=material(state.cloth,.9,.03);
+    addMesh(outfitGroup,new THREE.ConeGeometry(.49,1.08,32,1,true),robeMat,[0,1.28,0]);
+    sphere(outfitGroup,robeMat,[0,1.82,0],[.47,.24,.27]);
+    // Robe folds
+    const foldMat=material(new THREE.Color(state.cloth).multiplyScalar(.7),.95);
+    for(let i=0;i<10;i++){
+      const a=i*Math.PI*2/10;
+      const x=Math.cos(a)*.3;
+      const z=Math.sin(a)*.2;
+      const fold=cylinder(outfitGroup,foldMat,.008,.014,.65,[x,1.27,z],6);
+      fold.rotation.z=Math.cos(a)*.12;
     }
-  });
-}
-
-function clearCharacter(){
-  if(character){
-    scene.remove(character);
-    disposeObject(character);
-  }
-  character=null;
-  body=null;
-  importedModel=null;
-
-  if(modelMixer)modelMixer.stopAllAction();
-  modelMixer=null;
-  modelActions=[];
-  activeModelAction=null;
-  characterMaterials=[];
-  $("modelAnimationBox").style.display="none";
-}
-
-function buildCharacter(type){
-  clearCharacter();
-  currentCharacter=type;
-
-  const root=new THREE.Group();
-  root.name="Fantasy Character";
-  character=root;
-  scene.add(root);
-
-  body=new THREE.Group();
-  body.name="Animated Body";
-  root.add(body);
-
-  const robeColor=new THREE.Color(currentColor);
-  const robe=createMaterial(robeColor,.58,.28,robeColor,.1);
-  const armor=createMaterial(0xaaa5c4,.27,.82,0x32214c,.2);
-  const dark=createMaterial(0x171221,.8,.2);
-  const skin=createMaterial(type==="shadow"?0x292438:0xb58d80,.72,.05);
-  const gold=createMaterial(0xd7ae56,.3,.78,0x55300e,.12);
-  const glow=createMaterial(0x9c71ff,.2,.4,0x773cff,glowIntensity*2);
-  const eyes=createMaterial(0x76efff,.15,.1,0x25cfff,glowIntensity*3);
-
-  for(const s of [-1,1]){
-    cylinder(body,dark,s*.34,.49,0,.17,.21,.82);
-    sphere(body,dark,s*.34,.16,.12,.2,.13,.3);
-    cylinder(body,armor,s*.34,.69,0,.19,.19,.13);
-
-    const arm=new THREE.Group();
-    arm.position.set(s*.62,2.03,0);
-    body.add(arm);
-    cylinder(arm,robe,0,-.34,0,.16,.2,.67);
-    sphere(arm,armor,0,-.12,0,.21,.17,.19);
-    cylinder(arm,dark,0,-.74,0,.13,.15,.19);
-    sphere(arm,skin,0,-.9,0,.12,.14,.12);
-    root.userData[s===1?"rightArm":"leftArm"]=arm;
-
-    const shoulder=sphere(body,armor,s*.66,2.1,0,.28,.2,.3);
-    shoulder.rotation.z=-s*.25;
-  }
-
-  cylinder(body,robe,0,1.47,0,.43,.64,1.24,24);
-  sphere(body,robe,0,1.82,0,.49,.41,.37);
-  sphere(body,armor,0,1.8,.32,.36,.34,.12);
-  cylinder(body,gold,0,.96,0,.45,.44,.14,24);
-
-  for(const s of [-1,1]){
-    const cloth=sphere(body,robe,s*.27,.58,0,.27,.6,.19);
-    cloth.rotation.z=s*.13;
-  }
-
-  cylinder(body,skin,0,2.16,0,.15,.15,.27);
-  sphere(body,skin,0,2.47,0,.3,.39,.28);
-
-  if(type==="shadow")sphere(body,dark,0,2.48,.18,.28,.29,.12);
-  for(const s of [-1,1])sphere(body,eyes,s*.115,2.49,.25,.05,.03,.025);
-
-  if(type==="sorcerer"||type==="shadow"){
-    sphere(body,robe,0,2.72,0,.41,.44,.37);
-    cylinder(body,armor,0,2.63,0,.45,.45,.08,32);
-    const hat=cylinder(body,robe,0,3.03,0,.03,.34,.8,32);
-    hat.rotation.z=-.08;
-    sphere(body,glow,0,2.84,.35,.07,.07,.07);
-  }else if(type==="warrior"){
-    sphere(body,armor,0,2.68,0,.35,.31,.31);
-    cylinder(body,gold,0,2.85,0,.06,.12,.34);
-    for(const s of [-1,1]){
-      const horn=cylinder(body,gold,s*.33,2.78,0,.015,.1,.4,8);
-      horn.rotation.z=-s*.55;
+  }else if(state.outfit==="armor"){
+    sphere(outfitGroup,material("#39445a",.3,.8),[0,1.91,.015],[.49,.29,.28]);
+    for(let side of [-1,1]){
+      sphere(outfitGroup,gold,[side*.41,1.99,0],[.17,.12,.24]);
+      sphere(outfitGroup,material("#4e5d77",.28,.8),[side*.43,1.87,.01],[.18,.2,.24]);
+    }
+    sphere(outfitGroup,material("#303849",.35,.8),[0,1.57,.02],[.35,.25,.24]);
+    for(let i=0;i<3;i++){
+      capsuleLike(outfitGroup,gold,[-.23,1.67-i*.09,.2],[.23,1.67-i*.09,.2],.012,.012);
     }
   }else{
-    cylinder(body,gold,0,2.79,0,.2,.29,.18,6);
-    for(let i=0;i<5;i++){
-      const a=i*Math.PI*2/5;
-      const spike=cylinder(body,gold,Math.cos(a)*.25,2.98,Math.sin(a)*.25,.015,.07,.32,6);
-      spike.rotation.z=Math.cos(a)*-.5;
+    sphere(outfitGroup,cloth,[0,1.88,.02],[.46,.24,.25]);
+    const sash=sphere(outfitGroup,material("#6c3548"),[.05,1.55,.04],[.43,.07,.25]);
+    sash.rotation.z=-.15;
+  }
+
+  // Waist belt
+  const beltMat=state.outfit==="armor"?gold:trim;
+  cylinder(outfitGroup,beltMat,.34,.34,.065,[0,1.42,.015],32);
+
+  // Necklace
+  if(state.jewellery!=="none"){
+    const count=17;
+    for(let i=0;i<count;i++){
+      const a=Math.PI*.12+(Math.PI*.76*i/(count-1));
+      const x=Math.cos(a)*.26;
+      const y=1.97-Math.sin(a)*.12;
+      sphere(outfitGroup,trim,[x,y,.235],[.025,.03,.022]);
     }
   }
 
-  if(type==="sorcerer"||type==="guardian"){
-    const staff=new THREE.Group();
-    staff.position.set(.87,0,.05);
-    body.add(staff);
-    cylinder(staff,gold,0,1.15,0,.045,.06,2.3,12);
-    sphere(staff,glow,0,2.42,0,.18,.18,.18);
-    ring(staff,glow,0,2.42,0,.25,.025,Math.PI/2);
-    root.userData.staff=staff;
+  // Shoulder accessories
+  ornamentGroup=new THREE.Group();
+  bodyGroup.add(ornamentGroup);
+  if(state.ornament==="on"){
+    for(let side of [-1,1]){
+      sphere(ornamentGroup,trim,[side*.43*sh,2.0,.03],[.16,.1,.15]);
+      sphere(ornamentGroup,gold,[side*.43*sh,2.0,.14],[.07,.055,.025]);
+    }
   }
 
-  for(let i=0;i<7;i++){
-    sphere(body,i%2?gold:glow,(i-3)*.105,1.47,.415,.03,.05,.02);
-  }
+  // Aura
+  if(auraMesh)scene.remove(auraMesh);
+  auraMesh=new THREE.Mesh(
+    new THREE.SphereGeometry(1,32,24),
+    new THREE.MeshBasicMaterial({
+      color:state.magic,transparent:true,opacity:state.aura/100*.075,
+      side:THREE.BackSide,depthWrite:false
+    })
+  );
+  auraMesh.position.y=1.65;
+  auraMesh.scale.set(.9,1.55,.65);
+  scene.add(auraMesh);
 
-  root.userData.rings=[];
-  for(let i=0;i<3;i++){
-    root.userData.rings.push(
-      ring(root,glow,0,1.4+i*.58,0,1.03+i*.15,.014,Math.PI/2)
-    );
-  }
-
-  root.scale.setScalar(characterScale);
-  root.rotation.y=THREE.MathUtils.degToRad(Number($("rotationRange").value||0));
-
-  $("characterName").textContent=({
-    sorcerer:"Shadow Sorcerer",warrior:"Arcane Warrior",
-    guardian:"Celestial Guardian",shadow:"Void Wraith"
-  })[type];
-
-  document.querySelectorAll("[data-character]").forEach(btn=>{
-    btn.classList.toggle("active",btn.dataset.character===type);
-  });
-
-  status("Character created");
-  updateStats();
+  // Height and proportions
+  character.scale.set(H,H,H);
+  character.position.y=0;
+  platform.visible=true;
+  updateProjectInfo();
 }
 
 function createParticles(){
-  // Fix: create particle data before creating the THREE.Points object.
-  if(particles){
-    scene.remove(particles);
-    particleGeometry.dispose();
-    particleMaterial.dispose();
-    particles=null;
+  if(particleSystem)scene.remove(particleSystem);
+  const count=900;
+  const positions=new Float32Array(count*3);
+  const speeds=new Float32Array(count);
+  for(let i=0;i<count;i++){
+    positions[i*3]=(Math.random()-.5)*5;
+    positions[i*3+1]=Math.random()*4.2;
+    positions[i*3+2]=(Math.random()-.5)*3;
+    speeds[i]=.2+Math.random()*.9;
   }
-
-  const max=2000;
-  const positions=new Float32Array(max*3);
-  const speeds=new Float32Array(max);
-
-  for(let i=0;i<max;i++){
-    const j=i*3;
-    positions[j]=(Math.random()-.5)*6;
-    positions[j+1]=Math.random()*5;
-    positions[j+2]=(Math.random()-.5)*6;
-    speeds[i]=.2+Math.random();
-  }
-
-  particleGeometry=new THREE.BufferGeometry();
-  particleGeometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
-
-  particleMaterial=new THREE.PointsMaterial({
-    color:0xd5b8ff,size:.055,transparent:true,opacity:.85,
-    depthWrite:false,blending:THREE.AdditiveBlending
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
+  const mat=new THREE.PointsMaterial({
+    color:state.magic,size:.025,transparent:true,opacity:state.particles/100,
+    blending:THREE.AdditiveBlending,depthWrite:false
   });
-
-  particles=new THREE.Points(particleGeometry,particleMaterial);
-  particles.userData.speeds=speeds;
-  scene.add(particles);
-  particleGeometry.setDrawRange(0,particleCount);
+  particleSystem=new THREE.Points(geometry,mat);
+  particleSystem.userData.speeds=speeds;
+  scene.add(particleSystem);
 }
 
-function updateParticles(dt,time){
-  if(!particles)return;
-  particles.visible=magicEnabled&&particleCount>0;
-  if(!particles.visible)return;
-
-  const positions=particleGeometry.attributes.position.array;
-  const speeds=particles.userData.speeds;
-
-  for(let i=0;i<particleCount;i++){
-    const j=i*3;
-    positions[j+1]+=speeds[i]*dt*.35;
-    if(positions[j+1]>5){
-      positions[j+1]=.05;
-      positions[j]=(Math.random()-.5)*5;
-      positions[j+2]=(Math.random()-.5)*5;
-    }
-    positions[j]+=.002*Math.sin(time+i);
-  }
-  particleGeometry.attributes.position.needsUpdate=true;
-  particles.rotation.y=time*.025;
-}
-
-function applyKeyframes(time){
-  if(!character||keyframes.length===0)return false;
-
-  const frames=[...keyframes].sort((a,b)=>a.time-b.time);
-  if(time<=frames[0].time){
-    applyPose(frames[0]);
-    return true;
-  }
-  if(time>=frames[frames.length-1].time){
-    applyPose(frames[frames.length-1]);
-    return true;
-  }
-
-  let before=frames[0],after=frames[frames.length-1];
-  for(let i=0;i<frames.length-1;i++){
-    if(time>=frames[i].time&&time<=frames[i+1].time){
-      before=frames[i];
-      after=frames[i+1];
-      break;
-    }
-  }
-
-  const span=Math.max(.0001,after.time-before.time);
-  const raw=(time-before.time)/span;
-  const t=raw*raw*(3-2*raw);
-  const a=before.pose,b=after.pose;
-
-  character.position.lerpVectors(
-    new THREE.Vector3(...a.position),
-    new THREE.Vector3(...b.position),t
-  );
-  character.rotation.set(
-    THREE.MathUtils.lerp(a.rotation[0],b.rotation[0],t),
-    THREE.MathUtils.lerp(a.rotation[1],b.rotation[1],t),
-    THREE.MathUtils.lerp(a.rotation[2],b.rotation[2],t)
-  );
-  character.scale.setScalar(THREE.MathUtils.lerp(a.scale,b.scale,t));
-  return true;
-}
-
-function applyPose(frame){
-  if(!character)return;
-  character.position.fromArray(frame.pose.position);
-  character.rotation.set(...frame.pose.rotation);
-  character.scale.setScalar(frame.pose.scale);
-}
-
-function animateProcedural(dt,time){
-  if(!character)return;
-
-  if(modelMixer){
-    modelMixer.update(dt);
-    return;
-  }
-  if(!body)return;
-
-  body.position.y=0;
-  body.rotation.z=0;
-
-  if(currentMotion==="idle"){
-    body.position.y=Math.sin(time*1.4)*.035;
-    body.rotation.y=Math.sin(time*.45)*.05;
-  }else if(currentMotion==="power"){
-    body.position.y=Math.sin(time*2)*.05;
-    const s=1+Math.sin(time*3)*.06;
-    character.userData.rings?.forEach(r=>r.scale.setScalar(s));
-  }else if(currentMotion==="dance"){
-    body.position.y=Math.abs(Math.sin(time*2.4))*.15;
-    body.rotation.y=Math.sin(time*2.4)*.24;
-    if(character.userData.rightArm)character.userData.rightArm.rotation.z=-.6+Math.sin(time*2.4)*.4;
-    if(character.userData.leftArm)character.userData.leftArm.rotation.z=.6-Math.sin(time*2.4)*.4;
-  }else if(currentMotion==="walk"){
-    body.position.y=Math.abs(Math.sin(time*4))*.07;
-    if(character.userData.rightArm)character.userData.rightArm.rotation.x=Math.sin(time*4)*.4;
-    if(character.userData.leftArm)character.userData.leftArm.rotation.x=-Math.sin(time*4)*.4;
-  }else if(currentMotion==="orbit"){
-    body.position.y=.15+Math.sin(time*1.5)*.12;
-    character.rotation.y+=dt*.5;
-  }else if(currentMotion==="dramatic"){
-    body.position.y=Math.sin(time*.7)*.025;
-    body.rotation.y=Math.sin(time*.6)*.12;
-  }
-
-  character.userData.rings?.forEach((r,i)=>{
-    r.visible=magicEnabled;
-    r.rotation.y=time*(.35+i*.17)*(i%2?-1:1);
+function updateLighting(){
+  if(!scene)return;
+  const presets={
+    cinematic:{bg:"#080b14",fog:"#080b14",light:"#e0e9ff"},
+    divine:{bg:"#16100a",fog:"#16100a",light:"#ffe2a0"},
+    moon:{bg:"#080e1b",fog:"#080e1b",light:"#b8d8ff"},
+    dark:{bg:"#08070d",fog:"#08070d",light:"#a59ac9"}
+  };
+  const p=presets[state.lighting]||presets.cinematic;
+  scene.background=new THREE.Color(p.bg);
+  scene.fog.color.set(p.fog);
+  scene.traverse(obj=>{
+    if(obj.isDirectionalLight&&obj.position.x===4)obj.color.set(p.light);
   });
-  if(character.userData.staff){
-    character.userData.staff.rotation.z=-.12+Math.sin(time*1.5)*.04;
+  if(particleSystem){
+    particleSystem.material.color.set(state.magic);
+    particleSystem.material.opacity=state.particles/100;
+  }
+  if(auraMesh){
+    auraMesh.material.color.set(state.magic);
+    auraMesh.material.opacity=state.aura/100*.075;
+    auraMesh.visible=state.aura>0;
   }
 }
 
-function updateCamera(time){
-  if(cameraMode==="static")return;
-  if(cameraStartTime===null)cameraStartTime=time;
-
-  const t=Math.max(0,time-cameraStartTime)*cameraSpeed;
-  const target=controls.target;
-
-  if(cameraMode==="push"){
-    const amount=Math.min(1,t/5);
-    camera.position.z=9-3*amount;
-    camera.position.y=2.8-.4*amount;
-  }else if(cameraMode==="pull"){
-    const amount=Math.min(1,t/5);
-    camera.position.z=6+4*amount;
-  }else if(cameraMode==="orbit"){
-    camera.position.x=Math.sin(t*.25)*9;
-    camera.position.z=Math.cos(t*.25)*9;
-    camera.position.y=2.8+Math.sin(t*.5)*.3;
-    camera.lookAt(target);
-  }else if(cameraMode==="shake"){
-    camera.position.x=Math.sin(t*13)*.025;
-    camera.position.y=2.8+Math.sin(t*17)*.02;
-  }
-}
-
-function animate(now){
+function animate(){
   requestAnimationFrame(animate);
-  if(!renderer||!scene||!camera)return;
+  if(!renderer)return;
+  const t=clock?clock.getElapsedTime():0;
 
-  const time=now*.001;
-  const dt=Math.min(.05,lastTime?time-lastTime:.016);
-  lastTime=time;
+  if(state.autoRotate&&character)character.rotation.y=t*.25;
 
-  if(running){
-    elapsed+=dt;
-    if(elapsed>=sceneDuration){
-      elapsed=sceneDuration;
-      running=false;
+  if(particleSystem){
+    const attr=particleSystem.geometry.attributes.position;
+    const speeds=particleSystem.userData.speeds;
+    for(let i=0;i<attr.count;i++){
+      let y=attr.getY(i)+speeds[i]*.003;
+      if(y>4.2)y=-.1;
+      attr.setY(i,y);
+      attr.setX(i,attr.getX(i)+Math.sin(t*.7+i)*.0008);
+    }
+    attr.needsUpdate=true;
+  }
+  if(auraMesh){
+    const pulse=1+Math.sin(t*1.6)*.025;
+    auraMesh.scale.set(.9*pulse,1.55*pulse,.65*pulse);
+  }
+  if(playing&&savedPoses.length>1){
+    const duration=5;
+    const phase=(t%duration)/duration;
+    const index=Math.floor(phase*(savedPoses.length-1));
+    const next=Math.min(index+1,savedPoses.length-1);
+    const alpha=(phase*(savedPoses.length-1))-index;
+    const a=savedPoses[index],b=savedPoses[next];
+    if(a&&b){
+      character.rotation.y=a.rotY+(b.rotY-a.rotY)*alpha;
+      character.position.y=a.posY+(b.posY-a.posY)*alpha;
     }
   }
-
-  if(!applyKeyframes(elapsed))animateProcedural(dt,elapsed);
-  if(running)updateCamera(elapsed);
-  updateParticles(dt,elapsed);
-
-  if(starField)starField.rotation.y=elapsed*.003;
-  if(platformRing){
-    platformRing.rotation.z=elapsed*.12;
-    platformRing.material.emissiveIntensity=.7+Math.sin(elapsed*2)*.35;
-  }
-
-  controls.update();
   renderer.render(scene,camera);
-
-  fpsFrames++;
-  fpsElapsed+=dt;
-  if(fpsElapsed>=1){
-    $("fpsText").textContent=fpsFrames+" FPS";
-    fpsFrames=0;
-    fpsElapsed=0;
-  }
-
-  $("timelineRange").value=elapsed;
-  $("timeText").textContent=elapsed.toFixed(1)+" / "+sceneDuration+" sec";
-  $("keyframePlayhead").style.left=(elapsed/sceneDuration*100)+"%";
 }
 
-function resize(){
-  if(!renderer||!camera)return;
-  const w=Math.max(1,$("viewport").clientWidth);
-  const h=Math.max(1,$("viewport").clientHeight);
-  camera.aspect=w/h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w,h,false);
+function updateProjectInfo(){
+  if(!$("projectInfo"))return;
+  $("projectInfo").innerHTML=
+    "Character: "+escapeHTML(state.name||"Untitled Character")+"<br>"+
+    "Model: Procedural 3D<br>"+
+    "Reference: "+(state.referenceData?"Loaded":"Not loaded")+"<br>"+
+    "Saved poses: "+savedPoses.length+"<br>"+
+    "Save: Local browser";
 }
-
-function setCamera(mode){
-  if(!camera||!controls)return;
-
-  cameraMode="static";
-  const target=controls.target.clone();
-
-  if(mode==="front")camera.position.set(0,2.8,9);
-  else if(mode==="side")camera.position.set(9,2.8,0);
-  else if(mode==="back")camera.position.set(0,2.8,-9);
-  else{
-    camera.position.set(0,2.8,9);
-    target.set(0,1.7,0);
-  }
-
-  controls.target.copy(target);
-  controls.update();
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
 }
-
-function setColor(color){
-  currentColor=color;
-  $("customColor").value=color;
-  if(character&&!importedModel)buildCharacter(currentCharacter);
-  document.querySelectorAll(".swatch").forEach(b=>{
-    b.classList.toggle("active",b.dataset.color===color);
+function rebuild(msg){
+  if(!modelReady)return;
+  const y=character?character.position.y:0;
+  const rot=character?character.rotation.y:0;
+  buildCharacter();
+  character.position.y=y;
+  character.rotation.y=rot;
+  createParticles();
+  updateLighting();
+  if(msg)status(msg);
+}
+function bindRange(id,key,label,format){
+  $(id).addEventListener("input",()=>{
+    state[key]=Number($(id).value);
+    $(label).textContent=format?format(state[key]):state[key];
+    rebuild();
   });
 }
-
-function setGlow(value){
-  glowIntensity=Number(value);
-  $("glowValue").textContent=glowIntensity.toFixed(1);
-  characterMaterials.forEach(m=>{
-    if(m.emissive&&m.emissive.getHex()!==0)m.emissiveIntensity=glowIntensity*2;
+function bindSelect(id,key){
+  $(id).addEventListener("change",()=>{
+    state[key]=$(id).value;
+    rebuild();
   });
 }
-
-function addKeyframe(){
-  if(!character){toast("Create or import a character first");return;}
-  keyframes.push({
-    time:Number(elapsed.toFixed(2)),
-    pose:{
-      position:character.position.toArray(),
-      rotation:[character.rotation.x,character.rotation.y,character.rotation.z],
-      scale:character.scale.x
-    }
-  });
-  keyframes.sort((a,b)=>a.time-b.time);
-  renderKeyframes();
-  toast("Keyframe added at "+elapsed.toFixed(2)+" seconds");
-}
-
-function renderKeyframes(){
-  const track=$("keyframeTrack");
-  track.querySelectorAll(".keyframe-marker").forEach(el=>el.remove());
-  $("keyframeEmpty").style.display=keyframes.length?"none":"grid";
-  $("keyframeCount").textContent=keyframes.length+" keyframes";
-  $("statKeyframes").textContent=keyframes.length;
-
-  keyframes.forEach((frame,index)=>{
-    const marker=document.createElement("button");
-    marker.className="keyframe-marker";
-    marker.style.left=(frame.time/sceneDuration*100)+"%";
-    marker.title="Keyframe "+(index+1)+" · "+frame.time+" sec";
-    marker.addEventListener("click",()=>{
-      elapsed=frame.time;
-      applyPose(frame);
-      running=false;
-      $("timelineRange").value=elapsed;
+function bindSwatches(container,key){
+  $(container).querySelectorAll(".swatch").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      $(container).querySelectorAll(".swatch").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state[key]=btn.dataset.color;
+      if(key==="skin")$("skinColor").value=state.skin;
+      rebuild();
     });
-    track.appendChild(marker);
+  });
+}
+function bindChoices(container,key){
+  $(container).querySelectorAll(".choice").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      $(container).querySelectorAll(".choice").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      state[key]=btn.dataset[key];
+      rebuild();
+    });
   });
 }
 
-function parsePrompt(){
-  const text=$("promptInput").value.toLowerCase();
-  let motion=$("motionSelect").value;
+function bindControls(){
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      tab.classList.add("active");
+      $(tab.dataset.tab).classList.add("active");
+    });
+  });
 
-  if(text.includes("walk")||text.includes("run"))motion="walk";
-  else if(text.includes("dance")||text.includes("ritual"))motion="dance";
-  else if(text.includes("float")||text.includes("levitat"))motion="orbit";
-  else if(text.includes("charge")||text.includes("energy")||text.includes("power"))motion="power";
-  else if(text.includes("reveal")||text.includes("dramatic"))motion="dramatic";
-  else if(text.includes("idle")||text.includes("breath"))motion="idle";
+  bindRange("height","height","heightVal",v=>v.toFixed(2));
+  bindRange("muscle","muscle","muscleVal",v=>Math.round(v*100)+"%");
+  bindRange("shoulders","shoulders","shoulderVal",v=>v.toFixed(2));
+  bindRange("proportion","proportion","proportionVal",v=>v.toFixed(2));
+  bindRange("eyeSize","eyeSize","eyeVal",v=>v.toFixed(2));
+  bindRange("hairLength","hairLength","hairLengthVal",v=>v.toFixed(2));
+  bindRange("aura","aura","auraVal",v=>v+"%");
+  bindRange("particles","particles","particlesVal",v=>v+"%");
 
-  currentMotion=motion;
-  $("motionSelect").value=motion;
-  $("animationBadge").textContent=$("motionSelect").selectedOptions[0].text;
+  bindSelect("faceShape","faceShape");
+  bindSelect("eyeGlow","eyeGlow");
+  bindSelect("beard","beard");
+  bindSelect("expression","expression");
+  bindSelect("preset","preset");
+  bindSelect("jewellery","jewellery");
+  bindSelect("ornament","ornament");
+  bindSelect("fog","fog");
+  bindSelect("lighting","lighting");
 
-  if(text.includes("camera moves closer")||text.includes("push in")||text.includes("zoom in")){
-    cameraMode="push";
-  }else if(text.includes("camera pulls back")||text.includes("zoom out")){
-    cameraMode="pull";
-  }else if(text.includes("camera orbits")||text.includes("orbit camera")){
-    cameraMode="orbit";
-  }
-  $("cameraMotionSelect").value=cameraMode;
+  bindSwatches("skinSwatches","skin");
+  bindSwatches("hairSwatches","hairColor");
+  bindSwatches("clothSwatches","cloth");
+  bindSwatches("magicSwatches","magic");
+  bindChoices("hairChoices","hair");
+  bindChoices("outfitChoices","outfit");
 
-  if(text.includes("purple"))setColor("#7040b8");
-  else if(text.includes("blue"))setColor("#123d78");
-  else if(text.includes("green"))setColor("#176346");
-  else if(text.includes("red"))setColor("#8c263d");
-  else if(text.includes("gold"))setColor("#a77b39");
+  $("skinColor").addEventListener("input",()=>{
+    state.skin=$("skinColor").value;
+    $("skinSwatches").querySelectorAll(".swatch").forEach(b=>b.classList.remove("active"));
+    rebuild();
+  });
 
-  if(text.includes("magic")||text.includes("energy")||text.includes("particles")){
-    magicEnabled=true;
-    $("toggleMagicBtn").classList.add("active");
-  }
+  $("preset").addEventListener("change",()=>{
+    const p=state.preset;
+    if(p==="warrior"){
+      state.skin="#4b9ed8";state.cloth="#151b30";state.muscle=.9;
+      state.hair="long";state.beard="none";state.outfit="armor";
+    }else if(p==="sage"){
+      state.skin="#bba4dc";state.cloth="#302544";state.muscle=.5;
+      state.hair="long";state.beard="long";state.outfit="robes";
+    }else{
+      state.skin="#8b9ab6";state.cloth="#151c2a";state.muscle=1.1;
+      state.hair="bun";state.beard="short";state.outfit="royal";
+    }
+    syncControls();
+    rebuild("Preset applied.");
+  });
 
-  if(text.includes("temple"))currentEnvironment="temple";
-  else if(text.includes("nebula"))currentEnvironment="nebula";
-  else if(text.includes("cosmos")||text.includes("space"))currentEnvironment="cosmos";
+  $("rotateBtn").addEventListener("click",()=>{
+    state.autoRotate=!state.autoRotate;
+    $("rotateBtn").classList.toggle("active",state.autoRotate);
+    toast(state.autoRotate?"Auto rotation enabled":"Auto rotation disabled");
+  });
+  $("gridBtn").addEventListener("click",()=>{
+    state.grid=!state.grid;floorGrid.visible=state.grid;
+    $("gridBtn").classList.toggle("active",state.grid);
+  });
+  $("screenshotBtn").addEventListener("click",()=>{
+    renderer.render(scene,camera);
+    const a=document.createElement("a");
+    a.download=(slug(state.name)||"animai-character")+".png";
+    a.href=renderer.domElement.toDataURL("image/png");
+    a.click();
+  });
+  $("resetBtn").addEventListener("click",()=>{
+    Object.assign(state,{
+      name:"Astral Warrior",preset:"warrior",height:1,muscle:.7,
+      shoulders:1,proportion:1,skin:"#4b9ed8",faceShape:1,eyeSize:1,
+      eyeGlow:"#8feaff",beard:"none",expression:"calm",hair:"long",
+      hairColor:"#11131c",hairLength:1,outfit:"robes",cloth:"#151b30",
+      jewellery:"beads",ornament:"on",magic:"#46aaff",aura:65,
+      particles:65,fog:"on",lighting:"cinematic",autoRotate:false,
+      grid:true,notes:""
+    });
+    savedPoses=[];
+    syncControls();
+    rebuild("Character settings reset.");
+    renderTimeline();
+    toast("Character reset");
+  });
 
-  $("environmentSelect").value=currentEnvironment;
-  createEnvironment();
+  $("saveBtn").addEventListener("click",saveCharacter);
+  $("exportBtn").addEventListener("click",exportSettings);
+  $("importSettingsBtn").addEventListener("click",()=>$("settingsFile").click());
+  $("settingsFile").addEventListener("change",loadSettings);
+  $("poseBtn").addEventListener("click",capturePose);
+  $("playBtn").addEventListener("click",()=>{
+    playing=!playing;
+    $("playBtn").textContent=playing?"■ Stop Preview":"▶ Play Preview";
+    toast(playing?"Pose preview playing":"Pose preview stopped");
+  });
 
-  cameraStartTime=elapsed;
-  running=true;
+  $("referenceFile").addEventListener("change",loadReference);
+  $("clearReferenceBtn").addEventListener("click",clearReference);
+  $("characterName").addEventListener("input",()=>{
+    state.name=$("characterName").value;
+    updateProjectInfo();
+  });
+  $("designNotes").addEventListener("input",()=>{
+    state.notes=$("designNotes").value;
+  });
 
-  $("promptStatus").textContent=
-    "Preview uses the local "+$("motionSelect").selectedOptions[0].text+
-    " template. Prompt interpretation is rule-based, not an AI motion model.";
-
-  toast("Animation preview generated");
+  // Basic mouse and touch orbit controls.
+  let down=false,lastX=0,lastY=0;
+  const canvas=renderer.domElement;
+  canvas.addEventListener("pointerdown",e=>{
+    down=true;lastX=e.clientX;lastY=e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointerup",()=>down=false);
+  canvas.addEventListener("pointercancel",()=>down=false);
+  canvas.addEventListener("pointermove",e=>{
+    if(!down)return;
+    const dx=e.clientX-lastX,dy=e.clientY-lastY;
+    lastX=e.clientX;lastY=e.clientY;
+    character.rotation.y+=dx*.008;
+    camera.position.y=Math.max(1,Math.min(6,camera.position.y+dy*.012));
+    camera.lookAt(0,1.5,0);
+  });
+  canvas.addEventListener("wheel",e=>{
+    e.preventDefault();
+    camera.position.multiplyScalar(e.deltaY>0?1.06:.94);
+    camera.position.clampLength(3,14);
+    camera.lookAt(0,1.5,0);
+  },{passive:false});
 }
 
+function syncControls(){
+  const map={
+    height:"heightVal",muscle:"muscleVal",shoulders:"shoulderVal",
+    proportion:"proportionVal",eyeSize:"eyeVal",
+    hairLength:"hairLengthVal",aura:"auraVal",particles:"particlesVal"
+  };
+  Object.keys(map).forEach(key=>{
+    $(key).value=state[key];
+    const el=$(map[key]);
+    el.textContent=key==="muscle"||key==="aura"||key==="particles"
+      ?Math.round(state[key]* (key==="muscle"?100:1))+"%"
+      :Number(state[key]).toFixed(2)+(key==="hairLength"?"":"");
+  });
+  ["preset","faceShape","eyeGlow","beard","expression","jewellery","ornament","fog","lighting"].forEach(k=>$(k).value=state[k]);
+  $("skinColor").value=state.skin;
+  $("characterName").value=state.name;
+  $("designNotes").value=state.notes||"";
+  document.querySelectorAll("#skinSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.skin));
+  document.querySelectorAll("#hairSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.hairColor));
+  document.querySelectorAll("#clothSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.cloth));
+  document.querySelectorAll("#magicSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.magic));
+  document.querySelectorAll("#hairChoices .choice").forEach(b=>b.classList.toggle("active",b.dataset.hair===state.hair));
+  document.querySelectorAll("#outfitChoices .choice").forEach(b=>b.classList.toggle("active",b.dataset.outfit===state.outfit));
+  $("rotateBtn").classList.toggle("active",state.autoRotate);
+  $("gridBtn").classList.toggle("active",state.grid);
+  if(floorGrid)floorGrid.visible=state.grid;
+}
+
+function slug(s){
+  return String(s||"character").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
 function projectData(){
   return {
-    app:"AnimAI Studio",version:3,
-    character:currentCharacter,color:currentColor,
-    scale:characterScale,glow:glowIntensity,
-    environment:currentEnvironment,lightIntensity,
-    particleCount,magicEnabled,motion:currentMotion,
-    cameraMode,cameraSpeed,duration:sceneDuration,elapsed,keyframes
+    format:"AnimAIStudioCharacter",
+    version:1,
+    exportedAt:new Date().toISOString(),
+    settings:JSON.parse(JSON.stringify(state)),
+    poses:savedPoses
   };
 }
-
-function downloadJSON(data,name){
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+function downloadJSON(obj,filename){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=url;a.download=name;
-  document.body.appendChild(a);a.click();a.remove();
+  a.href=url;a.download=filename;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
-
-function applyProject(data){
-  if(data.character&&["sorcerer","warrior","guardian","shadow"].includes(data.character))currentCharacter=data.character;
-  if(data.color)currentColor=data.color;
-  if(Number.isFinite(data.scale))characterScale=data.scale;
-  if(Number.isFinite(data.glow))glowIntensity=data.glow;
-  if(data.environment)currentEnvironment=data.environment;
-  if(Number.isFinite(data.lightIntensity))lightIntensity=data.lightIntensity;
-  if(Number.isFinite(data.particleCount))particleCount=Math.max(0,Math.min(2000,data.particleCount));
-  if(typeof data.magicEnabled==="boolean")magicEnabled=data.magicEnabled;
-  if(data.motion)currentMotion=data.motion;
-  if(data.cameraMode)cameraMode=data.cameraMode;
-  if(Number.isFinite(data.cameraSpeed))cameraSpeed=data.cameraSpeed;
-  if(Number.isFinite(data.duration))sceneDuration=Math.max(1,Math.min(120,data.duration));
-  if(Array.isArray(data.keyframes))keyframes=data.keyframes;
-
-  $("customColor").value=currentColor;
-  $("scaleRange").value=characterScale;
-  $("scaleValue").textContent=characterScale.toFixed(1)+"×";
-  $("glowRange").value=glowIntensity;
-  $("lightRange").value=lightIntensity;
-  $("lightValue").textContent=lightIntensity.toFixed(1);
-  $("particleRange").value=particleCount;
-  $("particleValue").textContent=particleCount;
-  $("environmentSelect").value=currentEnvironment;
-  $("motionSelect").value=currentMotion;
-  $("cameraMotionSelect").value=cameraMode;
-  $("cameraSpeed").value=cameraSpeed;
-  $("cameraSpeedValue").textContent=cameraSpeed.toFixed(1)+"×";
-  $("durationInput").value=sceneDuration;
-  $("timelineRange").max=sceneDuration;
-  $("toggleMagicBtn").classList.toggle("active",magicEnabled);
-
-  createEnvironment();
-  buildCharacter(currentCharacter);
-  setGlow(glowIntensity);
-  applyLighting();
-
-  if(particleGeometry)particleGeometry.setDrawRange(0,particleCount);
-  elapsed=Math.min(Number(data.elapsed)||0,sceneDuration);
-  $("timelineRange").value=elapsed;
-  renderKeyframes();
-  updateStats();
+function exportSettings(){
+  downloadJSON(projectData(),(slug(state.name)||"character")+".json");
+  toast("Character settings exported");
 }
-
-function updateStats(){
-  $("statDuration").textContent=sceneDuration+"s";
-  $("statParticles").textContent=particleCount;
-}
-
-function loadSavedProject(){
+function saveCharacter(){
   try{
-    const data=localStorage.getItem("animai-studio-project");
-    if(data)applyProject(JSON.parse(data));
-  }catch(err){console.warn("Saved project could not be restored",err)}
-}
-
-function saveProject(){
-  try{
-    localStorage.setItem("animai-studio-project",JSON.stringify(projectData()));
-    toast("Project settings saved on this device");
-  }catch(err){toast("Unable to save project")}
-}
-
-function importModel(event){
-  const file=event.target.files&&event.target.files[0];
-  if(!file)return;
-
-  if(!THREE.GLTFLoader){
-    toast("Model loader is unavailable");
-    event.target.value="";
-    return;
+    const data=projectData();
+    localStorage.setItem("animai_character_lab_v1",JSON.stringify(data));
+    downloadJSON(data,(slug(state.name)||"character")+".json");
+    toast("Saved locally and exported as JSON");
+  }catch(e){
+    exportSettings();
+    toast("Exported settings. Browser storage may be full.");
   }
-
-  status("Loading model…");
-  const url=URL.createObjectURL(file);
-
-  new THREE.GLTFLoader().load(url,gltf=>{
-    clearCharacter();
-
-    importedModel=gltf.scene;
-    importedModel.name="Imported Model";
-
-    const box=new THREE.Box3().setFromObject(importedModel);
-    const size=box.getSize(new THREE.Vector3());
-    const maxDim=Math.max(size.x,size.y,size.z);
-    if(maxDim>0)importedModel.scale.multiplyScalar(3.3/maxDim);
-
-    const newBox=new THREE.Box3().setFromObject(importedModel);
-    const center=newBox.getCenter(new THREE.Vector3());
-    importedModel.position.x-=center.x;
-    importedModel.position.y-=newBox.min.y;
-    importedModel.position.z-=center.z;
-
-    importedModel.traverse(obj=>{
-      if(obj.isMesh){obj.castShadow=true;obj.receiveShadow=true}
-    });
-
-    character=importedModel;
-    scene.add(importedModel);
-
-    modelMixer=new THREE.AnimationMixer(importedModel);
-    modelActions=gltf.animations.map(clip=>modelMixer.clipAction(clip));
-    activeModelAction=null;
-
-    const boxUI=$("modelAnimationBox");
-    const select=$("modelAnimationSelect");
-    select.innerHTML="";
-
-    if(gltf.animations.length){
-      gltf.animations.forEach((clip,i)=>{
-        const option=document.createElement("option");
-        option.value=i;
-        option.textContent=clip.name||("Animation "+(i+1));
-        select.appendChild(option);
-      });
-      boxUI.style.display="block";
-      activeModelAction=modelActions[0];
-      activeModelAction.play();
-    }else{
-      boxUI.style.display="none";
-    }
-
-    $("characterName").textContent=file.name;
-    controls.target.set(0,1.6,0);
-    setCamera("reset");
-    URL.revokeObjectURL(url);
-    status("Model imported");
-    toast(gltf.animations.length?"Model loaded with animations":"Model loaded");
-    event.target.value="";
-  },undefined,error=>{
-    console.error(error);
-    URL.revokeObjectURL(url);
-    status("Model import failed");
-    toast("Could not load model. Try a valid GLB file.");
-    event.target.value="";
-  });
 }
-
-function bindUI(){
-  document.querySelectorAll("[data-character]").forEach(btn=>{
-    btn.addEventListener("click",()=>buildCharacter(btn.dataset.character));
-  });
-
-  document.querySelectorAll(".swatch").forEach(btn=>{
-    btn.addEventListener("click",()=>setColor(btn.dataset.color));
-  });
-
-  $("customColor").addEventListener("input",e=>setColor(e.target.value));
-  $("glowRange").addEventListener("input",e=>setGlow(e.target.value));
-
-  $("scaleRange").addEventListener("input",e=>{
-    characterScale=Number(e.target.value);
-    $("scaleValue").textContent=characterScale.toFixed(1)+"×";
-    if(character)character.scale.setScalar(characterScale);
-  });
-
-  $("rotationRange").addEventListener("input",e=>{
-    if(character)character.rotation.y=THREE.MathUtils.degToRad(Number(e.target.value));
-  });
-
-  $("environmentSelect").addEventListener("change",e=>currentEnvironment=e.target.value);
-  $("applyEnvironmentBtn").addEventListener("click",()=>{
-    currentEnvironment=$("environmentSelect").value;
-    createEnvironment();
-    toast("Environment applied");
-  });
-
-  $("lightRange").addEventListener("input",e=>{
-    lightIntensity=Number(e.target.value);
-    $("lightValue").textContent=lightIntensity.toFixed(1);
-    applyLighting();
-  });
-
-  $("particleRange").addEventListener("input",e=>{
-    particleCount=Number(e.target.value);
-    $("particleValue").textContent=particleCount;
-    if(particleGeometry)particleGeometry.setDrawRange(0,particleCount);
-    updateStats();
-  });
-
-  $("fogRange").addEventListener("input",e=>{
-    if(scene&&scene.fog)scene.fog.density=Number(e.target.value)/1000;
-  });
-
-  $("toggleMagicBtn").addEventListener("click",()=>{
-    magicEnabled=!magicEnabled;
-    $("toggleMagicBtn").classList.toggle("active",magicEnabled);
-    toast(magicEnabled?"Magic enabled":"Magic disabled");
-  });
-
-  $("frontBtn").addEventListener("click",()=>setCamera("front"));
-  $("sideBtn").addEventListener("click",()=>setCamera("side"));
-  $("backBtn").addEventListener("click",()=>setCamera("back"));
-  $("resetCameraBtn").addEventListener("click",()=>setCamera("reset"));
-
-  $("rebuildBtn").addEventListener("click",()=>{
-    buildCharacter(currentCharacter);
-    toast("Character rebuilt");
-  });
-
-  $("generateMotionBtn").addEventListener("click",parsePrompt);
-  $("stopMotionBtn").addEventListener("click",()=>{
-    running=false;currentMotion="idle";
-    $("motionSelect").value="idle";
-    toast("Motion stopped");
-  });
-
-  $("motionSelect").addEventListener("change",e=>{
-    currentMotion=e.target.value;
-    $("animationBadge").textContent=e.target.selectedOptions[0].text;
-  });
-
-  $("playBtn").addEventListener("click",()=>{
-    if(elapsed>=sceneDuration)elapsed=0;
-    running=true;lastTime=0;
-    toast("Animation playing");
-  });
-  $("pauseBtn").addEventListener("click",()=>{
-    running=false;toast("Animation paused");
-  });
-  $("stopBtn").addEventListener("click",()=>{
-    running=false;elapsed=0;
-    $("timelineRange").value=0;
-    $("timeText").textContent="0.0 / "+sceneDuration+" sec";
-    toast("Animation stopped");
-  });
-
-  $("timelineRange").addEventListener("input",e=>{
-    elapsed=Number(e.target.value);
-    running=false;
-    applyKeyframes(elapsed);
-  });
-
-  $("durationInput").addEventListener("change",e=>{
-    sceneDuration=Math.max(1,Math.min(120,Number(e.target.value)||10));
-    e.target.value=sceneDuration;
-    $("timelineRange").max=sceneDuration;
-    renderKeyframes();updateStats();
-  });
-
-  $("addKeyframeBtn").addEventListener("click",addKeyframe);
-  $("clearKeyframesBtn").addEventListener("click",()=>{
-    keyframes=[];renderKeyframes();toast("Keyframes cleared");
-  });
-
-  $("cameraMotionSelect").addEventListener("change",e=>cameraMode=e.target.value);
-  $("cameraSpeed").addEventListener("input",e=>{
-    cameraSpeed=Number(e.target.value);
-    $("cameraSpeedValue").textContent=cameraSpeed.toFixed(1)+"×";
-  });
-  $("applyCameraBtn").addEventListener("click",()=>{
-    cameraStartTime=elapsed;running=true;
-    toast("Camera movement applied");
-  });
-
-  $("saveBtn").addEventListener("click",saveProject);
-  $("saveProjectBtn").addEventListener("click",saveProject);
-
-  $("exportProjectBtn").addEventListener("click",()=>{
-    downloadJSON(projectData(),"animai-studio-project.json");
-    toast("Project exported");
-  });
-
-  $("exportAnimationBtn").addEventListener("click",()=>{
-    downloadJSON({
-      app:"AnimAI Studio",duration:sceneDuration,
-      motion:currentMotion,camera:cameraMode,keyframes
-    },"animai-animation-data.json");
-    toast("Animation data exported");
-  });
-
-  $("importProjectBtn").addEventListener("click",()=>$("projectFile").click());
-  $("projectFile").addEventListener("change",e=>{
-    const file=e.target.files&&e.target.files[0];
-    if(!file)return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      try{applyProject(JSON.parse(reader.result));toast("Project imported")}
-      catch(err){toast("Invalid project file")}
-      e.target.value="";
-    };
-    reader.readAsText(file);
-  });
-
-  $("captureBtn").addEventListener("click",()=>{
+function loadSettings(){
+  const file=$("settingsFile").files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
     try{
-      renderer.render(scene,camera);
-      const a=document.createElement("a");
-      a.href=renderer.domElement.toDataURL("image/png");
-      a.download="animai-cinematic.png";
-      a.click();
-      toast("Screenshot captured");
-    }catch(err){toast("Screenshot failed")}
-  });
-
-  $("importModelBtn").addEventListener("click",()=>$("modelFile").click());
-  $("modelFile").addEventListener("change",importModel);
-
-  $("playModelAnimationBtn").addEventListener("click",()=>{
-    const index=Number($("modelAnimationSelect").value);
-    if(!modelActions[index])return;
-    if(activeModelAction)activeModelAction.stop();
-    activeModelAction=modelActions[index];
-    activeModelAction.reset().play();
-    running=true;
-    toast("Model animation playing");
-  });
-
-  $("resetBtn").addEventListener("click",()=>{
-    if(!confirm("Reset AnimAI Studio?"))return;
-
-    currentCharacter="sorcerer";currentColor="#382078";
-    currentEnvironment="cosmos";currentMotion="idle";
-    characterScale=1;glowIntensity=1;lightIntensity=1;
-    particleCount=900;sceneDuration=10;elapsed=0;
-    keyframes=[];cameraMode="static";cameraSpeed=1;
-    magicEnabled=true;running=false;
-
-    $("scaleRange").value=1;$("scaleValue").textContent="1.0×";
-    $("glowRange").value=1;$("glowValue").textContent="1.0";
-    $("lightRange").value=1;$("lightValue").textContent="1.0";
-    $("particleRange").value=900;$("particleValue").textContent="900";
-    $("customColor").value=currentColor;
-    $("environmentSelect").value=currentEnvironment;
-    $("motionSelect").value=currentMotion;
-    $("cameraMotionSelect").value="static";
-    $("cameraSpeed").value=1;$("cameraSpeedValue").textContent="1.0×";
-    $("durationInput").value=10;
-    $("timelineRange").max=10;$("timelineRange").value=0;
-    $("rotationRange").value=0;
-
-    createEnvironment();
-    buildCharacter(currentCharacter);
-    createParticles();
-    applyLighting();
-    renderKeyframes();
-    setCamera("reset");
-    updateStats();
-    toast("Studio reset");
-  });
-
-  document.addEventListener("visibilitychange",()=>{lastTime=0});
+      const obj=JSON.parse(reader.result);
+      const incoming=obj.settings||obj;
+      const allowed=Object.keys(state);
+      allowed.forEach(k=>{
+        if(Object.prototype.hasOwnProperty.call(incoming,k))state[k]=incoming[k];
+      });
+      if(Array.isArray(obj.poses))savedPoses=obj.poses;
+      syncControls();
+      if(state.referenceData){
+        $("referencePreview").src=state.referenceData;
+        $("referencePreview").style.display="block";
+      }
+      rebuild("Character settings loaded.");
+      renderTimeline();
+      toast("Settings loaded");
+    }catch(e){
+      toast("That JSON file could not be loaded");
+    }
+    $("settingsFile").value="";
+  };
+  reader.readAsText(file);
 }
-
-window.addEventListener("error",e=>console.error("AnimAI Studio error:",e.message));
+function loadReference(){
+  const file=$("referenceFile").files[0];
+  if(!file)return;
+  if(!file.type.startsWith("image/")){
+    toast("Choose an image file");return;
+  }
+  const reader=new FileReader();
+  reader.onload=()=>{
+    referenceURL=reader.result;
+    state.referenceData=referenceURL;
+    $("referencePreview").src=referenceURL;
+    $("referencePreview").style.display="block";
+    updateProjectInfo();
+    status("Reference image loaded. Use it as a visual guide while customizing.");
+    toast("Reference image added");
+  };
+  reader.readAsDataURL(file);
+}
+function clearReference(){
+  state.referenceData=null;
+  referenceURL=null;
+  $("referencePreview").removeAttribute("src");
+  $("referencePreview").style.display="none";
+  $("referenceFile").value="";
+  updateProjectInfo();
+  toast("Reference removed");
+}
+function capturePose(){
+  if(!character)return;
+  savedPoses.push({
+    rotY:character.rotation.y,
+    posY:character.position.y,
+    time:savedPoses.length
+  });
+  if(savedPoses.length>20)savedPoses.shift();
+  renderTimeline();
+  updateProjectInfo();
+  toast("Pose keyframe captured");
+}
+function renderTimeline(){
+  const timeline=$("timeline");
+  timeline.innerHTML="";
+  if(!savedPoses.length){
+    const b=document.createElement("button");
+    b.className="key active";b.textContent="00:00";
+    timeline.appendChild(b);return;
+  }
+  savedPoses.forEach((pose,i)=>{
+    const b=document.createElement("button");
+    b.className="key";
+    b.textContent=String(i).padStart(2,"0")+":00";
+    b.addEventListener("click",()=>{
+      playing=false;
+      $("playBtn").textContent="▶ Play Preview";
+      character.rotation.y=pose.rotY;
+      character.position.y=pose.posY;
+      timeline.querySelectorAll(".key").forEach(k=>k.classList.remove("active"));
+      b.classList.add("active");
+    });
+    timeline.appendChild(b);
+  });
+}
 
 init();
 })();
 </script>
 </body>
-                                                        </html>
+          </html>
