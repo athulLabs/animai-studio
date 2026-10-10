@@ -2,1337 +2,1266 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#080a10">
-<title>AnimAI Studio — Character Lab</title>
+<title>AnimAI Studio — Universal Character Lab</title>
 
 <style>
 :root{
   --bg:#080a10;
   --panel:#10141e;
-  --panel2:#171c28;
-  --line:#292f40;
+  --panel2:#171c29;
+  --line:#292f41;
   --text:#edf1ff;
-  --muted:#929bb2;
-  --blue:#76a9ff;
-  --purple:#ad8bff;
-  --cyan:#5de7ed;
-  --danger:#ff7388;
+  --muted:#929bb3;
+  --blue:#78b5ff;
+  --purple:#b397ff;
+  --cyan:#60e9e8;
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Inter,system-ui,-apple-system,sans-serif;
-  overflow-x:hidden;
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,sans-serif;
 }
 button,input,select{font:inherit}
 button{cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible{
-  outline:2px solid var(--blue);
-  outline-offset:2px;
+  outline:2px solid var(--blue);outline-offset:2px
 }
-.app{min-height:100vh}
 header{
-  height:62px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 15px;
-  background:#0c0f17;
-  border-bottom:1px solid var(--line);
-  position:sticky;
-  top:0;
-  z-index:10;
+  height:62px;padding:0 12px;display:flex;align-items:center;
+  justify-content:space-between;background:#0c0f17;
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;
 }
-.brand{display:flex;align-items:center;gap:10px;font-weight:850}
+.brand{display:flex;align-items:center;gap:9px;font-weight:850;font-size:14px}
 .logo{
-  width:34px;height:34px;border-radius:11px;
-  display:grid;place-items:center;
-  background:linear-gradient(135deg,#7b9cff,#bd7bff);
-  color:#080a10;font-size:20px;
+  width:34px;height:34px;display:grid;place-items:center;
+  border-radius:10px;background:linear-gradient(135deg,#79b5ff,#c39bff);
+  color:#080a10;font-size:20px
 }
-.brand small{display:block;color:var(--muted);font-size:10px;font-weight:500}
-.header-actions{display:flex;gap:7px}
+.brand small{display:block;font-size:9px;color:var(--muted);font-weight:500}
+.headerActions{display:flex;gap:6px}
 .btn{
-  background:var(--panel2);
-  color:var(--text);
-  border:1px solid var(--line);
-  border-radius:10px;
-  padding:9px 11px;
-  font-size:12px;
-  font-weight:700;
+  border:1px solid var(--line);border-radius:9px;
+  background:var(--panel2);color:var(--text);
+  padding:9px 11px;font-size:11px;font-weight:700
 }
 .btn.primary{
-  color:#080a10;
-  border:0;
-  background:linear-gradient(120deg,#7ab6ff,#b9a0ff);
+  border:0;color:#080a10;
+  background:linear-gradient(120deg,#78b5ff,#b99aff)
 }
 .btn.active{border-color:var(--blue);color:var(--blue)}
 .workspace{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 345px;
-  gap:12px;
-  padding:12px;
-  max-width:1700px;
-  margin:auto;
+  max-width:1600px;margin:auto;padding:10px;
+  display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:10px
 }
 .left{min-width:0}
 .viewport{
-  position:relative;
-  height:min(68vh,720px);
-  min-height:360px;
-  overflow:hidden;
-  border:1px solid #262d40;
-  border-radius:16px;
-  background:
-    radial-gradient(ellipse at 50% 45%,#1a2644 0%,#0b1020 48%,#06080e 100%);
+  height:min(67vh,700px);min-height:350px;position:relative;
+  overflow:hidden;border:1px solid var(--line);border-radius:15px;
+  background:radial-gradient(ellipse at 50% 40%,#1c2b49,#0a0d18 70%)
 }
 #stage{position:absolute;inset:0}
 #stage canvas{display:block;width:100%;height:100%}
-.view-top{
-  position:absolute;top:12px;left:12px;right:12px;
-  display:flex;justify-content:space-between;gap:8px;
-  pointer-events:none;
+.viewTop{
+  position:absolute;top:10px;left:10px;right:10px;
+  display:flex;justify-content:space-between;gap:5px;pointer-events:none
 }
 .pill{
-  padding:7px 10px;border-radius:8px;
-  background:#0a0d16c9;border:1px solid #ffffff1b;
-  color:#cbd7f3;font-size:11px;
+  background:#090c16d9;border:1px solid #ffffff20;
+  padding:7px 9px;border-radius:8px;font-size:10px;color:#cbd8f5
 }
-.view-bottom{
-  position:absolute;bottom:12px;left:12px;right:12px;
-  display:flex;gap:7px;flex-wrap:wrap;
+.viewBottom{
+  position:absolute;bottom:10px;left:10px;right:10px;
+  display:flex;gap:6px;flex-wrap:wrap
 }
-.view-bottom .btn{background:#0a0d16d9}
+.viewBottom .btn{background:#090c16e8}
 .loading{
   position:absolute;inset:0;display:grid;place-items:center;
-  color:#cbd7f3;font-size:13px;pointer-events:none;
-}
-.reference{
-  position:absolute;right:12px;top:62px;width:100px;
-  max-height:145px;object-fit:contain;
-  border-radius:8px;border:1px solid #ffffff44;
-  display:none;background:#090b12cc;
+  color:#cbd8f5;font-size:12px;pointer-events:none
 }
 .panel{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:15px;
-  overflow:hidden;
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;overflow:hidden
 }
-.panel-title{
-  padding:14px 15px;
-  border-bottom:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:13px;font-weight:800;
+.panelTitle{
+  padding:13px;border-bottom:1px solid var(--line);
+  font-size:13px;font-weight:850;display:flex;
+  align-items:center;justify-content:space-between
 }
 .tabs{
-  display:flex;overflow-x:auto;gap:5px;padding:10px;
-  border-bottom:1px solid var(--line);
+  display:flex;gap:4px;overflow-x:auto;padding:9px;
+  border-bottom:1px solid var(--line)
 }
 .tab{
-  border:1px solid transparent;border-radius:8px;
-  padding:8px 10px;white-space:nowrap;
-  color:var(--muted);background:transparent;font-size:11px;
+  background:transparent;color:var(--muted);border:1px solid transparent;
+  border-radius:8px;padding:8px 10px;font-size:10px;white-space:nowrap
 }
-.tab.active{
-  color:var(--blue);background:#18243b;border-color:#30486d;
-}
-.controls{padding:14px}
+.tab.active{background:#1a2942;color:var(--blue);border-color:#30486d}
+.controls{padding:13px}
 .section{display:none}
 .section.active{display:block}
-.field{margin-bottom:17px}
-.field-head{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;margin-bottom:8px;
+.field{margin-bottom:16px}
+.fieldHead{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin-bottom:8px
 }
-.field label{font-size:12px;font-weight:650}
-.value{font-size:11px;color:var(--cyan)}
+.field label{font-size:11px;font-weight:700}
+.value{font-size:10px;color:var(--cyan)}
 input[type=range]{width:100%;accent-color:var(--blue)}
-select,input[type=text],input[type=number]{
-  width:100%;background:#0a0d15;border:1px solid var(--line);
-  border-radius:9px;padding:10px;color:var(--text);
+input[type=text],select{
+  width:100%;padding:10px;border-radius:8px;
+  border:1px solid var(--line);background:#0a0d15;color:var(--text)
 }
+input[type=file]{
+  width:100%;font-size:11px;color:var(--muted);
+  padding:8px;background:#0b0e17;border:1px solid var(--line);
+  border-radius:9px
+}
+input[type=color]{width:40px;height:34px;padding:0;border:0;background:transparent}
+.colorRow{display:flex;gap:9px;align-items:center}
 .colors{display:flex;gap:9px;flex-wrap:wrap}
 .swatch{
-  width:30px;height:30px;border-radius:50%;
-  border:2px solid #ffffff30;padding:0;
+  width:29px;height:29px;border-radius:50%;
+  border:2px solid #ffffff30;padding:0
 }
 .swatch.active{outline:2px solid var(--blue);outline-offset:3px}
-.color-row{display:flex;gap:10px;align-items:center}
-input[type=color]{
-  width:43px;height:36px;border:0;background:transparent;
-  padding:0;border-radius:8px;
-}
-.choice-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
-}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .choice{
-  background:#151b29;border:1px solid var(--line);
-  color:var(--text);padding:11px 8px;border-radius:10px;
-  font-size:11px;text-align:left;
+  padding:10px;border:1px solid var(--line);border-radius:9px;
+  color:var(--text);background:#151b29;text-align:left;font-size:10px
 }
 .choice.active{border-color:var(--blue);background:#1a2942}
-.choice span{display:block;font-size:19px;margin-bottom:6px}
-.action-row{display:flex;gap:8px;flex-wrap:wrap}
-.action-row .btn{flex:1}
+.choice span{display:block;font-size:19px;margin-bottom:5px}
 .note{
-  font-size:11px;line-height:1.6;color:var(--muted);
-  background:#0b101a;border:1px solid var(--line);
-  border-radius:10px;padding:11px;margin:10px 0 14px;
+  font-size:10px;color:var(--muted);line-height:1.65;
+  padding:10px;border:1px solid var(--line);
+  border-radius:9px;background:#0b101a;margin-bottom:14px
 }
+.actionRow{display:flex;gap:7px;flex-wrap:wrap}
+.actionRow .btn{flex:1}
 .status{
-  margin-top:12px;padding:11px 13px;border-radius:10px;
-  background:#0d121d;border:1px solid var(--line);
-  color:var(--muted);font-size:11px;line-height:1.5;
+  margin-top:12px;padding:10px;border:1px solid var(--line);
+  border-radius:9px;background:#0b101a;
+  color:var(--muted);font-size:10px;line-height:1.6
 }
-.bottom-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;
-}
-.mini-panel{padding:14px}
-.mini-panel h3{font-size:12px;margin:0 0 10px}
-.timeline{
-  display:flex;align-items:center;gap:8px;
-  overflow-x:auto;padding:7px 0;
-}
+.bottomGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mini{padding:13px}
+.mini h3{font-size:11px;margin:0 0 10px}
+.metric{font-size:10px;color:var(--muted);line-height:1.8;overflow-wrap:anywhere}
+.timeline{display:flex;gap:6px;overflow-x:auto;margin:10px 0}
 .key{
-  min-width:48px;height:42px;border-radius:9px;
-  border:1px solid var(--line);background:#151b29;
-  color:var(--text);font-size:10px;
+  min-width:48px;height:38px;background:#151b29;
+  color:var(--text);border:1px solid var(--line);
+  border-radius:8px;font-size:10px
 }
-.key.active{border-color:var(--blue);background:#1a2942}
-.metric{font-size:11px;color:var(--muted);line-height:1.8}
+.key.active{border-color:var(--blue);color:var(--blue)}
 #toast{
   position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
-  background:#eaf0ff;color:#0b0e15;padding:11px 16px;
-  border-radius:10px;font-size:12px;font-weight:750;
-  z-index:30;display:none;max-width:90%;text-align:center;
+  display:none;z-index:20;background:#edf2ff;color:#080a10;
+  border-radius:9px;padding:11px 15px;font-size:11px;
+  font-weight:800;max-width:90%
 }
-footer{padding:18px;text-align:center;color:#69738c;font-size:10px}
 .hidden{display:none!important}
+footer{text-align:center;color:#69738c;font-size:9px;padding:18px}
 @media(max-width:850px){
   .workspace{grid-template-columns:1fr;padding:8px;gap:9px}
-  .viewport{height:53vh;min-height:320px}
-  .bottom-grid{grid-template-columns:1fr}
-  header{padding:0 10px}
-  .brand{font-size:13px}
-  .header-actions .btn{padding:8px;font-size:10px}
+  .viewport{height:52vh;min-height:320px}
+  .bottomGrid{grid-template-columns:1fr}
+  header{padding:0 9px}
+  .brand{font-size:12px}
+  .headerActions .btn{font-size:10px;padding:8px}
 }
 </style>
 </head>
 
 <body>
-<div class="app">
 <header>
   <div class="brand">
     <div class="logo">✦</div>
-    <div>AnimAI Studio<small>ADVANCED CHARACTER LAB</small></div>
+    <div>AnimAI Studio<small>UNIVERSAL CHARACTER LAB</small></div>
   </div>
-  <div class="header-actions">
+  <div class="headerActions">
     <button class="btn" id="resetBtn">Reset</button>
-    <button class="btn primary" id="saveBtn">Save Character</button>
+    <button class="btn primary" id="saveBtn">Save</button>
   </div>
 </header>
 
 <main class="workspace">
-  <section class="left">
-    <div class="viewport">
-      <div id="stage"></div>
-      <div class="loading" id="loading">Preparing 3D character lab…</div>
-      <img class="reference" id="referencePreview" alt="Character reference">
-      <div class="view-top">
-        <div class="pill">● 3D CHARACTER PREVIEW</div>
-        <div class="pill" id="viewStatus">INITIALIZING</div>
-      </div>
-      <div class="view-bottom">
-        <button class="btn" id="rotateBtn">⟳ Auto Rotate</button>
-        <button class="btn" id="gridBtn">▦ Grid</button>
-        <button class="btn" id="screenshotBtn">▣ Screenshot</button>
-      </div>
+<section class="left">
+  <div class="viewport">
+    <div id="stage"></div>
+    <div class="loading" id="loading">Loading 3D studio…</div>
+    <div class="viewTop">
+      <div class="pill">✦ CHARACTER PREVIEW</div>
+      <div class="pill" id="modelStatus">INITIALIZING</div>
     </div>
+    <div class="viewBottom">
+      <button class="btn" id="rotateBtn">⟳ Rotate</button>
+      <button class="btn" id="gridBtn">▦ Grid</button>
+      <button class="btn" id="screenshotBtn">▣ Screenshot</button>
+    </div>
+  </div>
 
-    <div class="bottom-grid">
-      <div class="panel mini-panel">
-        <h3>ANIMATION TIMELINE</h3>
-        <div class="action-row">
-          <button class="btn" id="poseBtn">Capture Pose</button>
-          <button class="btn" id="playBtn">▶ Play Preview</button>
-        </div>
-        <div class="timeline" id="timeline">
-          <button class="key active">00:00</button>
-        </div>
-        <div class="metric">Save different character poses as keyframes. This starter version provides basic pose interpolation.</div>
+  <div class="bottomGrid">
+    <div class="panel mini">
+      <h3>ANIMATION</h3>
+      <div class="actionRow">
+        <button class="btn" id="poseBtn">Capture Pose</button>
+        <button class="btn" id="playBtn">▶ Play</button>
       </div>
-      <div class="panel mini-panel">
-        <h3>CHARACTER PROJECT</h3>
-        <div class="metric" id="projectInfo">
-          Character: Astral Warrior<br>
-          Model: Procedural 3D<br>
-          Reference: Not loaded<br>
-          Save: Local browser
-        </div>
-        <div class="action-row" style="margin-top:10px">
-          <button class="btn" id="exportBtn">Export Settings</button>
-          <button class="btn" id="importSettingsBtn">Load Settings</button>
-        </div>
-        <input type="file" id="settingsFile" accept=".json,application/json" class="hidden">
+      <div class="timeline" id="timeline"></div>
+      <div class="metric">Imported models play their embedded animations when available. Basic builder models support saved preview poses.</div>
+    </div>
+    <div class="panel mini">
+      <h3>PROJECT</h3>
+      <div class="metric" id="projectInfo"></div>
+      <div class="actionRow" style="margin-top:10px">
+        <button class="btn" id="exportBtn">Export Settings</button>
+        <button class="btn" id="loadSettingsBtn">Load Settings</button>
       </div>
+      <input class="hidden" type="file" id="settingsFile" accept=".json,application/json">
     </div>
-  </section>
+  </div>
+</section>
 
-  <aside class="panel">
-    <div class="panel-title">
-      <span>✦ Character Workshop</span>
-      <span style="color:var(--cyan);font-size:10px">LIVE EDIT</span>
-    </div>
+<aside class="panel">
+  <div class="panelTitle">
+    <span>✦ Character Workshop</span>
+    <span style="color:var(--cyan);font-size:10px">LIVE</span>
+  </div>
 
-    <div class="tabs">
-      <button class="tab active" data-tab="body">Body</button>
-      <button class="tab" data-tab="face">Face</button>
-      <button class="tab" data-tab="hair">Hair</button>
-      <button class="tab" data-tab="outfit">Outfit</button>
-      <button class="tab" data-tab="magic">Magic FX</button>
-      <button class="tab" data-tab="reference">Reference</button>
-    </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="builder">Builder</button>
+    <button class="tab" data-tab="model">Import 3D</button>
+    <button class="tab" data-tab="face">Face</button>
+    <button class="tab" data-tab="hair">Hair</button>
+    <button class="tab" data-tab="outfit">Outfit</button>
+    <button class="tab" data-tab="magic">Magic FX</button>
+  </div>
 
-    <div class="controls">
-      <section class="section active" id="body">
-        <div class="field">
-          <div class="field-head"><label>Character Preset</label></div>
-          <select id="preset">
-            <option value="warrior">Astral Warrior</option>
-            <option value="sage">Mystic Sage</option>
-            <option value="guardian">Cosmic Guardian</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <div class="field-head"><label>Height</label><span class="value" id="heightVal">1.00</span></div>
-          <input type="range" id="height" min="0.75" max="1.3" value="1" step="0.01">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Muscularity</label><span class="value" id="muscleVal">70%</span></div>
-          <input type="range" id="muscle" min="0.3" max="1.4" value="0.7" step="0.01">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Shoulder Width</label><span class="value" id="shoulderVal">1.00</span></div>
-          <input type="range" id="shoulders" min="0.65" max="1.5" value="1" step="0.01">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Body Proportions</label><span class="value" id="proportionVal">1.00</span></div>
-          <input type="range" id="proportion" min="0.75" max="1.25" value="1" step="0.01">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Skin Material</label></div>
-          <div class="colors" id="skinSwatches">
-            <button class="swatch active" data-color="#4b9ed8" style="background:#4b9ed8" title="Azure"></button>
-            <button class="swatch" data-color="#ba8664" style="background:#ba8664" title="Bronze"></button>
-            <button class="swatch" data-color="#d9c4a6" style="background:#d9c4a6" title="Ivory"></button>
-            <button class="swatch" data-color="#777c9e" style="background:#777c9e" title="Mystic"></button>
-            <button class="swatch" data-color="#7651a9" style="background:#7651a9" title="Violet"></button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Custom Skin Colour</label></div>
-          <div class="color-row">
-            <input type="color" id="skinColor" value="#4b9ed8">
-            <span class="metric">Change the character's base material.</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="face">
-        <div class="note">The current model uses procedural 3D shapes. These controls customize its stylized facial features; they do not sculpt a photorealistic human face.</div>
-        <div class="field">
-          <div class="field-head"><label>Face Shape</label></div>
-          <select id="faceShape">
-            <option value="1">Balanced</option>
-            <option value="0.88">Narrow</option>
-            <option value="1.15">Broad</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Eye Size</label><span class="value" id="eyeVal">1.00</span></div>
-          <input type="range" id="eyeSize" min="0.7" max="1.5" value="1" step="0.05">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Eye Glow</label></div>
-          <select id="eyeGlow">
-            <option value="#8feaff">Ice Blue</option>
-            <option value="#c49aff">Arcane Violet</option>
-            <option value="#fff1c1">Divine Gold</option>
-            <option value="#ff657f">Crimson</option>
-            <option value="#ffffff">White</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Facial Hair</label></div>
-          <select id="beard">
-            <option value="none">Clean Shaven</option>
-            <option value="short">Short Beard</option>
-            <option value="long">Long Mystic Beard</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Expression Style</label></div>
-          <select id="expression">
-            <option value="calm">Calm</option>
-            <option value="fierce">Fierce</option>
-            <option value="wise">Wise</option>
-          </select>
-        </div>
-      </section>
-
-      <section class="section" id="hair">
-        <div class="field">
-          <div class="field-head"><label>Hair Style</label></div>
-          <div class="choice-grid" id="hairChoices">
-            <button class="choice active" data-hair="long"><span>〰️</span>Long Flowing</button>
-            <button class="choice" data-hair="bun"><span>◉</span>Mystic Bun</button>
-            <button class="choice" data-hair="short"><span>✦</span>Short Hair</button>
-            <button class="choice" data-hair="none"><span>○</span>Bald</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Hair Colour</label></div>
-          <div class="colors" id="hairSwatches">
-            <button class="swatch active" data-color="#11131c" style="background:#11131c"></button>
-            <button class="swatch" data-color="#34252b" style="background:#34252b"></button>
-            <button class="swatch" data-color="#e2d6c3" style="background:#e2d6c3"></button>
-            <button class="swatch" data-color="#527ba7" style="background:#527ba7"></button>
-            <button class="swatch" data-color="#8b70c7" style="background:#8b70c7"></button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Hair Length</label><span class="value" id="hairLengthVal">1.00</span></div>
-          <input type="range" id="hairLength" min="0.5" max="1.6" value="1" step="0.05">
-        </div>
-      </section>
-
-      <section class="section" id="outfit">
-        <div class="field">
-          <div class="field-head"><label>Outfit Type</label></div>
-          <div class="choice-grid" id="outfitChoices">
-            <button class="choice active" data-outfit="robes"><span>♜</span>Cosmic Robes</button>
-            <button class="choice" data-outfit="armor"><span>🛡</span>Warrior Armour</button>
-            <button class="choice" data-outfit="cloth"><span>◈</span>Dark Cloth</button>
-            <button class="choice" data-outfit="royal"><span>♛</span>Royal Attire</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Clothing Colour</label></div>
-          <div class="colors" id="clothSwatches">
-            <button class="swatch active" data-color="#151b30" style="background:#151b30"></button>
-            <button class="swatch" data-color="#111114" style="background:#111114"></button>
-            <button class="swatch" data-color="#8b253e" style="background:#8b253e"></button>
-            <button class="swatch" data-color="#a98a4d" style="background:#a98a4d"></button>
-            <button class="swatch" data-color="#e1e6ed" style="background:#e1e6ed"></button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Jewellery</label></div>
-          <select id="jewellery">
-            <option value="beads">Rudraksha-style Beads</option>
-            <option value="gold">Gold Ornaments</option>
-            <option value="silver">Silver Ornaments</option>
-            <option value="none">No Jewellery</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Shoulder Ornament</label></div>
-          <select id="ornament">
-            <option value="on">Enabled</option>
-            <option value="off">Disabled</option>
-          </select>
-        </div>
-      </section>
-
-      <section class="section" id="magic">
-        <div class="field">
-          <div class="field-head"><label>Energy Colour</label></div>
-          <div class="colors" id="magicSwatches">
-            <button class="swatch active" data-color="#46aaff" style="background:#46aaff"></button>
-            <button class="swatch" data-color="#a77aff" style="background:#a77aff"></button>
-            <button class="swatch" data-color="#ffe19a" style="background:#ffe19a"></button>
-            <button class="swatch" data-color="#ff527b" style="background:#ff527b"></button>
-            <button class="swatch" data-color="#63ffd3" style="background:#63ffd3"></button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Magical Aura</label><span class="value" id="auraVal">65%</span></div>
-          <input type="range" id="aura" min="0" max="100" value="65">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Floating Particles</label><span class="value" id="particlesVal">65%</span></div>
-          <input type="range" id="particles" min="0" max="100" value="65">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Ground Fog</label></div>
-          <select id="fog">
-            <option value="on">Enabled</option>
-            <option value="off">Disabled</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Lighting</label></div>
-          <select id="lighting">
-            <option value="cinematic">Cinematic Blue</option>
-            <option value="divine">Divine Gold</option>
-            <option value="moon">Moonlight</option>
-            <option value="dark">Dark Fantasy</option>
-          </select>
-        </div>
-      </section>
-
-      <section class="section" id="reference">
-        <div class="note">Upload an image to keep your design reference visible beside the 3D preview. The image guides your work but does not automatically turn into a 3D model.</div>
-        <div class="field">
-          <div class="field-head"><label>Reference Image</label></div>
-          <input type="file" id="referenceFile" accept="image/*">
-        </div>
-        <div class="action-row">
-          <button class="btn" id="clearReferenceBtn">Remove Image</button>
-        </div>
-        <div class="field" style="margin-top:17px">
-          <div class="field-head"><label>Character Name</label></div>
-          <input type="text" id="characterName" value="Astral Warrior" maxlength="70">
-        </div>
-        <div class="field">
-          <div class="field-head"><label>Design Notes</label></div>
-          <input type="text" id="designNotes" placeholder="Describe your character…">
-        </div>
-        <div class="note">The current model is assembled from procedural shapes. This is the foundation for a more advanced editor; it is not yet an AI mesh generator or a professional sculpting tool.</div>
-      </section>
-
-      <div class="status" id="status">
-        Character lab ready. Change any control to update the 3D preview.
+  <div class="controls">
+    <section class="section active" id="builder">
+      <div class="note">
+        Create a stylized character from editable 3D shapes. For highly realistic anatomy, import a detailed model using the Import 3D tab.
       </div>
-    </div>
-  </aside>
+
+      <div class="field">
+        <div class="fieldHead"><label>Character Type</label></div>
+        <select id="preset">
+          <option value="warrior">Fantasy Warrior</option>
+          <option value="sage">Mystic Sage</option>
+          <option value="guardian">Cosmic Guardian</option>
+          <option value="creature">Fantasy Creature</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Height</label><span class="value" id="heightVal">1.00</span></div>
+        <input type="range" id="height" min=".7" max="1.4" step=".01" value="1">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Muscularity</label><span class="value" id="muscleVal">70%</span></div>
+        <input type="range" id="muscle" min=".35" max="1.4" step=".01" value=".7">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Shoulder Width</label><span class="value" id="shoulderVal">1.00</span></div>
+        <input type="range" id="shoulders" min=".6" max="1.6" step=".01" value="1">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Body Proportions</label><span class="value" id="proportionVal">1.00</span></div>
+        <input type="range" id="proportion" min=".7" max="1.3" step=".01" value="1">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Skin Colour</label></div>
+        <div class="colors" id="skinColors">
+          <button class="swatch active" data-color="#4b9ed8" style="background:#4b9ed8"></button>
+          <button class="swatch" data-color="#ba8664" style="background:#ba8664"></button>
+          <button class="swatch" data-color="#c8b5a5" style="background:#c8b5a5"></button>
+          <button class="swatch" data-color="#7651a9" style="background:#7651a9"></button>
+          <button class="swatch" data-color="#707b98" style="background:#707b98"></button>
+        </div>
+        <div class="colorRow" style="margin-top:9px">
+          <input type="color" id="skinColor" value="#4b9ed8">
+          <span class="metric">Custom character material</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Character Name</label></div>
+        <input type="text" id="characterName" value="Astral Warrior" maxlength="70">
+      </div>
+    </section>
+
+    <section class="section" id="model">
+      <div class="note">
+        Import a 3D character from your phone. A self-contained GLB file is easiest. GLTF files may need their companion textures and binary files. Large models can be slow on mobile.
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Choose a 3D Model</label></div>
+        <input type="file" id="modelFile" accept=".glb,.gltf,model/gltf-binary,model/gltf+json">
+      </div>
+
+      <div class="actionRow">
+        <button class="btn primary" id="loadModelBtn">Import Model</button>
+        <button class="btn" id="builderModeBtn">Use Builder</button>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <div class="fieldHead"><label>Imported Model Scale</label><span class="value" id="modelScaleVal">1.00</span></div>
+        <input type="range" id="modelScale" min=".2" max="3" step=".05" value="1">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Imported Model Height</label><span class="value" id="modelYVal">0.00</span></div>
+        <input type="range" id="modelY" min="-2" max="2" step=".05" value="0">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Rotation</label><span class="value" id="modelRotVal">0°</span></div>
+        <input type="range" id="modelRot" min="0" max="360" step="1" value="0">
+      </div>
+
+      <div class="actionRow">
+        <button class="btn" id="playModelBtn">▶ Play Model Animation</button>
+        <button class="btn" id="stopModelBtn">■ Stop</button>
+      </div>
+
+      <div class="status" id="modelInfo">No imported model. The built-in character builder is active.</div>
+
+      <div class="note" style="margin-top:12px">
+        Compatibility: GLB/GLTF files with embedded textures are recommended. Animation depends on whether the model contains animation clips. Imported model anatomy is not automatically editable with the builder's body sliders.
+      </div>
+    </section>
+
+    <section class="section" id="face">
+      <div class="note">These controls affect the built-in procedural character. Imported model faces are preserved.</div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Face Shape</label></div>
+        <select id="faceShape">
+          <option value="1">Balanced</option>
+          <option value=".8">Narrow</option>
+          <option value="1.25">Broad</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Eye Size</label><span class="value" id="eyeVal">1.00</span></div>
+        <input type="range" id="eyeSize" min=".7" max="1.5" step=".05" value="1">
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Eye Colour</label></div>
+        <select id="eyeColor">
+          <option value="#8feaff">Ice Blue</option>
+          <option value="#c49aff">Violet</option>
+          <option value="#fff0ba">Gold</option>
+          <option value="#ff647e">Crimson</option>
+          <option value="#ffffff">White</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="fieldHead"><label>Beard</label></div>
+        <select id="beard">
+          <option value="none">Clean Shaven</option>
+          <option value="short">Short Beard</option>
+          <option value="long">Long Beard</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section" id="hair">
+      <div class="field">
+        <div class="fieldHead"><label>Hairstyle</label></div>
+        <div class="grid2" id="hairChoices">
+          <button class="choice active" data-hair="long"><span>〰️</span>Long Flowing</button>
+          <button class="choice" data-hair="bun"><span>◉</span>Mystic Bun</button>
+          <button class="choice" data-hair="short"><span>✦</span>Short Hair</button>
+          <button class="choice" data-hair="none"><span>○</span>Bald</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Hair Colour</label></div>
+        <input type="color" id="hairColor" value="#15131c">
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Hair Length</label><span class="value" id="hairLengthVal">1.00</span></div>
+        <input type="range" id="hairLength" min=".5" max="1.8" step=".05" value="1">
+      </div>
+    </section>
+
+    <section class="section" id="outfit">
+      <div class="field">
+        <div class="fieldHead"><label>Outfit</label></div>
+        <div class="grid2" id="outfitChoices">
+          <button class="choice active" data-outfit="robes"><span>♜</span>Robes</button>
+          <button class="choice" data-outfit="armor"><span>🛡</span>Armour</button>
+          <button class="choice" data-outfit="cloth"><span>◈</span>Dark Cloth</button>
+          <button class="choice" data-outfit="royal"><span>♛</span>Royal</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Clothing Colour</label></div>
+        <input type="color" id="clothColor" value="#171d32">
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Jewellery</label></div>
+        <select id="jewellery">
+          <option value="beads">Beads</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section" id="magic">
+      <div class="field">
+        <div class="fieldHead"><label>Energy Colour</label></div>
+        <input type="color" id="magicColor" value="#46aaff">
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Aura Strength</label><span class="value" id="auraVal">65%</span></div>
+        <input type="range" id="aura" min="0" max="100" value="65">
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Floating Particles</label><span class="value" id="particlesVal">65%</span></div>
+        <input type="range" id="particles" min="0" max="100" value="65">
+      </div>
+      <div class="field">
+        <div class="fieldHead"><label>Lighting</label></div>
+        <select id="lighting">
+          <option value="cinematic">Cinematic Blue</option>
+          <option value="gold">Divine Gold</option>
+          <option value="moon">Moonlight</option>
+          <option value="dark">Dark Fantasy</option>
+        </select>
+      </div>
+    </section>
+
+    <div class="status" id="status">Ready to create your character.</div>
+  </div>
+</aside>
 </main>
 
-<footer>ANIMAI STUDIO · CHARACTER LAB · Your design, your world.</footer>
-</div>
-
+<footer>ANIMAI STUDIO · CREATE CHARACTERS · BUILD WORLDS · TELL STORIES</footer>
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
 <script>
 (function(){
 "use strict";
+const $=id=>document.getElementById(id);
 
-const $ = id => document.getElementById(id);
-const state = {
-  name:"Astral Warrior",
-  preset:"warrior",
-  height:1,
-  muscle:0.7,
-  shoulders:1,
-  proportion:1,
-  skin:"#4b9ed8",
-  faceShape:1,
-  eyeSize:1,
-  eyeGlow:"#8feaff",
-  beard:"none",
-  expression:"calm",
-  hair:"long",
-  hairColor:"#11131c",
-  hairLength:1,
-  outfit:"robes",
-  cloth:"#151b30",
-  jewellery:"beads",
-  ornament:"on",
-  magic:"#46aaff",
-  aura:65,
-  particles:65,
-  fog:"on",
-  lighting:"cinematic",
-  autoRotate:false,
-  grid:true,
-  referenceData:null,
-  notes:""
+const state={
+ name:"Astral Warrior",preset:"warrior",
+ height:1,muscle:.7,shoulders:1,proportion:1,
+ skin:"#4b9ed8",faceShape:1,eyeSize:1,eyeColor:"#8feaff",
+ beard:"none",hair:"long",hairColor:"#15131c",hairLength:1,
+ outfit:"robes",cloth:"#171d32",jewellery:"beads",
+ magic:"#46aaff",aura:65,particles:65,lighting:"cinematic",
+ autoRotate:false,grid:true
 };
 
-let scene,camera,renderer,character,bodyGroup,particleSystem;
-let floorGrid,platform,auraMesh;
-let hairGroup,beardGroup,eyeGroup,outfitGroup,ornamentGroup;
-let clock;
+let scene,camera,renderer,clock;
+let character=null,builderCharacter=null,importedModel=null;
+let modelMixer=null,modelActions=[],modelActionIndex=0;
+let modelMode=false,playing=false;
+let particleSystem,gridHelper,auraMesh,platform;
 let savedPoses=[];
-let playing=false;
-let referenceURL=null;
-let modelReady=false;
+let currentModelURL=null;
 
-function toast(msg){
-  const el=$("toast");
-  el.textContent=msg;
-  el.style.display="block";
-  clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.style.display="none",2400);
+function toast(message){
+ const el=$("toast");el.textContent=message;el.style.display="block";
+ clearTimeout(toast.timer);
+ toast.timer=setTimeout(()=>el.style.display="none",2600);
 }
-function status(msg){$("status").textContent=msg}
+function status(message){$("status").textContent=message}
+function mat(color,roughness=.65,metalness=.05,emissive=null){
+ return new THREE.MeshStandardMaterial({
+  color,roughness,metalness,
+  emissive:emissive||0x000000,
+  emissiveIntensity:emissive?1:0
+ });
+}
+function mesh(parent,geometry,material,position,scale,rotation){
+ const m=new THREE.Mesh(geometry,material);
+ if(position)m.position.set(...position);
+ if(scale)m.scale.set(...scale);
+ if(rotation)m.rotation.set(...rotation);
+ m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;
+}
+function ball(parent,material,position,scale){
+ return mesh(parent,new THREE.SphereGeometry(1,24,18),material,position,scale);
+}
+function rod(parent,material,a,b,r1,r2){
+ const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b);
+ const d=B.clone().sub(A);
+ const m=mesh(parent,new THREE.CylinderGeometry(r2,r1,d.length(),16),material);
+ m.position.copy(A.clone().add(B).multiplyScalar(.5));
+ m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());
+ ball(parent,material,a,[r1,r1,r1]);
+ ball(parent,material,b,[r2,r2,r2]);
+ return m;
+}
 
 function init(){
-  if(!window.THREE){
-    $("loading").textContent="3D library could not load. Check your internet connection and refresh.";
-    return;
-  }
-  try{
-    scene=new THREE.Scene();
-    scene.background=new THREE.Color("#080b14");
-    scene.fog=new THREE.FogExp2("#080b14",0.035);
+ if(!window.THREE){
+  $("loading").textContent="3D library failed to load. Check your internet connection.";
+  return;
+ }
+ try{
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color("#080b14");
+  scene.fog=new THREE.FogExp2("#080b14",.027);
 
-    const host=$("stage");
-    const w=host.clientWidth||600;
-    const h=host.clientHeight||450;
-    camera=new THREE.PerspectiveCamera(38,w/h,0.1,100);
-    camera.position.set(5,3.3,7);
-    camera.lookAt(0,1.7,0);
+  const host=$("stage");
+  camera=new THREE.PerspectiveCamera(38,(host.clientWidth||500)/(host.clientHeight||400),.1,100);
+  camera.position.set(4.8,3.1,7);
+  camera.lookAt(0,1.5,0);
 
-    renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-    renderer.setSize(w,h);
-    renderer.shadowMap.enabled=true;
-    renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    renderer.outputEncoding=THREE.sRGBEncoding;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.2;
-    host.appendChild(renderer.domElement);
+  renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  renderer.setSize(host.clientWidth||500,host.clientHeight||400);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.15;
+  host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight(0x8bbaff,0x11101c,1.3));
+  scene.add(new THREE.HemisphereLight(0xaac8ff,0x17101e,1.5));
+  const key=new THREE.DirectionalLight(0xe0e9ff,2.5);
+  key.position.set(4,8,5);key.castShadow=true;scene.add(key);
+  const rim=new THREE.PointLight(0x388aff,3.5,15);
+  rim.position.set(-4,4,-3);scene.add(rim);
+  const fill=new THREE.PointLight(0xb08aff,1.6,12);
+  fill.position.set(3,2,3);scene.add(fill);
 
-    const key=new THREE.DirectionalLight(0xe0e9ff,2.3);
-    key.position.set(4,8,5);
-    key.castShadow=true;
-    scene.add(key);
+  gridHelper=new THREE.GridHelper(20,40,0x354a74,0x1b2945);
+  gridHelper.position.y=.015;scene.add(gridHelper);
 
-    const rim=new THREE.PointLight(0x348bff,3.5,14);
-    rim.position.set(-4,4,-3);
-    scene.add(rim);
+  const floor=mesh(scene,new THREE.PlaneGeometry(200,200),
+   mat("#080b13",.95),[0,-.04,0]);
+  floor.rotation.x=-Math.PI/2;
 
-    const fill=new THREE.PointLight(0x9c72ff,1.8,12);
-    fill.position.set(3,2,3);
-    scene.add(fill);
+  platform=mesh(scene,new THREE.CylinderGeometry(1.12,1.22,.12,64),
+   mat("#151b2d",.3,.65,"#13264b"),[0,.06,0]);
+  const ring=mesh(scene,new THREE.TorusGeometry(1.1,.018,8,80),
+   new THREE.MeshBasicMaterial({color:"#438bff"}),[0,.14,0]);
+  ring.rotation.x=Math.PI/2;
 
-    floorGrid=new THREE.GridHelper(20,40,0x354a74,0x1b2945);
-    floorGrid.position.y=0.02;
-    scene.add(floorGrid);
-
-    const floor=new THREE.Mesh(
-      new THREE.PlaneGeometry(200,200),
-      new THREE.MeshStandardMaterial({color:0x080b13,roughness:0.95})
-    );
-    floor.rotation.x=-Math.PI/2;
-    floor.position.y=-0.03;
-    floor.receiveShadow=true;
-    scene.add(floor);
-
-    platform=new THREE.Mesh(
-      new THREE.CylinderGeometry(1.15,1.25,0.12,64),
-      new THREE.MeshStandardMaterial({
-        color:0x151b2d,metalness:0.6,roughness:0.3,
-        emissive:0x13264b,emissiveIntensity:0.8
-      })
-    );
-    platform.position.y=0.06;
-    scene.add(platform);
-
-    const ring=new THREE.Mesh(
-      new THREE.TorusGeometry(1.13,0.018,8,80),
-      new THREE.MeshBasicMaterial({color:0x438bff})
-    );
-    ring.rotation.x=Math.PI/2;
-    ring.position.y=0.14;
-    scene.add(ring);
-
-    buildCharacter();
-    createParticles();
-    updateLighting();
-    $("loading").style.display="none";
-    $("viewStatus").textContent="3D READY";
-    modelReady=true;
-    clock=new THREE.Clock();
-    animate();
-
-    const resize=()=>{
-      if(!renderer)return;
-      const ww=host.clientWidth||600;
-      const hh=host.clientHeight||450;
-      camera.aspect=ww/hh;
-      camera.updateProjectionMatrix();
-      renderer.setSize(ww,hh);
-    };
-    window.addEventListener("resize",resize);
-    if(window.ResizeObserver)new ResizeObserver(resize).observe(host);
-    bindControls();
-    status("Ready. Your edits update the procedural 3D character.");
-  }catch(e){
-    console.error(e);
-    $("loading").textContent="Could not initialize the 3D preview. Try refreshing this page.";
-  }
+  buildCharacter();
+  createParticles();
+  updateLighting();
+  bind();
+  $("loading").style.display="none";
+  $("modelStatus").textContent="3D READY";
+  clock=new THREE.Clock();
+  window.addEventListener("resize",resize);
+  if(window.ResizeObserver)new ResizeObserver(resize).observe(host);
+  animate();
+  updateProject();
+ }catch(e){
+  console.error(e);
+  $("loading").textContent="3D initialization failed. Refresh and try again.";
+ }
+}
+function resize(){
+ if(!renderer)return;
+ const h=$("stage");
+ camera.aspect=(h.clientWidth||500)/(h.clientHeight||400);
+ camera.updateProjectionMatrix();
+ renderer.setSize(h.clientWidth||500,h.clientHeight||400);
 }
 
-function material(color,roughness=.65,metalness=.05,emissive=null){
-  return new THREE.MeshStandardMaterial({
-    color,
-    roughness,
-    metalness,
-    emissive:emissive||0x000000,
-    emissiveIntensity:emissive?0.6:0
-  });
-}
-function addMesh(parent,geo,mat,pos,scale,rot){
-  const m=new THREE.Mesh(geo,mat);
-  if(pos)m.position.set(pos[0],pos[1],pos[2]);
-  if(scale)m.scale.set(scale[0],scale[1],scale[2]);
-  if(rot)m.rotation.set(rot[0],rot[1],rot[2]);
-  m.castShadow=true;
-  m.receiveShadow=true;
-  parent.add(m);
-  return m;
-}
-function sphere(parent,mat,pos,scale){
-  return addMesh(parent,new THREE.SphereGeometry(1,24,18),mat,pos,scale);
-}
-function cylinder(parent,mat,r1,r2,h,pos,segments=16){
-  return addMesh(parent,new THREE.CylinderGeometry(r1,r2,h,segments),mat,pos);
-}
-function capsuleLike(parent,mat,a,b,r1,r2){
-  const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b);
-  const diff=vb.clone().sub(va);
-  const mesh=new THREE.Mesh(
-    new THREE.CylinderGeometry(r2,r1,diff.length(),16),
-    mat
-  );
-  mesh.position.copy(va.clone().add(vb).multiplyScalar(.5));
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),diff.normalize());
-  mesh.castShadow=true;
-  parent.add(mesh);
-  sphere(parent,mat,a,[r1,r1,r1]);
-  sphere(parent,mat,b,[r2,r2,r2]);
-  return mesh;
-}
 function buildCharacter(){
-  if(character)scene.remove(character);
-  character=new THREE.Group();
-  scene.add(character);
-  bodyGroup=new THREE.Group();
-  character.add(bodyGroup);
+ if(builderCharacter)scene.remove(builderCharacter);
+ builderCharacter=new THREE.Group();
+ const root=builderCharacter;
+ const skin=mat(state.skin,.5,.04);
+ const darkSkin=mat(new THREE.Color(state.skin).multiplyScalar(.72),.6,.02);
+ const cloth=mat(state.cloth,.82,.04);
+ const hairmat=mat(state.hairColor,.8,0);
+ const metal=mat(state.jewellery==="gold"?"#c8a45f":
+  state.jewellery==="silver"?"#bac8dd":"#574034",.4,.72);
+ const H=state.height, M=state.muscle, S=state.shoulders, P=state.proportion;
 
-  const skin=material(state.skin,.5,.04);
-  const darkSkin=material(new THREE.Color(state.skin).multiplyScalar(.73),.6,.02);
-  const cloth=material(state.cloth,.82,.05);
-  const trim=material(
-    state.jewellery==="gold"?"#c6a15a":
-    state.jewellery==="silver"?"#b9c5d9":
-    "#533d32",.42,.7
-  );
-  const hairMat=material(state.hairColor,.82,0);
-  const gold=material("#c8a35c",.35,.75);
-  const glowMat=new THREE.MeshStandardMaterial({
-    color:state.magic,emissive:state.magic,emissiveIntensity:2,
-    transparent:true,opacity:Math.max(.05,state.aura/100)
-  });
+ // Feet and legs
+ ball(root,mat("#171923"),[-.24,.15,.06],[.16,.11,.24]);
+ ball(root,mat("#171923"),[.24,.15,.06],[.16,.11,.24]);
+ rod(root,cloth,[-.24,1,0],[-.27,.34,0],.14*P,.105);
+ rod(root,cloth,[.24,1,0],[.27,.34,0],.14*P,.105);
 
-  const s=state.muscle;
-  const sh=state.shoulders;
-  const pr=state.proportion;
-  const H=state.height;
+ // Torso
+ ball(root,cloth,[0,1.47,0],[.42*S,.55*P,.25]);
+ ball(root,skin,[0,1.91,0],[.40*M*S,.30,.23]);
+ ball(root,skin,[0,1.70,0],[.32*M,.30,.21]);
+ mesh(root,new THREE.CylinderGeometry(.105,.12,.23,20),skin,[0,2.16,0]);
 
-  // Legs
-  const legScale=.88*pr;
-  capsuleLike(bodyGroup,cloth,[-.24,.96,0],[-.27,.32,0],.14*legScale,.105);
-  capsuleLike(bodyGroup,cloth,[.24,.96,0],[.27,.32,0],.14*legScale,.105);
-  sphere(bodyGroup,material("#171722"),[-.27,.16,.045],[.16,.12,.25]);
-  sphere(bodyGroup,material("#171722"),[.27,.16,.045],[.16,.12,.25]);
+ // Arms
+ rod(root,skin,[-.4*S,1.96,0],[-.66*S,1.59,0],.14*M,.105*M);
+ rod(root,skin,[-.66*S,1.59,0],[-.64*S,1.20,0],.105*M,.075);
+ rod(root,skin,[.4*S,1.96,0],[.66*S,1.59,0],.14*M,.105*M);
+ rod(root,skin,[.66*S,1.59,0],[.64*S,1.20,0],.105*M,.075);
+ ball(root,skin,[-.64*S,1.14,0],[.08,.11,.08]);
+ ball(root,skin,[.64*S,1.14,0],[.08,.11,.08]);
 
-  // Torso, waist and neck
-  sphere(bodyGroup,cloth,[0,1.52,0],[.43*sh,.53*pr,.25]);
-  sphere(bodyGroup,skin,[0,1.95,0],[.43*s*sh,.29,.235]);
-  sphere(bodyGroup,skin,[0,1.72,0],[.32*s,.32,.21]);
-  cylinder(bodyGroup,skin,.105,.12,.24,[0,2.18,0],20);
+ // Head and face
+ const face=ball(root,skin,[0,2.42,0],[.22*state.faceShape,.29,.20]);
+ ball(root,skin,[0,2.23,.04],[.15,.11,.15]);
+ ball(root,skin,[-.22,2.41,0],[.04,.07,.04]);
+ ball(root,skin,[.22,2.41,0],[.04,.07,.04]);
 
-  // Arms
-  capsuleLike(bodyGroup,skin,[-.42*sh,1.99,0],[-.68*sh,1.59,0],.14*s,.105*s);
-  capsuleLike(bodyGroup,skin,[-.68*sh,1.59,0],[-.65*sh,1.2,0],.105*s,.075);
-  capsuleLike(bodyGroup,skin,[.42*sh,1.99,0],[.68*sh,1.59,0],.14*s,.105*s);
-  capsuleLike(bodyGroup,skin,[.68*sh,1.59,0],[.65*sh,1.2,0],.105*s,.075);
-  sphere(bodyGroup,skin,[-.65*sh,1.13,0],[.085,.12,.08]);
-  sphere(bodyGroup,skin,[.65*sh,1.13,0],[.085,.12,.08]);
+ const eyes=mat(state.eyeColor,.3,.05,state.eyeColor);
+ ball(root,eyes,[-.085,2.45,.181],[.032*state.eyeSize,.018*state.eyeSize,.012]);
+ ball(root,eyes,[.085,2.45,.181],[.032*state.eyeSize,.018*state.eyeSize,.012]);
+ ball(root,skin,[0,2.405,.19],[.035,.065,.04]);
 
-  // Head
-  const head=sphere(bodyGroup,skin,[0,2.43,0],[.225*Number(state.faceShape),.29,.205]);
-  head.scale.x*=Number(state.faceShape);
-  sphere(bodyGroup,skin,[0,2.22,.04],[.15,.12,.16]);
+ const brow=mat("#17131b");
+ rod(root,brow,[-.14,2.50,.17],[-.035,2.505,.18],.016,.014);
+ rod(root,brow,[.035,2.505,.18],[.14,2.50,.17],.014,.016);
 
-  // Ears
-  sphere(bodyGroup,skin,[-.23,2.42,0],[.045,.075,.04]);
-  sphere(bodyGroup,skin,[.23,2.42,0],[.045,.075,.04]);
-
-  // Eyes and brows
-  eyeGroup=new THREE.Group();
-  bodyGroup.add(eyeGroup);
-  const eyeMat=new THREE.MeshBasicMaterial({color:state.eyeGlow});
-  const eyeSize=Number(state.eyeSize);
-  sphere(eyeGroup,eyeMat,[-.09,2.46,.185],[.035*eyeSize,.018*eyeSize,.012]);
-  sphere(eyeGroup,eyeMat,[.09,2.46,.185],[.035*eyeSize,.018*eyeSize,.012]);
-  const brow=material("#17141c");
-  capsuleLike(eyeGroup,brow,[-.15,2.50,.175],[-.04,2.51,.18],.018,.016);
-  capsuleLike(eyeGroup,brow,[.04,2.51,.18],[.15,2.50,.175],.016,.018);
-
-  // Nose
-  sphere(bodyGroup,skin,[0,2.405,.195],[.04,.075,.04]);
-
-  // Hair
-  hairGroup=new THREE.Group();
-  bodyGroup.add(hairGroup);
-  if(state.hair!=="none"){
-    sphere(hairGroup,hairMat,[0,2.62,0],[.24,.14,.22]);
-    if(state.hair==="long"){
-      for(let i=0;i<9;i++){
-        const x=(i-4)*.047;
-        const strand=sphere(hairGroup,hairMat,[x,2.24-(Math.abs(i-4)*.01),-.035],[.035,.42*state.hairLength,.04]);
-        strand.rotation.z=(i-4)*-.035;
-      }
-      for(let side of [-1,1]){
-        for(let i=0;i<3;i++){
-          const strand=sphere(hairGroup,hairMat,[side*(.19+i*.015),2.40-i*.12,.015],[.045,.18,.045]);
-          strand.rotation.z=side*-.3;
-        }
-      }
-    }else if(state.hair==="bun"){
-      sphere(hairGroup,hairMat,[0,2.81,0],[.12,.13,.12]);
-      for(let side of [-1,1]){
-        sphere(hairGroup,hairMat,[side*.17,2.52,0],[.07,.17,.08]);
-      }
-    }else if(state.hair==="short"){
-      sphere(hairGroup,hairMat,[0,2.59,0],[.23,.12,.22]);
-    }
-  }
-
-  // Beard
-  beardGroup=new THREE.Group();
-  bodyGroup.add(beardGroup);
-  if(state.beard!=="none"){
-    const beardLength=state.beard==="long"?.29:.14;
-    sphere(beardGroup,hairMat,[0,2.24,.13],[.12,beardLength,.09]);
-    sphere(beardGroup,hairMat,[0,2.15,.14],[.085,beardLength*.65,.07]);
-  }
-
-  // Clothing and drapery
-  outfitGroup=new THREE.Group();
-  bodyGroup.add(outfitGroup);
-  if(state.outfit==="robes"||state.outfit==="royal"){
-    const robeMat=material(state.cloth,.9,.03);
-    addMesh(outfitGroup,new THREE.ConeGeometry(.49,1.08,32,1,true),robeMat,[0,1.28,0]);
-    sphere(outfitGroup,robeMat,[0,1.82,0],[.47,.24,.27]);
-    // Robe folds
-    const foldMat=material(new THREE.Color(state.cloth).multiplyScalar(.7),.95);
-    for(let i=0;i<10;i++){
-      const a=i*Math.PI*2/10;
-      const x=Math.cos(a)*.3;
-      const z=Math.sin(a)*.2;
-      const fold=cylinder(outfitGroup,foldMat,.008,.014,.65,[x,1.27,z],6);
-      fold.rotation.z=Math.cos(a)*.12;
-    }
-  }else if(state.outfit==="armor"){
-    sphere(outfitGroup,material("#39445a",.3,.8),[0,1.91,.015],[.49,.29,.28]);
-    for(let side of [-1,1]){
-      sphere(outfitGroup,gold,[side*.41,1.99,0],[.17,.12,.24]);
-      sphere(outfitGroup,material("#4e5d77",.28,.8),[side*.43,1.87,.01],[.18,.2,.24]);
-    }
-    sphere(outfitGroup,material("#303849",.35,.8),[0,1.57,.02],[.35,.25,.24]);
+ // Hair
+ if(state.hair!=="none"){
+  ball(root,hairmat,[0,2.62,0],[.24,.14,.22]);
+  if(state.hair==="long"){
+   for(let i=0;i<11;i++){
+    const x=(i-5)*.043;
+    const strand=ball(root,hairmat,[x,2.25, -.035],[.03,.40*state.hairLength,.035]);
+    strand.rotation.z=(i-5)*-.025;
+   }
+   for(const side of [-1,1]){
     for(let i=0;i<3;i++){
-      capsuleLike(outfitGroup,gold,[-.23,1.67-i*.09,.2],[.23,1.67-i*.09,.2],.012,.012);
+     const strand=ball(root,hairmat,[side*(.18+i*.015),2.39-i*.11,.015],[.04,.17,.04]);
+     strand.rotation.z=side*-.3;
     }
+   }
+  }else if(state.hair==="bun"){
+   ball(root,hairmat,[0,2.81,0],[.12,.13,.12]);
+   ball(root,hairmat,[-.16,2.48,0],[.065,.16,.07]);
+   ball(root,hairmat,[.16,2.48,0],[.065,.16,.07]);
   }else{
-    sphere(outfitGroup,cloth,[0,1.88,.02],[.46,.24,.25]);
-    const sash=sphere(outfitGroup,material("#6c3548"),[.05,1.55,.04],[.43,.07,.25]);
-    sash.rotation.z=-.15;
+   ball(root,hairmat,[0,2.59,0],[.23,.11,.22]);
   }
+ }
 
-  // Waist belt
-  const beltMat=state.outfit==="armor"?gold:trim;
-  cylinder(outfitGroup,beltMat,.34,.34,.065,[0,1.42,.015],32);
+ if(state.beard!=="none"){
+  const length=state.beard==="long"?.29:.13;
+  ball(root,hairmat,[0,2.23,.13],[.12,length,.085]);
+ }
 
-  // Necklace
-  if(state.jewellery!=="none"){
-    const count=17;
-    for(let i=0;i<count;i++){
-      const a=Math.PI*.12+(Math.PI*.76*i/(count-1));
-      const x=Math.cos(a)*.26;
-      const y=1.97-Math.sin(a)*.12;
-      sphere(outfitGroup,trim,[x,y,.235],[.025,.03,.022]);
-    }
+ // Clothing silhouette
+ if(state.outfit==="armor"){
+  ball(root,mat("#3c465b",.3,.8),[0,1.90,.01],[.46,.29,.28]);
+  for(const side of [-1,1]){
+   ball(root,metal,[side*.42,1.98,.02],[.17,.12,.2]);
+   ball(root,mat("#586782",.3,.8),[side*.43,1.86,.02],[.16,.18,.2]);
   }
-
-  // Shoulder accessories
-  ornamentGroup=new THREE.Group();
-  bodyGroup.add(ornamentGroup);
-  if(state.ornament==="on"){
-    for(let side of [-1,1]){
-      sphere(ornamentGroup,trim,[side*.43*sh,2.0,.03],[.16,.1,.15]);
-      sphere(ornamentGroup,gold,[side*.43*sh,2.0,.14],[.07,.055,.025]);
-    }
+  ball(root,cloth,[0,1.48,.02],[.35,.25,.24]);
+ }else{
+  ball(root,cloth,[0,1.82,.02],[.45,.25,.25]);
+  if(state.outfit==="robes"||state.outfit==="royal"){
+   mesh(root,new THREE.ConeGeometry(.48,1.0,32,1,true),
+    cloth,[0,1.25,0]);
+  }else{
+   ball(root,cloth,[0,1.53,.02],[.43,.10,.25]);
   }
+ }
+ mesh(root,new THREE.CylinderGeometry(.34,.34,.06,32),
+  metal,[0,1.43,.015]);
 
-  // Aura
-  if(auraMesh)scene.remove(auraMesh);
-  auraMesh=new THREE.Mesh(
-    new THREE.SphereGeometry(1,32,24),
-    new THREE.MeshBasicMaterial({
-      color:state.magic,transparent:true,opacity:state.aura/100*.075,
-      side:THREE.BackSide,depthWrite:false
-    })
-  );
-  auraMesh.position.y=1.65;
-  auraMesh.scale.set(.9,1.55,.65);
-  scene.add(auraMesh);
+ if(state.jewellery!=="none"){
+  for(let i=0;i<17;i++){
+   const a=Math.PI*.12+Math.PI*.76*i/16;
+   ball(root,metal,[Math.cos(a)*.25,1.96-Math.sin(a)*.11,.23],[.023,.028,.022]);
+  }
+ }
 
-  // Height and proportions
-  character.scale.set(H,H,H);
-  character.position.y=0;
-  platform.visible=true;
-  updateProjectInfo();
+ root.scale.set(H,H,H);
+ root.position.y=0;
+ scene.add(root);
+ if(!modelMode)character=root;
 }
 
 function createParticles(){
-  if(particleSystem)scene.remove(particleSystem);
-  const count=900;
-  const positions=new Float32Array(count*3);
-  const speeds=new Float32Array(count);
-  for(let i=0;i<count;i++){
-    positions[i*3]=(Math.random()-.5)*5;
-    positions[i*3+1]=Math.random()*4.2;
-    positions[i*3+2]=(Math.random()-.5)*3;
-    speeds[i]=.2+Math.random()*.9;
-  }
-  const geometry=new THREE.BufferGeometry();
-  geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
-  const mat=new THREE.PointsMaterial({
-    color:state.magic,size:.025,transparent:true,opacity:state.particles/100,
-    blending:THREE.AdditiveBlending,depthWrite:false
-  });
-  particleSystem=new THREE.Points(geometry,mat);
-  particleSystem.userData.speeds=speeds;
-  scene.add(particleSystem);
-}
+ if(particleSystem)scene.remove(particleSystem);
+ const count=700,positions=new Float32Array(count*3);
+ const speeds=new Float32Array(count);
+ for(let i=0;i<count;i++){
+  positions[i*3]=(Math.random()-.5)*5;
+  positions[i*3+1]=Math.random()*4.3;
+  positions[i*3+2]=(Math.random()-.5)*3;
+  speeds[i]=.2+Math.random()*.9;
+ }
+ const geo=new THREE.BufferGeometry();
+ geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
+ const material=new THREE.PointsMaterial({
+  color:state.magic,size:.025,transparent:true,
+  opacity:state.particles/100,blending:THREE.AdditiveBlending,
+  depthWrite:false
+ });
+ particleSystem=new THREE.Points(geo,material);
+ particleSystem.userData.speeds=speeds;
+ scene.add(particleSystem);
 
+ if(auraMesh)scene.remove(auraMesh);
+ auraMesh=new THREE.Mesh(
+  new THREE.SphereGeometry(1,32,24),
+  new THREE.MeshBasicMaterial({
+   color:state.magic,transparent:true,opacity:state.aura/100*.065,
+   side:THREE.BackSide,depthWrite:false
+  })
+ );
+ auraMesh.position.y=1.6;
+ auraMesh.scale.set(.9,1.5,.65);
+ scene.add(auraMesh);
+}
 function updateLighting(){
-  if(!scene)return;
-  const presets={
-    cinematic:{bg:"#080b14",fog:"#080b14",light:"#e0e9ff"},
-    divine:{bg:"#16100a",fog:"#16100a",light:"#ffe2a0"},
-    moon:{bg:"#080e1b",fog:"#080e1b",light:"#b8d8ff"},
-    dark:{bg:"#08070d",fog:"#08070d",light:"#a59ac9"}
-  };
-  const p=presets[state.lighting]||presets.cinematic;
-  scene.background=new THREE.Color(p.bg);
-  scene.fog.color.set(p.fog);
-  scene.traverse(obj=>{
-    if(obj.isDirectionalLight&&obj.position.x===4)obj.color.set(p.light);
+ if(!scene)return;
+ const presets={
+  cinematic:["#080b14","#dce9ff"],
+  gold:["#17100a","#ffe0a0"],
+  moon:["#080e1b","#bddaff"],
+  dark:["#08070d","#b3a0d5"]
+ };
+ const p=presets[state.lighting]||presets.cinematic;
+ scene.background.set(p[0]);
+ if(scene.fog)scene.fog.color.set(p[0]);
+ scene.traverse(o=>{
+  if(o.isDirectionalLight&&o.position.x===4)o.color.set(p[1]);
+ });
+ if(particleSystem){
+  particleSystem.material.color.set(state.magic);
+  particleSystem.material.opacity=state.particles/100;
+ }
+ if(auraMesh){
+  auraMesh.material.color.set(state.magic);
+  auraMesh.material.opacity=state.aura/100*.065;
+  auraMesh.visible=state.aura>0;
+ }
+}
+function rebuild(){
+ if(!builderCharacter)return;
+ const rot=builderCharacter.rotation.y;
+ const y=builderCharacter.position.y;
+ buildCharacter();
+ builderCharacter.rotation.y=rot;
+ builderCharacter.position.y=y;
+ if(!modelMode)character=builderCharacter;
+ createParticles();
+ updateLighting();
+ updateProject();
+}
+function showModelInfo(text){$("modelInfo").textContent=text}
+
+function clearImportedModel(){
+ if(importedModel){
+  scene.remove(importedModel);
+  importedModel.traverse(o=>{
+   if(o.geometry)o.geometry.dispose();
+   if(o.material){
+    const materials=Array.isArray(o.material)?o.material:[o.material];
+    materials.forEach(m=>{
+     // Avoid disposing shared textures prematurely; this model is being removed.
+     if(m.map)m.map.dispose();
+     m.dispose();
+    });
+   }
   });
-  if(particleSystem){
-    particleSystem.material.color.set(state.magic);
-    particleSystem.material.opacity=state.particles/100;
+ }
+ importedModel=null;
+ modelMixer=null;
+ modelActions=[];
+ modelMode=false;
+ if(builderCharacter){
+  builderCharacter.visible=true;
+  character=builderCharacter;
+ }
+ if(currentModelURL){
+  URL.revokeObjectURL(currentModelURL);
+  currentModelURL=null;
+ }
+}
+function loadModel(){
+ const file=$("modelFile").files[0];
+ if(!file){toast("Choose a .GLB or .GLTF file first");return}
+ if(!window.THREE||!THREE.GLTFLoader){
+  toast("3D model loader failed to load. Refresh and retry.");return;
+ }
+ const ext=file.name.split(".").pop().toLowerCase();
+ if(ext!=="glb"&&ext!=="gltf"){
+  toast("Please select a GLB or GLTF file");return;
+ }
+ if(file.size>150*1024*1024){
+  toast("This file is over 150 MB. Try a smaller model.");return;
+ }
+
+ $("loadModelBtn").disabled=true;
+ $("loadModelBtn").textContent="Loading…";
+ showModelInfo("Loading "+file.name+"…");
+
+ if(currentModelURL){URL.revokeObjectURL(currentModelURL);currentModelURL=null}
+ currentModelURL=URL.createObjectURL(file);
+
+ const loader=new THREE.GLTFLoader();
+ loader.load(currentModelURL,gltf=>{
+  try{
+   if(importedModel){
+    scene.remove(importedModel);
+    importedModel.traverse(o=>{
+     if(o.geometry)o.geometry.dispose();
+     if(o.material){
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      mats.forEach(m=>m.dispose());
+     }
+    });
+   }
+
+   importedModel=gltf.scene;
+   importedModel.traverse(o=>{
+    if(o.isMesh){
+     o.castShadow=true;
+     o.receiveShadow=true;
+     if(o.material){
+      const mats=Array.isArray(o.material)?o.material:[o.material];
+      mats.forEach(m=>{
+       if(m.map&&m.map.colorSpace!==undefined)m.map.colorSpace=THREE.SRGBColorSpace||m.map.colorSpace;
+      });
+     }
+    }
+   });
+
+   // Normalize model size while retaining its original proportions.
+   const box=new THREE.Box3().setFromObject(importedModel);
+   const size=box.getSize(new THREE.Vector3());
+   const center=box.getCenter(new THREE.Vector3());
+   const maxDim=Math.max(size.x,size.y,size.z);
+   if(maxDim>0){
+    const normalization=2.8/maxDim;
+    importedModel.scale.setScalar(normalization);
+   }
+   importedModel.position.set(0,0,0);
+   scene.add(importedModel);
+
+   modelMode=true;
+   character=importedModel;
+   if(builderCharacter)builderCharacter.visible=false;
+
+   if(gltf.animations&&gltf.animations.length){
+    modelMixer=new THREE.AnimationMixer(importedModel);
+    modelActions=gltf.animations.map(clip=>modelMixer.clipAction(clip));
+    modelActions.forEach(action=>action.play());
+    modelActionIndex=0;
+    $("playModelBtn").textContent="▶ Play Model Animation";
+   }else{
+    modelMixer=null;
+    modelActions=[];
+   }
+
+   $("modelScale").value=1;
+   $("modelY").value=0;
+   $("modelRot").value=0;
+   $("modelScaleVal").textContent="1.00";
+   $("modelYVal").textContent="0.00";
+   $("modelRotVal").textContent="0°";
+
+   camera.position.set(4.5,2.6,6);
+   camera.lookAt(0,1.3,0);
+
+   $("modelStatus").textContent="MODEL LOADED";
+   showModelInfo(
+    file.name+" · "+(gltf.animations.length?
+    gltf.animations.length+" animation clip(s)":"No embedded animations")+
+    " · "+Math.round(file.size/1024/1024*10)/10+" MB"
+   );
+   updateProject();
+   toast("3D model imported successfully");
+   status("Imported model ready. Drag the preview to rotate the character.");
+  }catch(e){
+   console.error(e);
+   showModelInfo("Model loaded, but an error occurred while preparing it.");
+   toast("Could not prepare this model");
   }
-  if(auraMesh){
-    auraMesh.material.color.set(state.magic);
-    auraMesh.material.opacity=state.aura/100*.075;
-    auraMesh.visible=state.aura>0;
-  }
+  $("loadModelBtn").disabled=false;
+  $("loadModelBtn").textContent="Import Model";
+ },undefined,error=>{
+  console.error(error);
+  $("loadModelBtn").disabled=false;
+  $("loadModelBtn").textContent="Import Model";
+  showModelInfo("Import failed. For GLTF files, ensure associated files and textures are available. A self-contained GLB is recommended.");
+  toast("Model import failed");
+ });
 }
 
+function applyModelTransform(){
+ if(!importedModel)return;
+ importedModel.scale.setScalar(Number($("modelScale").value));
+ importedModel.position.y=Number($("modelY").value);
+ importedModel.rotation.y=Number($("modelRot").value)*Math.PI/180;
+ $("modelScaleVal").textContent=Number($("modelScale").value).toFixed(2);
+ $("modelYVal").textContent=Number($("modelY").value).toFixed(2);
+ $("modelRotVal").textContent=$("modelRot").value+"°";
+}
+function playImportedAnimation(){
+ if(!modelActions.length){
+  toast("This model has no embedded animation clips");return;
+ }
+ modelActions.forEach(a=>a.stop());
+ modelActions[modelActionIndex%modelActions.length].reset().play();
+ modelMixer.timeScale=1;
+ toast("Playing animation "+(modelActionIndex%modelActions.length+1));
+ modelActionIndex++;
+}
+function stopImportedAnimation(){
+ if(modelActions.length)modelActions.forEach(a=>a.stop());
+ toast("Model animation stopped");
+}
 function animate(){
-  requestAnimationFrame(animate);
-  if(!renderer)return;
-  const t=clock?clock.getElapsedTime():0;
-
-  if(state.autoRotate&&character)character.rotation.y=t*.25;
-
-  if(particleSystem){
-    const attr=particleSystem.geometry.attributes.position;
-    const speeds=particleSystem.userData.speeds;
-    for(let i=0;i<attr.count;i++){
-      let y=attr.getY(i)+speeds[i]*.003;
-      if(y>4.2)y=-.1;
-      attr.setY(i,y);
-      attr.setX(i,attr.getX(i)+Math.sin(t*.7+i)*.0008);
-    }
-    attr.needsUpdate=true;
+ requestAnimationFrame(animate);
+ if(!renderer)return;
+ const dt=clock?clock.getDelta():.016;
+ const t=clock?clock.elapsedTime:0;
+ if(state.autoRotate&&character)character.rotation.y+=dt*.4;
+ if(modelMixer)modelMixer.update(dt);
+ if(particleSystem){
+  const attr=particleSystem.geometry.attributes.position;
+  const speeds=particleSystem.userData.speeds;
+  for(let i=0;i<attr.count;i++){
+   let y=attr.getY(i)+speeds[i]*dt*.3;
+   if(y>4.3)y=-.1;
+   attr.setY(i,y);
+   attr.setX(i,attr.getX(i)+Math.sin(t+i)*.0005);
   }
-  if(auraMesh){
-    const pulse=1+Math.sin(t*1.6)*.025;
-    auraMesh.scale.set(.9*pulse,1.55*pulse,.65*pulse);
-  }
-  if(playing&&savedPoses.length>1){
-    const duration=5;
-    const phase=(t%duration)/duration;
-    const index=Math.floor(phase*(savedPoses.length-1));
-    const next=Math.min(index+1,savedPoses.length-1);
-    const alpha=(phase*(savedPoses.length-1))-index;
-    const a=savedPoses[index],b=savedPoses[next];
-    if(a&&b){
-      character.rotation.y=a.rotY+(b.rotY-a.rotY)*alpha;
-      character.position.y=a.posY+(b.posY-a.posY)*alpha;
-    }
-  }
-  renderer.render(scene,camera);
+  attr.needsUpdate=true;
+ }
+ if(auraMesh){
+  const p=1+Math.sin(t*1.7)*.025;
+  auraMesh.scale.set(.9*p,1.5*p,.65*p);
+ }
+ renderer.render(scene,camera);
 }
 
-function updateProjectInfo(){
-  if(!$("projectInfo"))return;
-  $("projectInfo").innerHTML=
-    "Character: "+escapeHTML(state.name||"Untitled Character")+"<br>"+
-    "Model: Procedural 3D<br>"+
-    "Reference: "+(state.referenceData?"Loaded":"Not loaded")+"<br>"+
-    "Saved poses: "+savedPoses.length+"<br>"+
-    "Save: Local browser";
-}
-function escapeHTML(str){
-  return String(str).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-function rebuild(msg){
-  if(!modelReady)return;
-  const y=character?character.position.y:0;
-  const rot=character?character.rotation.y:0;
-  buildCharacter();
-  character.position.y=y;
-  character.rotation.y=rot;
-  createParticles();
-  updateLighting();
-  if(msg)status(msg);
-}
 function bindRange(id,key,label,format){
-  $(id).addEventListener("input",()=>{
-    state[key]=Number($(id).value);
-    $(label).textContent=format?format(state[key]):state[key];
-    rebuild();
-  });
+ $(id).addEventListener("input",()=>{
+  state[key]=Number($(id).value);
+  $(label).textContent=format(state[key]);
+  if(!modelMode)rebuild();
+ });
 }
 function bindSelect(id,key){
-  $(id).addEventListener("change",()=>{
-    state[key]=$(id).value;
-    rebuild();
-  });
+ $(id).addEventListener("change",()=>{
+  state[key]=$(id).value;
+  if(!modelMode)rebuild();
+ });
+}
+function bindColor(id,key){
+ $(id).addEventListener("input",()=>{
+  state[key]=$(id).value;
+  if(!modelMode)rebuild();
+ });
 }
 function bindSwatches(container,key){
-  $(container).querySelectorAll(".swatch").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      $(container).querySelectorAll(".swatch").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      state[key]=btn.dataset.color;
-      if(key==="skin")$("skinColor").value=state.skin;
-      rebuild();
-    });
+ $(container).querySelectorAll(".swatch").forEach(b=>{
+  b.addEventListener("click",()=>{
+   $(container).querySelectorAll(".swatch").forEach(x=>x.classList.remove("active"));
+   b.classList.add("active");
+   state[key]=b.dataset.color;
+   if(key==="skin")$("skinColor").value=state.skin;
+   if(!modelMode)rebuild();
   });
+ });
 }
 function bindChoices(container,key){
-  $(container).querySelectorAll(".choice").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      $(container).querySelectorAll(".choice").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      state[key]=btn.dataset[key];
-      rebuild();
-    });
+ $(container).querySelectorAll(".choice").forEach(b=>{
+  b.addEventListener("click",()=>{
+   $(container).querySelectorAll(".choice").forEach(x=>x.classList.remove("active"));
+   b.classList.add("active");
+   state[key]=b.dataset[key];
+   if(!modelMode)rebuild();
   });
 }
-
-function bindControls(){
-  document.querySelectorAll(".tab").forEach(tab=>{
-    tab.addEventListener("click",()=>{
-      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-      tab.classList.add("active");
-      $(tab.dataset.tab).classList.add("active");
-    });
-  });
-
-  bindRange("height","height","heightVal",v=>v.toFixed(2));
-  bindRange("muscle","muscle","muscleVal",v=>Math.round(v*100)+"%");
-  bindRange("shoulders","shoulders","shoulderVal",v=>v.toFixed(2));
-  bindRange("proportion","proportion","proportionVal",v=>v.toFixed(2));
-  bindRange("eyeSize","eyeSize","eyeVal",v=>v.toFixed(2));
-  bindRange("hairLength","hairLength","hairLengthVal",v=>v.toFixed(2));
-  bindRange("aura","aura","auraVal",v=>v+"%");
-  bindRange("particles","particles","particlesVal",v=>v+"%");
-
-  bindSelect("faceShape","faceShape");
-  bindSelect("eyeGlow","eyeGlow");
-  bindSelect("beard","beard");
-  bindSelect("expression","expression");
-  bindSelect("preset","preset");
-  bindSelect("jewellery","jewellery");
-  bindSelect("ornament","ornament");
-  bindSelect("fog","fog");
-  bindSelect("lighting","lighting");
-
-  bindSwatches("skinSwatches","skin");
-  bindSwatches("hairSwatches","hairColor");
-  bindSwatches("clothSwatches","cloth");
-  bindSwatches("magicSwatches","magic");
-  bindChoices("hairChoices","hair");
-  bindChoices("outfitChoices","outfit");
-
-  $("skinColor").addEventListener("input",()=>{
-    state.skin=$("skinColor").value;
-    $("skinSwatches").querySelectorAll(".swatch").forEach(b=>b.classList.remove("active"));
-    rebuild();
-  });
-
-  $("preset").addEventListener("change",()=>{
-    const p=state.preset;
-    if(p==="warrior"){
-      state.skin="#4b9ed8";state.cloth="#151b30";state.muscle=.9;
-      state.hair="long";state.beard="none";state.outfit="armor";
-    }else if(p==="sage"){
-      state.skin="#bba4dc";state.cloth="#302544";state.muscle=.5;
-      state.hair="long";state.beard="long";state.outfit="robes";
-    }else{
-      state.skin="#8b9ab6";state.cloth="#151c2a";state.muscle=1.1;
-      state.hair="bun";state.beard="short";state.outfit="royal";
-    }
-    syncControls();
-    rebuild("Preset applied.");
-  });
-
-  $("rotateBtn").addEventListener("click",()=>{
-    state.autoRotate=!state.autoRotate;
-    $("rotateBtn").classList.toggle("active",state.autoRotate);
-    toast(state.autoRotate?"Auto rotation enabled":"Auto rotation disabled");
-  });
-  $("gridBtn").addEventListener("click",()=>{
-    state.grid=!state.grid;floorGrid.visible=state.grid;
-    $("gridBtn").classList.toggle("active",state.grid);
-  });
-  $("screenshotBtn").addEventListener("click",()=>{
-    renderer.render(scene,camera);
-    const a=document.createElement("a");
-    a.download=(slug(state.name)||"animai-character")+".png";
-    a.href=renderer.domElement.toDataURL("image/png");
-    a.click();
-  });
-  $("resetBtn").addEventListener("click",()=>{
-    Object.assign(state,{
-      name:"Astral Warrior",preset:"warrior",height:1,muscle:.7,
-      shoulders:1,proportion:1,skin:"#4b9ed8",faceShape:1,eyeSize:1,
-      eyeGlow:"#8feaff",beard:"none",expression:"calm",hair:"long",
-      hairColor:"#11131c",hairLength:1,outfit:"robes",cloth:"#151b30",
-      jewellery:"beads",ornament:"on",magic:"#46aaff",aura:65,
-      particles:65,fog:"on",lighting:"cinematic",autoRotate:false,
-      grid:true,notes:""
-    });
-    savedPoses=[];
-    syncControls();
-    rebuild("Character settings reset.");
-    renderTimeline();
-    toast("Character reset");
-  });
-
-  $("saveBtn").addEventListener("click",saveCharacter);
-  $("exportBtn").addEventListener("click",exportSettings);
-  $("importSettingsBtn").addEventListener("click",()=>$("settingsFile").click());
-  $("settingsFile").addEventListener("change",loadSettings);
-  $("poseBtn").addEventListener("click",capturePose);
-  $("playBtn").addEventListener("click",()=>{
-    playing=!playing;
-    $("playBtn").textContent=playing?"■ Stop Preview":"▶ Play Preview";
-    toast(playing?"Pose preview playing":"Pose preview stopped");
-  });
-
-  $("referenceFile").addEventListener("change",loadReference);
-  $("clearReferenceBtn").addEventListener("click",clearReference);
-  $("characterName").addEventListener("input",()=>{
-    state.name=$("characterName").value;
-    updateProjectInfo();
-  });
-  $("designNotes").addEventListener("input",()=>{
-    state.notes=$("designNotes").value;
-  });
-
-  // Basic mouse and touch orbit controls.
-  let down=false,lastX=0,lastY=0;
-  const canvas=renderer.domElement;
-  canvas.addEventListener("pointerdown",e=>{
-    down=true;lastX=e.clientX;lastY=e.clientY;
-    canvas.setPointerCapture(e.pointerId);
-  });
-  canvas.addEventListener("pointerup",()=>down=false);
-  canvas.addEventListener("pointercancel",()=>down=false);
-  canvas.addEventListener("pointermove",e=>{
-    if(!down)return;
-    const dx=e.clientX-lastX,dy=e.clientY-lastY;
-    lastX=e.clientX;lastY=e.clientY;
-    character.rotation.y+=dx*.008;
-    camera.position.y=Math.max(1,Math.min(6,camera.position.y+dy*.012));
-    camera.lookAt(0,1.5,0);
-  });
-  canvas.addEventListener("wheel",e=>{
-    e.preventDefault();
-    camera.position.multiplyScalar(e.deltaY>0?1.06:.94);
-    camera.position.clampLength(3,14);
-    camera.lookAt(0,1.5,0);
-  },{passive:false});
+);
 }
-
-function syncControls(){
-  const map={
-    height:"heightVal",muscle:"muscleVal",shoulders:"shoulderVal",
-    proportion:"proportionVal",eyeSize:"eyeVal",
-    hairLength:"hairLengthVal",aura:"auraVal",particles:"particlesVal"
-  };
-  Object.keys(map).forEach(key=>{
-    $(key).value=state[key];
-    const el=$(map[key]);
-    el.textContent=key==="muscle"||key==="aura"||key==="particles"
-      ?Math.round(state[key]* (key==="muscle"?100:1))+"%"
-      :Number(state[key]).toFixed(2)+(key==="hairLength"?"":"");
+function bind(){
+ document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+   document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+   tab.classList.add("active");
+   $(tab.dataset.tab).classList.add("active");
   });
-  ["preset","faceShape","eyeGlow","beard","expression","jewellery","ornament","fog","lighting"].forEach(k=>$(k).value=state[k]);
-  $("skinColor").value=state.skin;
-  $("characterName").value=state.name;
-  $("designNotes").value=state.notes||"";
-  document.querySelectorAll("#skinSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.skin));
-  document.querySelectorAll("#hairSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.hairColor));
-  document.querySelectorAll("#clothSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.cloth));
-  document.querySelectorAll("#magicSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.color===state.magic));
-  document.querySelectorAll("#hairChoices .choice").forEach(b=>b.classList.toggle("active",b.dataset.hair===state.hair));
-  document.querySelectorAll("#outfitChoices .choice").forEach(b=>b.classList.toggle("active",b.dataset.outfit===state.outfit));
+ });
+
+ bindRange("height","height","heightVal",v=>v.toFixed(2));
+ bindRange("muscle","muscle","muscleVal",v=>Math.round(v*100)+"%");
+ bindRange("shoulders","shoulders","shoulderVal",v=>v.toFixed(2));
+ bindRange("proportion","proportion","proportionVal",v=>v.toFixed(2));
+ bindRange("eyeSize","eyeSize","eyeVal",v=>v.toFixed(2));
+ bindRange("hairLength","hairLength","hairLengthVal",v=>v.toFixed(2));
+ bindRange("aura","aura","auraVal",v=>v+"%");
+ bindRange("particles","particles","particlesVal",v=>v+"%");
+
+ ["preset","faceShape","eyeColor","beard","jewellery","lighting"].forEach(id=>{
+  bindSelect(id,id==="eyeColor"?"eyeColor":id);
+ });
+ bindColor("skinColor","skin");
+ bindColor("hairColor","hairColor");
+ bindColor("clothColor","cloth");
+ bindColor("magicColor","magic");
+ bindSwatches("skinColors","skin");
+ bindChoices("hairChoices","hair");
+ bindChoices("outfitChoices","outfit");
+
+ $("preset").addEventListener("change",()=>{
+  const p=state.preset;
+  if(p==="warrior"){
+   state.skin="#4b9ed8";state.cloth="#171d32";state.muscle=.95;
+   state.hair="long";state.beard="none";state.outfit="armor";
+  }else if(p==="sage"){
+   state.skin="#a9a0d2";state.cloth="#302544";state.muscle=.5;
+   state.hair="long";state.beard="long";state.outfit="robes";
+  }else if(p==="guardian"){
+   state.skin="#8296b8";state.cloth="#151c2a";state.muscle=1.15;
+   state.hair="bun";state.beard="short";state.outfit="royal";
+  }else{
+   state.skin="#6f9c8a";state.cloth="#23372f";state.muscle=1.1;
+   state.hair="none";state.beard="none";state.outfit="armor";
+  }
+  syncControls();
+  if(!modelMode)rebuild();
+ });
+
+ $("rotateBtn").onclick=()=>{
+  state.autoRotate=!state.autoRotate;
   $("rotateBtn").classList.toggle("active",state.autoRotate);
+ };
+ $("gridBtn").onclick=()=>{
+  state.grid=!state.grid;gridHelper.visible=state.grid;
   $("gridBtn").classList.toggle("active",state.grid);
-  if(floorGrid)floorGrid.visible=state.grid;
-}
-
-function slug(s){
-  return String(s||"character").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-}
-function projectData(){
-  return {
-    format:"AnimAIStudioCharacter",
-    version:1,
-    exportedAt:new Date().toISOString(),
-    settings:JSON.parse(JSON.stringify(state)),
-    poses:savedPoses
-  };
-}
-function downloadJSON(obj,filename){
-  const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
+ };
+ $("screenshotBtn").onclick=()=>{
+  renderer.render(scene,camera);
   const a=document.createElement("a");
-  a.href=url;a.download=filename;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-}
-function exportSettings(){
-  downloadJSON(projectData(),(slug(state.name)||"character")+".json");
-  toast("Character settings exported");
-}
-function saveCharacter(){
-  try{
-    const data=projectData();
-    localStorage.setItem("animai_character_lab_v1",JSON.stringify(data));
-    downloadJSON(data,(slug(state.name)||"character")+".json");
-    toast("Saved locally and exported as JSON");
-  }catch(e){
-    exportSettings();
-    toast("Exported settings. Browser storage may be full.");
+  a.download=(slug(state.name)||"character")+".png";
+  a.href=renderer.domElement.toDataURL("image/png");
+  a.click();
+ };
+ $("loadModelBtn").onclick=loadModel;
+ $("builderModeBtn").onclick=()=>{
+  clearImportedModel();
+  if(builderCharacter){
+   builderCharacter.visible=true;
+   character=builderCharacter;
   }
-}
-function loadSettings(){
-  const file=$("settingsFile").files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const obj=JSON.parse(reader.result);
-      const incoming=obj.settings||obj;
-      const allowed=Object.keys(state);
-      allowed.forEach(k=>{
-        if(Object.prototype.hasOwnProperty.call(incoming,k))state[k]=incoming[k];
-      });
-      if(Array.isArray(obj.poses))savedPoses=obj.poses;
-      syncControls();
-      if(state.referenceData){
-        $("referencePreview").src=state.referenceData;
-        $("referencePreview").style.display="block";
-      }
-      rebuild("Character settings loaded.");
-      renderTimeline();
-      toast("Settings loaded");
-    }catch(e){
-      toast("That JSON file could not be loaded");
-    }
-    $("settingsFile").value="";
-  };
-  reader.readAsText(file);
-}
-function loadReference(){
-  const file=$("referenceFile").files[0];
-  if(!file)return;
-  if(!file.type.startsWith("image/")){
-    toast("Choose an image file");return;
-  }
-  const reader=new FileReader();
-  reader.onload=()=>{
-    referenceURL=reader.result;
-    state.referenceData=referenceURL;
-    $("referencePreview").src=referenceURL;
-    $("referencePreview").style.display="block";
-    updateProjectInfo();
-    status("Reference image loaded. Use it as a visual guide while customizing.");
-    toast("Reference image added");
-  };
-  reader.readAsDataURL(file);
-}
-function clearReference(){
-  state.referenceData=null;
-  referenceURL=null;
-  $("referencePreview").removeAttribute("src");
-  $("referencePreview").style.display="none";
-  $("referenceFile").value="";
-  updateProjectInfo();
-  toast("Reference removed");
-}
-function capturePose(){
+  $("modelStatus").textContent="BUILDER MODE";
+  updateProject();
+  toast("Built-in character builder active");
+ };
+ $("modelScale").addEventListener("input",applyModelTransform);
+ $("modelY").addEventListener("input",applyModelTransform);
+ $("modelRot").addEventListener("input",applyModelTransform);
+ $("playModelBtn").onclick=playImportedAnimation;
+ $("stopModelBtn").onclick=stopImportedAnimation;
+
+ $("characterName").addEventListener("input",()=>{
+  state.name=$("characterName").value;updateProject();
+ });
+ $("poseBtn").onclick=()=>{
   if(!character)return;
-  savedPoses.push({
-    rotY:character.rotation.y,
-    posY:character.position.y,
-    time:savedPoses.length
-  });
+  savedPoses.push({rotY:character.rotation.y,posY:character.position.y});
   if(savedPoses.length>20)savedPoses.shift();
-  renderTimeline();
-  updateProjectInfo();
-  toast("Pose keyframe captured");
+  renderTimeline();updateProject();toast("Pose captured");
+ };
+ $("playBtn").onclick=()=>{
+  if(!savedPoses.length){toast("Capture at least one pose first");return}
+  let i=0;
+  const run=()=>{
+   if(!playing)return;
+   const p=savedPoses[i%savedPoses.length];
+   if(character){
+    character.rotation.y=p.rotY;
+    character.position.y=p.posY;
+   }
+   i++;
+   setTimeout(run,700);
+  };
+  playing=!playing;
+  $("playBtn").textContent=playing?"■ Stop":"▶ Play";
+  if(playing)run();
+ };
+ $("saveBtn").onclick=saveProject;
+ $("exportBtn").onclick=exportSettings;
+ $("loadSettingsBtn").onclick=()=>$("settingsFile").click();
+ $("settingsFile").onchange=loadSettings;
+
+ $("resetBtn").onclick=()=>{
+  if(modelMode)clearImportedModel();
+  Object.assign(state,{
+   name:"Astral Warrior",preset:"warrior",height:1,muscle:.7,
+   shoulders:1,proportion:1,skin:"#4b9ed8",faceShape:1,eyeSize:1,
+   eyeColor:"#8feaff",beard:"none",hair:"long",hairColor:"#15131c",
+   hairLength:1,outfit:"robes",cloth:"#171d32",jewellery:"beads",
+   magic:"#46aaff",aura:65,particles:65,lighting:"cinematic",
+   autoRotate:false,grid:true
+  });
+  savedPoses=[];
+  syncControls();
+  buildCharacter();
+  character=builderCharacter;
+  createParticles();updateLighting();renderTimeline();updateProject();
+  toast("Character settings reset");
+ };
+
+ // Touch and mouse orbit controls.
+ const canvas=renderer.domElement;
+ let down=false,lastX=0,lastY=0;
+ canvas.addEventListener("pointerdown",e=>{
+  down=true;lastX=e.clientX;lastY=e.clientY;
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+ });
+ canvas.addEventListener("pointerup",()=>down=false);
+ canvas.addEventListener("pointercancel",()=>down=false);
+ canvas.addEventListener("pointermove",e=>{
+  if(!down||!character)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  lastX=e.clientX;lastY=e.clientY;
+  character.rotation.y+=dx*.008;
+  camera.position.y=Math.max(.8,Math.min(6,camera.position.y+dy*.01));
+  camera.lookAt(0,1.4,0);
+ });
+ canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  camera.position.multiplyScalar(e.deltaY>0?1.06:.94);
+  camera.position.clampLength(3,14);
+  camera.lookAt(0,1.4,0);
+ },{passive:false});
+}
+function slug(s){
+ return String(s||"character").toLowerCase()
+ .replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function updateProject(){
+ $("projectInfo").innerHTML=
+  "Name: "+escapeHTML(state.name)+"<br>"+
+  "Mode: "+(modelMode?"Imported 3D model":"Character builder")+"<br>"+
+  "Animations: "+modelActions.length+" imported clip(s)<br>"+
+  "Saved poses: "+savedPoses.length+"<br>"+
+  "Settings: Local browser";
+}
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
 }
 function renderTimeline(){
-  const timeline=$("timeline");
-  timeline.innerHTML="";
-  if(!savedPoses.length){
-    const b=document.createElement("button");
-    b.className="key active";b.textContent="00:00";
-    timeline.appendChild(b);return;
-  }
-  savedPoses.forEach((pose,i)=>{
-    const b=document.createElement("button");
-    b.className="key";
-    b.textContent=String(i).padStart(2,"0")+":00";
-    b.addEventListener("click",()=>{
-      playing=false;
-      $("playBtn").textContent="▶ Play Preview";
-      character.rotation.y=pose.rotY;
-      character.position.y=pose.posY;
-      timeline.querySelectorAll(".key").forEach(k=>k.classList.remove("active"));
-      b.classList.add("active");
-    });
-    timeline.appendChild(b);
-  });
+ const el=$("timeline");el.innerHTML="";
+ if(!savedPoses.length){
+  const b=document.createElement("button");
+  b.className="key active";b.textContent="00:00";el.appendChild(b);return;
+ }
+ savedPoses.forEach((p,i)=>{
+  const b=document.createElement("button");
+  b.className="key";b.textContent=String(i+1).padStart(2,"0");
+  b.onclick=()=>{
+   if(character){
+    character.rotation.y=p.rotY;
+    character.position.y=p.posY;
+   }
+   el.querySelectorAll(".key").forEach(k=>k.classList.remove("active"));
+   b.classList.add("active");
+  };
+  el.appendChild(b);
+ });
+}
+function projectData(){
+ return {
+  format:"AnimAIStudioProject",
+  version:2,
+  settings:JSON.parse(JSON.stringify(state)),
+  poses:savedPoses,
+  mode:modelMode?"imported":"builder",
+  modelFileName:importedModel?($("modelFile").files[0]?.name||""):null
+ };
+}
+function downloadJSON(data,name){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download=name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function exportSettings(){
+ downloadJSON(projectData(),(slug(state.name)||"character")+".json");
+ toast("Settings exported");
+}
+function saveProject(){
+ try{
+  localStorage.setItem("animaiStudioProject",JSON.stringify(projectData()));
+  exportSettings();
+  toast("Settings saved and exported");
+ }catch(e){
+  exportSettings();
+  toast("Settings exported; browser storage may be full");
+ }
+}
+function syncControls(){
+ const ids=[
+  "preset","height","muscle","shoulders","proportion","skinColor",
+  "faceShape","eyeSize","eyeColor","beard","hairColor","hairLength",
+  "clothColor","jewellery","magicColor","aura","particles","lighting",
+  "characterName"
+ ];
+ ids.forEach(id=>{
+  if($(id)&&state[id]!==undefined)$(id).value=state[id];
+ });
+ $("heightVal").textContent=state.height.toFixed(2);
+ $("muscleVal").textContent=Math.round(state.muscle*100)+"%";
+ $("shoulderVal").textContent=state.shoulders.toFixed(2);
+ $("proportionVal").textContent=state.proportion.toFixed(2);
+ $("eyeVal").textContent=state.eyeSize.toFixed(2);
+ $("hairLengthVal").textContent=state.hairLength.toFixed(2);
+ $("auraVal").textContent=state.aura+"%";
+ $("particlesVal").textContent=state.particles+"%";
+ document.querySelectorAll("#skinColors .swatch").forEach(b=>
+  b.classList.toggle("active",b.dataset.color===state.skin));
+ document.querySelectorAll("#hairChoices .choice").forEach(b=>
+  b.classList.toggle("active",b.dataset.hair===state.hair));
+ document.querySelectorAll("#outfitChoices .choice").forEach(b=>
+  b.classList.toggle("active",b.dataset.outfit===state.outfit));
+}
+function loadSettings(){
+ const file=$("settingsFile").files[0];if(!file)return;
+ const r=new FileReader();
+ r.onload=()=>{
+  try{
+   const data=JSON.parse(r.result);
+   const incoming=data.settings||data;
+   Object.keys(state).forEach(k=>{
+    if(Object.prototype.hasOwnProperty.call(incoming,k))state[k]=incoming[k];
+   });
+   savedPoses=Array.isArray(data.poses)?data.poses:[];
+   syncControls();
+   if(modelMode)clearImportedModel();
+   buildCharacter();character=builderCharacter;
+   createParticles();updateLighting();renderTimeline();updateProject();
+   toast("Settings loaded");
+  }catch(e){toast("Invalid settings file")}
+  $("settingsFile").value="";
+ };
+ r.readAsText(file);
 }
 
 init();
 })();
 </script>
 </body>
-          </html>
+</html>
